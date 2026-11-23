@@ -69,32 +69,30 @@ background:#263c32;
 }
 
 .arena>img.background{
+position:absolute;
+inset:0;
 width:100%;
 height:100%;
 object-fit:cover;
 display:block;
+z-index:0;
 }
 
+/* Монстр — отдельная картинка */
 .monster{
 position:absolute;
-right:12%;
-bottom:13%;
-width:28%;
+right:10%;
+bottom:10%;
+width:30%;
 height:75%;
-display:flex;
-align-items:flex-end;
-justify-content:center;
+object-fit:contain;
+display:block;
 z-index:2;
+filter:drop-shadow(0 5px 5px #0009);
 transform-origin:center bottom;
 }
 
-.monster img{
-width:100%;
-height:100%;
-object-fit:contain;
-filter:drop-shadow(0 5px 5px #0009);
-}
-
+/* Герой */
 .hero{
 position:absolute;
 left:8%;
@@ -129,7 +127,7 @@ animation:heroAttack .45s ease-in-out;
 100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-/* Обычный удар */
+/* Отбрасывание монстра */
 .arena.hit .monster{
 animation:monsterKnockback .42s ease-out;
 }
@@ -164,7 +162,7 @@ animation:monsterDeath .7s ease-in forwards !important;
 100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}
 }
 
-/* Цифры урона */
+/* Урон */
 .damage-pop{
 position:absolute;
 right:20%;
@@ -336,15 +334,18 @@ font-size:12px;
 
 <div class="arena" id="arena">
 
-<img class="background" src="forest.png" alt="Фэнтези-арена">
+<img class="background" src="./forest.png" alt="Фэнтези-арена">
 
 <div class="hero">
-<img class="hero-idle" src="eket-hero.png" alt="Герой Eket">
+<img class="hero-idle" src="./eket-hero.png" alt="Герой Eket">
 </div>
 
-<div class="monster" id="monster">
-<img src="slime.png" alt="Лесной слизень">
-</div>
+<img
+class="monster"
+id="monster"
+src="./slime.png"
+alt="Лесной слизень"
+>
 
 <div class="damage-pop" id="damagePop">-1</div>
 
@@ -449,7 +450,7 @@ const pop=document.getElementById("damagePop");
 resetAnimation();
 pop.className="damage-pop";
 
-/* Уклонение монстра */
+/* Уклонение */
 if(Math.random()<DODGE_CHANCE){
 
 pop.textContent="УКЛОНЕНИЕ!";
@@ -487,7 +488,7 @@ pop.classList.add("critical");
 
 arena.classList.add("hit");
 
-/* Смерть монстра */
+/* Смерть */
 if(hp<=0){
 
 hp=0;
