@@ -15,11 +15,18 @@ h1{margin:0;color:#ffd477;text-shadow:0 3px #44230e;font-size:29px}
 .stat{background:#342b27;border:1px solid #98713b;border-radius:9px;padding:9px;text-align:center;font-size:13px}
 .stat b{display:block;color:#ffd477;font-size:19px;margin-top:5px}
 .arena{position:relative;width:100%;aspect-ratio:1.5;overflow:hidden;background:#263c32}
-.arena img{width:100%;height:100%;object-fit:cover}
-.monster{position:absolute;right:12%;bottom:13%;font-size:clamp(65px,18vw,105px);filter:drop-shadow(0 5px 4px #0009);transition:.12s}
-.hero{position:absolute;left:12%;bottom:12%;font-size:clamp(60px,16vw,95px);filter:drop-shadow(0 5px 4px #0009);transition:.12s}
-.hit .hero{transform:translateX(35px) rotate(18deg)}
-.hit .monster{transform:translateX(13px) rotate(12deg) scale(.9)}
+.arena>img.background{width:100%;height:100%;object-fit:cover;display:block}
+.monster{position:absolute;right:12%;bottom:13%;font-size:clamp(65px,18vw,105px);filter:drop-shadow(0 5px 4px #0009);transition:transform .12s;z-index:2}
+.hero{position:absolute;left:8%;bottom:7%;width:37%;height:78%;display:flex;align-items:flex-end;justify-content:center;z-index:3;pointer-events:none}
+.hero-idle{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 4px #0009)}
+.hero-sprite{display:none;width:100%;height:100%;background-image:url('eket-hero-attack.png');background-repeat:no-repeat;background-size:400% 100%;background-position:0 50%;filter:drop-shadow(0 5px 4px #0009)}
+.arena.hit .hero-idle{display:none}
+.arena.hit .hero-sprite{display:block;animation:heroSlash .64s steps(4) forwards}
+@keyframes heroSlash{from{background-position:0 50%}to{background-position:100% 50%}}
+.arena.hit .monster{transform:translateX(13px) rotate(12deg) scale(.88);filter:drop-shadow(0 0 12px #ffe36b)}
+.damage-pop{position:absolute;right:23%;bottom:48%;z-index:5;color:#fff06b;font:bold 25px Georgia,serif;text-shadow:0 2px 4px #000;opacity:0;pointer-events:none}
+.arena.hit .damage-pop{animation:damagePop .55s ease-out}
+@keyframes damagePop{0%{opacity:0;transform:translateY(15px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-35px) scale(1.15)}}
 .enemy{padding:12px;text-align:center;background:#30251f}
 .enemy b{color:#ffd477}
 .bar{height:15px;background:#160f10;border:1px solid #aa8450;border-radius:12px;overflow:hidden;margin-top:7px}
@@ -46,9 +53,13 @@ button:active{transform:scale(.97)}
 </div>
 
 <div class="arena" id="arena">
-<img src="forest.png" alt="Фэнтези-арена">
-<div class="hero">🛡️</div>
+<img class="background" src="forest.png" alt="Фэнтези-арена">
+<div class="hero">
+<img class="hero-idle" src="eket-hero.png" alt="Герой Eket">
+<div class="hero-sprite" aria-hidden="true"></div>
+</div>
 <div class="monster" id="monster">🟢</div>
+<div class="damage-pop" id="damagePop">-1</div>
 </div>
 
 <div class="enemy">
@@ -80,6 +91,7 @@ let damage=saved.damage??1;
 let price=saved.price??25;
 let maxHP=saved.maxHP??30;
 let hp=saved.hp??maxHP;
+let attackTimer;
 
 function save(){
 localStorage.setItem("eket-clicker-save",JSON.stringify({gold,level,xp,damage,price,maxHP,hp}));
@@ -96,8 +108,13 @@ document.getElementById("enemyBar").style.width=(hp/maxHP*100)+"%";
 function attack(){
 hp-=damage;
 const arena=document.getElementById("arena");
+const pop=document.getElementById("damagePop");
+arena.classList.remove("hit");
+void arena.offsetWidth;
+pop.textContent="-"+damage;
 arena.classList.add("hit");
-setTimeout(()=>arena.classList.remove("hit"),150);
+clearTimeout(attackTimer);
+attackTimer=setTimeout(()=>arena.classList.remove("hit"),680);
 if(hp<=0){
 gold+=5+level;
 xp+=10;
