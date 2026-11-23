@@ -1,59 +1,436 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17151b">
 <title>Eket Clicker</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#151b20;color:#fff;font-family:Georgia,serif}
-.game{max-width:600px;margin:auto;min-height:100vh;background:#211d25}
-header{text-align:center;padding:16px;background:linear-gradient(#493323,#211b19);border-bottom:3px solid #c99a48}
-h1{margin:0;color:#ffd477;text-shadow:0 3px #44230e;font-size:29px}
-.sound-button{margin-top:12px;padding:9px 14px;font-size:14px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px}
-.stat{background:#342b27;border:1px solid #98713b;border-radius:9px;padding:9px;text-align:center;font-size:13px}
-.stat b{display:block;color:#ffd477;font-size:19px;margin-top:5px}
-.arena{position:relative;width:100%;aspect-ratio:1.5;overflow:hidden;background:#263c32}
-.arena>img.background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0}
-.monster{position:absolute;right:8%;bottom:3%;width:27%;height:38%;object-fit:contain;object-position:center bottom;display:block;z-index:4;filter:drop-shadow(0 5px 5px #0009);transform-origin:center bottom}
-.hero{position:absolute;left:8%;bottom:7%;width:37%;height:78%;display:flex;align-items:flex-end;justify-content:center;z-index:3;pointer-events:none}
-.hero-idle{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 4px #0009);transform-origin:bottom center}
-.arena.hit .hero-idle,.arena.dodge .hero-idle{animation:heroAttack .45s ease-in-out}
-@keyframes heroAttack{0%{transform:translateX(0) rotate(0) scale(1)}40%{transform:translateX(35px) rotate(-8deg) scale(1.08)}70%{transform:translateX(25px) rotate(5deg) scale(1.04)}100%{transform:translateX(0) rotate(0) scale(1)}}
-.arena.hit .monster{animation:monsterKnockback .42s ease-out}
-@keyframes monsterKnockback{0%{transform:translateX(0) rotate(0) scale(1)}25%{transform:translateX(35px) rotate(18deg) scale(.82)}55%{transform:translateX(20px) rotate(-12deg) scale(.9)}100%{transform:translateX(0) rotate(0) scale(1)}}
-.arena.dodge .monster{animation:monsterDodge .48s ease-in-out}
-@keyframes monsterDodge{0%{transform:translateX(0) rotate(0)}35%{transform:translateX(-45px) rotate(-18deg) scale(.85)}65%{transform:translateX(-30px) rotate(12deg)}100%{transform:translateX(0) rotate(0) scale(1)}}
-.arena.dying .monster{animation:monsterDeath .7s ease-in forwards!important}
-@keyframes monsterDeath{0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}35%{opacity:1;transform:translateY(-55px) rotate(35deg) scale(1.15)}100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}}
-.damage-pop{position:absolute;right:20%;bottom:48%;z-index:6;color:#fff06b;font:bold 27px Georgia,serif;text-shadow:0 2px 5px #000;opacity:0;pointer-events:none;white-space:nowrap}
-.arena.hit .damage-pop{animation:damagePop .55s ease-out}
-@keyframes damagePop{0%{opacity:0;transform:translateY(15px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.2)}}
-.damage-pop.critical{color:#ffdc35;font-size:36px;font-weight:bold;text-shadow:0 0 8px #ff3c00,0 0 18px #ff9900,0 3px 5px #000}
-.arena.hit .damage-pop.critical{animation:criticalPop .8s ease-out}
-@keyframes criticalPop{0%{opacity:0;transform:translateY(20px) scale(.3) rotate(-10deg)}25%{opacity:1;transform:translateY(-5px) scale(1.35) rotate(5deg)}45%{transform:translateY(-12px) scale(1.1)}100%{opacity:0;transform:translateY(-65px) scale(1.4)}}
-.damage-pop.evaded{color:#8ceaff;font-size:23px;text-shadow:0 0 8px #00aaff,0 2px 5px #000}
-.arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
-@keyframes dodgePop{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-5px) scale(1.15)}100%{opacity:0;transform:translateY(-45px) scale(1)}}
-.enemy{padding:12px;text-align:center;background:#30251f}
-.enemy b{color:#ffd477}
-.bar{height:15px;background:#160f10;border:1px solid #aa8450;border-radius:12px;overflow:hidden;margin-top:7px}
-.bar span{display:block;height:100%;width:100%;background:linear-gradient(90deg,#9b2525,#ef6650);transition:width .2s}
-button{font-family:inherit;color:#fff;border:1px solid #d6a44f;border-radius:10px;background:linear-gradient(#805126,#49301e);padding:13px;font-size:16px;font-weight:bold}
-button:active{transform:scale(.97)}
+
+body{
+ margin:0;
+ background:
+ radial-gradient(ellipse at top,#493526 0%,#19171c 55%,#0c0c10 100%);
+ color:#fff;
+ font-family:Georgia,serif;
+ min-height:100vh;
+}
+
+.game{
+ max-width:600px;
+ margin:auto;
+ min-height:100vh;
+ background:linear-gradient(180deg,#29232a,#17151b 70%);
+ border-left:1px solid #665037;
+ border-right:1px solid #665037;
+ box-shadow:0 0 45px #000b;
+ overflow:hidden;
+}
+
+header{
+ position:relative;
+ text-align:center;
+ padding:23px 14px 18px;
+ background:
+ radial-gradient(ellipse at center top,#76502d 0%,transparent 75%),
+ linear-gradient(180deg,#34251e,#1d191b);
+ border-bottom:3px solid #bd8b3e;
+ box-shadow:0 5px 18px #0009;
+}
+
+header:after{
+ content:"";
+ position:absolute;
+ bottom:3px;
+ left:12%;
+ width:76%;
+ height:1px;
+ background:#ffe0a0;
+ opacity:.5;
+}
+
+h1{
+ margin:0;
+ color:#ffda88;
+ font-size:30px;
+ letter-spacing:2px;
+ text-shadow:0 3px 0 #542b14,0 0 16px #ffad42a8;
+}
+
+header div{
+ margin-top:7px;
+ color:#d7bd94;
+ font-size:14px;
+ letter-spacing:1px;
+}
+
+button{
+ font-family:inherit;
+ color:#fff5df;
+ border:1px solid #e5bd69;
+ border-radius:10px;
+ background:linear-gradient(180deg,#95632f,#59351f);
+ padding:13px;
+ font-size:16px;
+ font-weight:bold;
+ box-shadow:inset 0 1px 1px #ffffff45,0 4px 8px #0008;
+ transition:transform .12s,filter .12s;
+}
+
+button:active{
+ transform:scale(.96);
+ filter:brightness(1.25);
+}
+
 button:disabled{opacity:.5}
-.attack{display:block;width:90%;margin:15px auto;background:linear-gradient(#b83b2e,#702018);font-size:22px;padding:17px}
-.section{margin:12px;padding:14px;background:#302820;border:1px solid #8e6939;border-radius:12px}
-.section h2{margin:0 0 12px;color:#ffd477;font-size:20px}
-.upgrade{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.upgrade p{margin:4px 0;color:#d5c5a7;font-size:13px}
-.upgrade button{font-size:13px;padding:10px}
-.note{text-align:center;color:#c8b28d;padding:12px;font-size:12px}
+
+.sound-button{
+ margin-top:15px;
+ padding:9px 16px;
+ font-size:13px;
+ background:linear-gradient(#55465a,#302637);
+ border-color:#a68abb;
+}
+
+.stats{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px;
+ padding:13px 11px;
+}
+
+.stat{
+ position:relative;
+ background:linear-gradient(145deg,#49372c,#282127);
+ border:1px solid #967143;
+ border-radius:12px;
+ padding:11px 5px;
+ text-align:center;
+ font-size:12px;
+ color:#dfc9a7;
+ box-shadow:inset 0 1px 5px #ffffff0c,0 4px 9px #0006;
+}
+
+.stat b{
+ display:block;
+ color:#ffdc8b;
+ font-size:21px;
+ margin-top:6px;
+ text-shadow:0 2px 5px #000;
+}
+
+.arena{
+ position:relative;
+ width:calc(100% - 20px);
+ margin:2px 10px 0;
+ aspect-ratio:1.5;
+ overflow:hidden;
+ background:#263c32;
+ border:3px solid #9b713e;
+ border-radius:13px;
+ box-shadow:
+ 0 0 0 2px #34251c,
+ 0 0 20px #000b,
+ inset 0 0 25px #000;
+}
+
+.arena:after{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:5;
+ pointer-events:none;
+ background:
+ linear-gradient(180deg,#0005,transparent 25%,transparent 70%,#0008),
+ radial-gradient(ellipse at center,transparent 45%,#0006 100%);
+}
+
+.arena>img.background{
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ display:block;
+ z-index:0;
+}
+
+.monster{
+ position:absolute;
+ right:8%;
+ bottom:3%;
+ width:27%;
+ height:38%;
+ object-fit:contain;
+ object-position:center bottom;
+ display:block;
+ z-index:4;
+ filter:drop-shadow(0 5px 7px #000c);
+ transform-origin:center bottom;
+}
+
+.hero{
+ position:absolute;
+ left:8%;
+ bottom:7%;
+ width:37%;
+ height:78%;
+ display:flex;
+ align-items:flex-end;
+ justify-content:center;
+ z-index:3;
+ pointer-events:none;
+}
+
+.hero-idle{
+ width:100%;
+ height:100%;
+ object-fit:contain;
+ object-position:center bottom;
+ filter:drop-shadow(0 5px 5px #000c);
+ transform-origin:bottom center;
+}
+
+.arena.hit .hero-idle,
+.arena.dodge .hero-idle{
+ animation:heroAttack .45s ease-in-out;
+}
+
+@keyframes heroAttack{
+ 0%{transform:translateX(0) rotate(0) scale(1)}
+ 40%{transform:translateX(35px) rotate(-8deg) scale(1.08)}
+ 70%{transform:translateX(25px) rotate(5deg) scale(1.04)}
+ 100%{transform:translateX(0) rotate(0) scale(1)}
+}
+
+.arena.hit .monster{
+ animation:monsterKnockback .42s ease-out;
+}
+
+@keyframes monsterKnockback{
+ 0%{transform:translateX(0) rotate(0) scale(1)}
+ 25%{transform:translateX(35px) rotate(18deg) scale(.82)}
+ 55%{transform:translateX(20px) rotate(-12deg) scale(.9)}
+ 100%{transform:translateX(0) rotate(0) scale(1)}
+}
+
+.arena.dodge .monster{
+ animation:monsterDodge .48s ease-in-out;
+}
+
+@keyframes monsterDodge{
+ 0%{transform:translateX(0) rotate(0)}
+ 35%{transform:translateX(-45px) rotate(-18deg) scale(.85)}
+ 65%{transform:translateX(-30px) rotate(12deg)}
+ 100%{transform:translateX(0) rotate(0) scale(1)}
+}
+
+.arena.dying .monster{
+ animation:monsterDeath .7s ease-in forwards!important;
+}
+
+@keyframes monsterDeath{
+ 0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}
+ 35%{opacity:1;transform:translateY(-55px) rotate(35deg) scale(1.15)}
+ 100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}
+}
+
+.damage-pop{
+ position:absolute;
+ right:20%;
+ bottom:48%;
+ z-index:6;
+ color:#fff06b;
+ font:bold 27px Georgia,serif;
+ text-shadow:0 2px 5px #000,0 0 12px #ffb52c;
+ opacity:0;
+ pointer-events:none;
+ white-space:nowrap;
+}
+
+.arena.hit .damage-pop{
+ animation:damagePop .55s ease-out;
+}
+
+@keyframes damagePop{
+ 0%{opacity:0;transform:translateY(15px) scale(.7)}
+ 25%{opacity:1}
+ 100%{opacity:0;transform:translateY(-40px) scale(1.2)}
+}
+
+.damage-pop.critical{
+ color:#ffdc35;
+ font-size:36px;
+ font-weight:bold;
+ text-shadow:0 0 8px #ff3c00,0 0 18px #ff9900,0 3px 5px #000;
+}
+
+.arena.hit .damage-pop.critical{
+ animation:criticalPop .8s ease-out;
+}
+
+@keyframes criticalPop{
+ 0%{opacity:0;transform:translateY(20px) scale(.3) rotate(-10deg)}
+ 25%{opacity:1;transform:translateY(-5px) scale(1.35) rotate(5deg)}
+ 45%{transform:translateY(-12px) scale(1.1)}
+ 100%{opacity:0;transform:translateY(-65px) scale(1.4)}
+}
+
+.damage-pop.evaded{
+ color:#8ceaff;
+ font-size:23px;
+ text-shadow:0 0 8px #00aaff,0 2px 5px #000;
+}
+
+.arena.dodge .damage-pop{
+ animation:dodgePop .65s ease-out;
+}
+
+@keyframes dodgePop{
+ 0%{opacity:0;transform:translateY(10px) scale(.6)}
+ 25%{opacity:1;transform:translateY(-5px) scale(1.15)}
+ 100%{opacity:0;transform:translateY(-45px) scale(1)}
+}
+
+.enemy{
+ margin:12px 10px 0;
+ padding:14px 15px;
+ text-align:center;
+ background:linear-gradient(145deg,#49342a,#261e20);
+ border:1px solid #977044;
+ border-radius:12px;
+ box-shadow:inset 0 1px 5px #ffffff0d,0 4px 10px #0007;
+}
+
+.enemy b{
+ color:#ffda88;
+ font-size:17px;
+ text-shadow:0 2px 4px #000;
+}
+
+.bar{
+ height:17px;
+ background:#100d10;
+ border:1px solid #a98754;
+ border-radius:12px;
+ overflow:hidden;
+ margin-top:10px;
+ box-shadow:inset 0 2px 5px #000;
+}
+
+.bar span{
+ display:block;
+ height:100%;
+ width:100%;
+ background:linear-gradient(90deg,#781b20,#d43d32,#ff7751);
+ box-shadow:0 0 10px #f43b35;
+ transition:width .25s;
+}
+
+#enemyHP{
+ margin-top:7px;
+ color:#e5c9a8;
+ font-size:13px;
+}
+
+.attack{
+ display:block;
+ width:90%;
+ margin:17px auto;
+ background:linear-gradient(180deg,#e04a32,#9c241d 55%,#651b1a);
+ border:2px solid #f2bd68;
+ border-radius:13px;
+ font-size:22px;
+ padding:17px;
+ letter-spacing:1px;
+ color:#fff1d4;
+ text-shadow:0 2px 4px #40100b;
+ box-shadow:
+ inset 0 2px 3px #ffffff55,
+ 0 5px 0 #431815,
+ 0 8px 15px #0009,
+ 0 0 16px #e64b2740;
+}
+
+.attack:active{
+ box-shadow:inset 0 2px 5px #0008,0 2px 0 #431815;
+ transform:translateY(3px);
+}
+
+.section{
+ margin:13px 10px;
+ padding:16px;
+ background:linear-gradient(145deg,#40312a,#252027);
+ border:1px solid #987144;
+ border-radius:13px;
+ box-shadow:inset 0 1px 5px #ffffff0b,0 5px 12px #0007;
+}
+
+.section h2{
+ margin:0 0 15px;
+ color:#ffda88;
+ font-size:20px;
+ text-shadow:0 2px 4px #000;
+}
+
+.upgrade{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ padding:12px;
+ background:linear-gradient(145deg,#55402f,#30262a);
+ border:1px solid #80603d;
+ border-radius:10px;
+}
+
+.upgrade b{color:#ffe0a0}
+
+.upgrade p{
+ margin:5px 0 0;
+ color:#d5c5a7;
+ font-size:13px;
+}
+
+.upgrade button{
+ font-size:13px;
+ padding:11px 13px;
+ white-space:nowrap;
+}
+
+.section>p{
+ color:#d7c3a2;
+ margin:13px 2px 0;
+ font-size:14px;
+}
+
+.section>p b{color:#ffda88}
+
+.note{
+ text-align:center;
+ color:#bca582;
+ padding:17px 12px 22px;
+ font-size:12px;
+ letter-spacing:.5px;
+}
+
+@media(max-width:380px){
+ h1{font-size:25px}
+ .stat{font-size:11px}
+ .stat b{font-size:18px}
+ .section h2{font-size:18px}
+ .upgrade{padding:9px}
+ .upgrade button{padding:9px;font-size:12px}
+}
 </style>
 </head>
+
 <body>
 <div class="game">
+
 <header>
 <h1>⚔️ EKET CLICKER ⚔️</h1>
 <div>Легенда начинается здесь</div>
@@ -68,7 +445,9 @@ button:disabled{opacity:.5}
 
 <div class="arena" id="arena">
 <img class="background" src="./forest.png" alt="Фэнтези-арена">
-<div class="hero"><img class="hero-idle" src="./eket-hero.png" alt="Герой Eket"></div>
+<div class="hero">
+<img class="hero-idle" src="./eket-hero.png" alt="Герой Eket">
+</div>
 <img class="monster" id="monster" src="./slime.png?v=2" alt="Лесной слизень">
 <div class="damage-pop" id="damagePop">-1</div>
 </div>
@@ -84,17 +463,24 @@ button:disabled{opacity:.5}
 <div class="section">
 <h2>🛒 Магазин улучшений</h2>
 <div class="upgrade">
-<div><b>💥 Сильный удар</b><p>Урон +1 · Цена: <span id="price">25</span> золота</p></div>
+<div>
+<b>💥 Сильный удар</b>
+<p>Урон +1 · Цена: <span id="price">25</span> золота</p>
+</div>
 <button onclick="upgrade()">Улучшить</button>
 </div>
 <p>Текущий урон: <b id="damage">1</b></p>
 </div>
-<div class="note">Побеждай монстров и собирай золото!</div>
+
+<div class="note">✦ Побеждай монстров и собирай золото ✦</div>
 </div>
 
 <script>
 let saved={};
-try{saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}");}catch(e){}
+try{
+ saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}");
+}catch(e){}
+
 let gold=saved.gold??0;
 let level=saved.level??1;
 let xp=saved.xp??0;
@@ -106,6 +492,7 @@ let hp=saved.hp??maxHP;
 const CRIT_CHANCE=0.30;
 const CRIT_MULTIPLIER=2;
 const DODGE_CHANCE=0.10;
+
 let isMonsterDying=false;
 let attackLocked=false;
 let attackTimer;
@@ -116,218 +503,220 @@ let musicTimer=null;
 let musicStep=0;
 
 function getAudio(){
-  const AudioCtx=window.AudioContext||window.webkitAudioContext;
-  if(!AudioCtx)return null;
-  if(!audioContext)audioContext=new AudioCtx();
-  if(audioContext.state==="suspended")audioContext.resume();
-  return audioContext;
+ const AudioCtx=window.AudioContext||window.webkitAudioContext;
+ if(!AudioCtx)return null;
+ if(!audioContext)audioContext=new AudioCtx();
+ if(audioContext.state==="suspended")audioContext.resume();
+ return audioContext;
 }
 
 function tone(frequency,duration,type="sine",volume=0.08,slide=0){
-  if(!soundEnabled)return;
-  const ctx=getAudio();
-  if(!ctx)return;
-  const osc=ctx.createOscillator();
-  const gain=ctx.createGain();
-  const now=ctx.currentTime;
-  osc.type=type;
-  osc.frequency.setValueAtTime(frequency,now);
-  if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
-  gain.gain.setValueAtTime(volume,now);
-  gain.gain.exponentialRampToValueAtTime(0.001,now+duration);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(now);
-  osc.stop(now+duration);
+ if(!soundEnabled)return;
+ const ctx=getAudio();
+ if(!ctx)return;
+ const osc=ctx.createOscillator();
+ const gain=ctx.createGain();
+ const now=ctx.currentTime;
+ osc.type=type;
+ osc.frequency.setValueAtTime(frequency,now);
+ if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
+ gain.gain.setValueAtTime(volume,now);
+ gain.gain.exponentialRampToValueAtTime(0.001,now+duration);
+ osc.connect(gain);
+ gain.connect(ctx.destination);
+ osc.start(now);
+ osc.stop(now+duration);
 }
 
 function playHit(){
-  tone(150,0.12,"sawtooth",0.12,-75);
-  setTimeout(()=>tone(85,0.10,"triangle",0.07,-25),45);
+ tone(150,0.12,"sawtooth",0.12,-75);
+ setTimeout(()=>tone(85,0.10,"triangle",0.07,-25),45);
 }
 
 function playDodge(){
-  tone(520,0.16,"sine",0.07,420);
+ tone(520,0.16,"sine",0.07,420);
 }
 
 function playCritical(){
-  tone(220,0.16,"sawtooth",0.10,260);
-  setTimeout(()=>tone(440,0.22,"triangle",0.08,180),90);
+ tone(220,0.16,"sawtooth",0.10,260);
+ setTimeout(()=>tone(440,0.22,"triangle",0.08,180),90);
 }
 
 function playVictory(){
-  [392,494,587,784].forEach((f,i)=>setTimeout(()=>tone(f,0.32,"triangle",0.08),i*130));
+ [392,494,587,784].forEach((f,i)=>setTimeout(()=>tone(f,0.32,"triangle",0.08),i*130));
 }
 
 function playPurchase(){
-  tone(660,0.10,"sine",0.07,120);
-  setTimeout(()=>tone(880,0.16,"sine",0.07,100),100);
+ tone(660,0.10,"sine",0.07,120);
+ setTimeout(()=>tone(880,0.16,"sine",0.07,100),100);
 }
 
 const melody=[
-  [392,494,587,494],
-  [330,392,494,392],
-  [349,440,523,440],
-  [294,392,494,392]
+ [392,494,587,494],
+ [330,392,494,392],
+ [349,440,523,440],
+ [294,392,494,392]
 ];
 
 function musicTick(){
-  if(!soundEnabled)return;
-  const phrase=melody[Math.floor(musicStep/4)%melody.length];
-  const note=phrase[musicStep%4];
-  tone(note,0.48,"triangle",0.025);
-  if(musicStep%4===0)tone(note/2,0.75,"sine",0.018);
-  musicStep++;
+ if(!soundEnabled)return;
+ const phrase=melody[Math.floor(musicStep/4)%melody.length];
+ const note=phrase[musicStep%4];
+ tone(note,0.48,"triangle",0.025);
+ if(musicStep%4===0)tone(note/2,0.75,"sine",0.018);
+ musicStep++;
 }
 
 function toggleSound(){
-  soundEnabled=!soundEnabled;
-  const button=document.getElementById("soundButton");
-  if(soundEnabled){
-    getAudio();
-    button.textContent="🔊 Выключить звук";
-    musicTick();
-    musicTimer=setInterval(musicTick,520);
-  }else{
-    clearInterval(musicTimer);
-    musicTimer=null;
-    button.textContent="🔇 Включить звук";
-  }
+ soundEnabled=!soundEnabled;
+ const button=document.getElementById("soundButton");
+
+ if(soundEnabled){
+  getAudio();
+  button.textContent="🔊 Выключить звук";
+  musicTick();
+  musicTimer=setInterval(musicTick,520);
+ }else{
+  clearInterval(musicTimer);
+  musicTimer=null;
+  button.textContent="🔇 Включить звук";
+ }
 }
 
 function save(){
-  localStorage.setItem("eket-clicker-save",JSON.stringify({
-    gold,level,xp,damage,price,maxHP,hp
-  }));
+ localStorage.setItem("eket-clicker-save",JSON.stringify({
+  gold,level,xp,damage,price,maxHP,hp
+ }));
 }
 
 function render(){
-  document.getElementById("gold").textContent=gold;
-  document.getElementById("level").textContent=level;
-  document.getElementById("xp").textContent=xp+" / "+(level*50);
-  document.getElementById("damage").textContent=damage;
-  document.getElementById("price").textContent=price;
-  document.getElementById("enemyHP").textContent=hp+" / "+maxHP+" HP";
-  document.getElementById("enemyBar").style.width=Math.max(0,hp/maxHP*100)+"%";
+ document.getElementById("gold").textContent=gold;
+ document.getElementById("level").textContent=level;
+ document.getElementById("xp").textContent=xp+" / "+(level*50);
+ document.getElementById("damage").textContent=damage;
+ document.getElementById("price").textContent=price;
+ document.getElementById("enemyHP").textContent=hp+" / "+maxHP+" HP";
+ document.getElementById("enemyBar").style.width=Math.max(0,hp/maxHP*100)+"%";
 }
 
 function resetAnimation(){
-  const arena=document.getElementById("arena");
-  arena.classList.remove("hit","dodge","dying");
-  void arena.offsetWidth;
+ const arena=document.getElementById("arena");
+ arena.classList.remove("hit","dodge","dying");
+ void arena.offsetWidth;
 }
 
 function attack(){
-  if(isMonsterDying||attackLocked)return;
-  attackLocked=true;
+ if(isMonsterDying||attackLocked)return;
+ attackLocked=true;
 
-  const arena=document.getElementById("arena");
-  const pop=document.getElementById("damagePop");
+ const arena=document.getElementById("arena");
+ const pop=document.getElementById("damagePop");
 
-  resetAnimation();
-  pop.className="damage-pop";
+ resetAnimation();
+ pop.className="damage-pop";
 
-  if(Math.random()<DODGE_CHANCE){
-    playDodge();
-    pop.textContent="УКЛОНЕНИЕ!";
-    pop.classList.add("evaded");
-    arena.classList.add("dodge");
-
-    clearTimeout(attackTimer);
-    attackTimer=setTimeout(()=>{
-      resetAnimation();
-      attackLocked=false;
-    },550);
-    return;
-  }
-
-  let actualDamage=damage;
-  let isCritical=false;
-
-  if(Math.random()<CRIT_CHANCE){
-    actualDamage=damage*CRIT_MULTIPLIER;
-    isCritical=true;
-  }
-
-  hp-=actualDamage;
-
-  if(isCritical){
-    playCritical();
-  }else{
-    playHit();
-  }
-
-  pop.textContent=isCritical?"КРИТ! -"+actualDamage:"-"+actualDamage;
-
-  if(isCritical)pop.classList.add("critical");
-  arena.classList.add("hit");
-
-  if(hp<=0){
-    hp=0;
-    isMonsterDying=true;
-    render();
-    save();
-
-    arena.classList.add("dying");
-    document.getElementById("attackButton").disabled=true;
-
-    clearTimeout(attackTimer);
-    attackTimer=setTimeout(()=>{
-      playVictory();
-
-      gold+=5+level;
-      xp+=10;
-
-      if(xp>=level*50){
-        xp-=level*50;
-        level++;
-      }
-
-      maxHP=Math.floor(maxHP*1.2);
-      hp=maxHP;
-      isMonsterDying=false;
-
-      document.getElementById("attackButton").disabled=false;
-
-      resetAnimation();
-      render();
-      save();
-      attackLocked=false;
-    },750);
-
-    return;
-  }
-
-  render();
-  save();
+ if(Math.random()<DODGE_CHANCE){
+  playDodge();
+  pop.textContent="УКЛОНЕНИЕ!";
+  pop.classList.add("evaded");
+  arena.classList.add("dodge");
 
   clearTimeout(attackTimer);
   attackTimer=setTimeout(()=>{
-    resetAnimation();
-    attackLocked=false;
-  },500);
+   resetAnimation();
+   attackLocked=false;
+  },550);
+
+  return;
+ }
+
+ let actualDamage=damage;
+ let isCritical=false;
+
+ if(Math.random()<CRIT_CHANCE){
+  actualDamage=damage*CRIT_MULTIPLIER;
+  isCritical=true;
+ }
+
+ hp-=actualDamage;
+
+ if(isCritical){
+  playCritical();
+ }else{
+  playHit();
+ }
+
+ pop.textContent=isCritical?"КРИТ! -"+actualDamage:"-"+actualDamage;
+
+ if(isCritical)pop.classList.add("critical");
+ arena.classList.add("hit");
+
+ if(hp<=0){
+  hp=0;
+  isMonsterDying=true;
+  render();
+  save();
+
+  arena.classList.add("dying");
+  document.getElementById("attackButton").disabled=true;
+
+  clearTimeout(attackTimer);
+  attackTimer=setTimeout(()=>{
+   playVictory();
+
+   gold+=5+level;
+   xp+=10;
+
+   if(xp>=level*50){
+    xp-=level*50;
+    level++;
+   }
+
+   maxHP=Math.floor(maxHP*1.2);
+   hp=maxHP;
+   isMonsterDying=false;
+
+   document.getElementById("attackButton").disabled=false;
+
+   resetAnimation();
+   render();
+   save();
+   attackLocked=false;
+  },750);
+
+  return;
+ }
+
+ render();
+ save();
+
+ clearTimeout(attackTimer);
+ attackTimer=setTimeout(()=>{
+  resetAnimation();
+  attackLocked=false;
+ },500);
 }
 
 function upgrade(){
-  if(gold<price){
-    alert("Не хватает золота!");
-    return;
-  }
+ if(gold<price){
+  alert("Не хватает золота!");
+  return;
+ }
 
-  gold-=price;
-  damage++;
-  price+=25;
+ gold-=price;
+ damage++;
+ price+=25;
 
-  playPurchase();
-  save();
-  render();
+ playPurchase();
+ save();
+ render();
 }
 
 render();
 
 document.getElementById("monster").addEventListener("error",function(){
-  console.error("Не удалось загрузить slime.png");
-  this.alt="Ошибка загрузки slime.png";
+ console.error("Не удалось загрузить slime.png");
+ this.alt="Ошибка загрузки slime.png";
 });
 </script>
 </body>
