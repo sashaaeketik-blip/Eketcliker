@@ -1,99 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101b19">
+
+<!-- Полноэкранный режим iPhone -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Eket Clicker">
+
 <title>Eket Clicker</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+ box-sizing:border-box;
+ -webkit-tap-highlight-color:transparent;
+}
 
-body{
+html,body{
  margin:0;
- min-height:100vh;
+ width:100%;
+ height:100%;
+ overflow:hidden;
  background:#0b1211;
  color:#e5eee9;
  font-family:Georgia,serif;
 }
 
+body{
+ min-height:100dvh;
+}
+
 .game{
- max-width:600px;
- min-height:100vh;
- margin:auto;
+ position:fixed;
+ inset:0;
+ width:100%;
+ height:100%;
+ height:100dvh;
  overflow:hidden;
- background:linear-gradient(180deg,#172521,#101916 65%,#0c1412);
- box-shadow:0 0 35px #000;
-}
-
-header{
- position:relative;
- text-align:center;
- padding:17px 12px 12px;
- background:linear-gradient(180deg,#263a32,#192720);
- border-bottom:1px solid #ffffff12;
-}
-
-h1{
- margin:0;
- color:#d8e6d9;
- font-size:23px;
- letter-spacing:3px;
- font-weight:normal;
-}
-
-.subtitle{
- margin-top:5px;
- color:#91a89a;
- font-size:12px;
- letter-spacing:1px;
-}
-
-.sound-button{
- position:absolute;
- right:12px;
- top:15px;
- border:0;
- background:#ffffff0d;
- color:#c6d5cb;
- border-radius:50%;
- width:38px;
- height:38px;
- font-size:17px;
- padding:0;
- box-shadow:none;
-}
-
-.stats{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:1px;
- background:#ffffff12;
- border-bottom:1px solid #ffffff12;
-}
-
-.stat{
- text-align:center;
- padding:12px 4px;
- background:#14201c;
- color:#91a89a;
- font-size:11px;
- letter-spacing:.5px;
-}
-
-.stat b{
- display:block;
- margin-top:5px;
- color:#e0e9e1;
- font-size:18px;
- font-weight:normal;
+ background:#101b19;
 }
 
 .arena{
- position:relative;
+ position:absolute;
+ inset:0;
  width:100%;
- aspect-ratio:1.5;
+ height:100%;
  overflow:hidden;
  background:#17251e;
 }
@@ -104,9 +57,10 @@ h1{
  width:100%;
  height:100%;
  object-fit:cover;
+ object-position:center;
  display:block;
  z-index:0;
- filter:brightness(.76) saturate(.78);
+ filter:brightness(.76) saturate(.82);
 }
 
 .arena:after{
@@ -115,31 +69,93 @@ h1{
  inset:0;
  z-index:2;
  pointer-events:none;
- background:linear-gradient(180deg,#08120b22,transparent 45%,#08120b66);
+ background:
+ linear-gradient(180deg,#07100b99 0%,transparent 28%),
+ linear-gradient(0deg,#07100be8 0%,transparent 42%);
 }
 
-.monster{
+header{
  position:absolute;
- right:8%;
- bottom:3%;
- width:27%;
- height:38%;
- object-fit:contain;
- object-position:center bottom;
+ z-index:10;
+ top:env(safe-area-inset-top,0px);
+ left:0;
+ right:0;
+ padding:13px 65px 8px;
+ text-align:center;
+ pointer-events:none;
+}
+
+h1{
+ margin:0;
+ color:#e0eadf;
+ font-size:22px;
+ letter-spacing:4px;
+ font-weight:normal;
+ text-shadow:0 2px 8px #000;
+}
+
+.subtitle{
+ margin-top:4px;
+ color:#bdcbbb;
+ font-size:11px;
+ letter-spacing:2px;
+ text-shadow:0 2px 6px #000;
+}
+
+.sound-button{
+ position:absolute;
+ right:15px;
+ top:10px;
+ width:40px;
+ height:40px;
+ border:1px solid #ffffff35;
+ border-radius:50%;
+ background:#101c18bb;
+ color:#e0eadf;
+ font-size:19px;
+ padding:0;
+ pointer-events:auto;
+ backdrop-filter:blur(8px);
+}
+
+.stats{
+ position:absolute;
+ z-index:10;
+ top:calc(env(safe-area-inset-top,0px) + 75px);
+ left:12px;
+ right:12px;
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:7px;
+}
+
+.stat{
+ text-align:center;
+ padding:8px 4px;
+ border:1px solid #ffffff22;
+ border-radius:9px;
+ background:#101b19b8;
+ color:#a9bcae;
+ font-size:9px;
+ letter-spacing:1px;
+ backdrop-filter:blur(8px);
+ box-shadow:0 4px 12px #0003;
+}
+
+.stat b{
  display:block;
- z-index:4;
- cursor:pointer;
- filter:drop-shadow(0 7px 5px #0009);
- transform-origin:center bottom;
- -webkit-tap-highlight-color:transparent;
+ margin-top:4px;
+ color:#edf3e9;
+ font-size:18px;
+ font-weight:normal;
 }
 
 .hero{
  position:absolute;
- left:8%;
- bottom:7%;
- width:37%;
- height:78%;
+ left:5%;
+ bottom:17%;
+ width:43%;
+ height:53%;
  display:flex;
  align-items:flex-end;
  justify-content:center;
@@ -152,11 +168,27 @@ h1{
  height:100%;
  object-fit:contain;
  object-position:center bottom;
- filter:drop-shadow(0 7px 5px #0009);
+ filter:drop-shadow(0 8px 8px #000b);
  transform-origin:bottom center;
 }
 
-.arena.hit .hero-idle,.arena.dodge .hero-idle{
+.monster{
+ position:absolute;
+ right:5%;
+ bottom:17%;
+ width:34%;
+ height:35%;
+ object-fit:contain;
+ object-position:center bottom;
+ display:block;
+ z-index:4;
+ cursor:pointer;
+ filter:drop-shadow(0 8px 7px #000b);
+ transform-origin:center bottom;
+}
+
+.arena.hit .hero-idle,
+.arena.dodge .hero-idle{
  animation:heroAttack .45s ease-in-out;
 }
 
@@ -167,7 +199,9 @@ h1{
  100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-.arena.hit .monster{animation:monsterKnockback .42s ease-out}
+.arena.hit .monster{
+ animation:monsterKnockback .42s ease-out;
+}
 
 @keyframes monsterKnockback{
  0%{transform:translateX(0) rotate(0) scale(1)}
@@ -176,7 +210,9 @@ h1{
  100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-.arena.dodge .monster{animation:monsterDodge .48s ease-in-out}
+.arena.dodge .monster{
+ animation:monsterDodge .48s ease-in-out;
+}
 
 @keyframes monsterDodge{
  0%{transform:translateX(0) rotate(0)}
@@ -185,7 +221,9 @@ h1{
  100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-.arena.dying .monster{animation:monsterDeath .7s ease-in forwards!important}
+.arena.dying .monster{
+ animation:monsterDeath .7s ease-in forwards!important;
+}
 
 @keyframes monsterDeath{
  0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}
@@ -195,8 +233,8 @@ h1{
 
 .damage-pop{
  position:absolute;
- right:20%;
- bottom:48%;
+ right:19%;
+ bottom:47%;
  z-index:6;
  color:#e5e8bd;
  font:bold 25px Georgia,serif;
@@ -206,7 +244,9 @@ h1{
  white-space:nowrap;
 }
 
-.arena.hit .damage-pop{animation:damagePop .55s ease-out}
+.arena.hit .damage-pop{
+ animation:damagePop .55s ease-out;
+}
 
 @keyframes damagePop{
  0%{opacity:0;transform:translateY(15px) scale(.7)}
@@ -220,7 +260,9 @@ h1{
  text-shadow:0 0 12px #b76d32,0 2px 6px #000;
 }
 
-.arena.hit .damage-pop.critical{animation:criticalPop .8s ease-out}
+.arena.hit .damage-pop.critical{
+ animation:criticalPop .8s ease-out;
+}
 
 @keyframes criticalPop{
  0%{opacity:0;transform:translateY(20px) scale(.3) rotate(-10deg)}
@@ -235,7 +277,9 @@ h1{
  text-shadow:0 0 8px #397e78,0 2px 5px #000;
 }
 
-.arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
+.arena.dodge .damage-pop{
+ animation:dodgePop .65s ease-out;
+}
 
 @keyframes dodgePop{
  0%{opacity:0;transform:translateY(10px) scale(.6)}
@@ -244,61 +288,69 @@ h1{
 }
 
 .enemy{
- padding:13px 18px 15px;
+ position:absolute;
+ z-index:10;
+ left:18px;
+ right:18px;
+ bottom:calc(env(safe-area-inset-bottom,0px) + 125px);
+ padding:10px 15px;
  text-align:center;
- background:#14201c;
- border-top:1px solid #ffffff12;
- border-bottom:1px solid #ffffff12;
+ border:1px solid #ffffff25;
+ border-radius:10px;
+ background:#101b19c9;
+ backdrop-filter:blur(8px);
+ box-shadow:0 4px 15px #0004;
 }
 
 .enemy b{
- color:#dce8df;
- font-size:15px;
+ color:#e0eadf;
+ font-size:14px;
  font-weight:normal;
  letter-spacing:.5px;
 }
 
 .bar{
- height:5px;
+ height:6px;
  background:#26342d;
  border-radius:10px;
  overflow:hidden;
- margin-top:11px;
+ margin-top:8px;
 }
 
 .bar span{
  display:block;
  height:100%;
  width:100%;
- background:linear-gradient(90deg,#8b5549,#b87967);
+ background:linear-gradient(90deg,#8b5549,#d18a70);
  transition:width .2s;
 }
 
 #enemyHP{
- margin-top:6px;
- color:#82968a;
- font-size:11px;
-}
-
-.attack{
- display:none;
+ margin-top:5px;
+ color:#b1c0b3;
+ font-size:10px;
 }
 
 .section{
- margin:14px 12px;
- padding:14px;
- background:#17241e;
- border:1px solid #ffffff12;
- border-radius:10px;
- box-shadow:0 5px 15px #0003;
+ position:absolute;
+ z-index:11;
+ left:12px;
+ right:12px;
+ bottom:calc(env(safe-area-inset-bottom,0px) + 12px);
+ padding:11px 14px;
+ border:1px solid #ffffff25;
+ border-radius:12px;
+ background:#101b19e8;
+ backdrop-filter:blur(12px);
+ box-shadow:0 5px 20px #0007;
 }
 
 .section h2{
- margin:0 0 13px;
- color:#cbd9ce;
- font-size:16px;
+ margin:0 0 7px;
+ color:#dce8df;
+ font-size:14px;
  font-weight:normal;
- letter-spacing:.5px;
+ letter-spacing:1px;
 }
 
 .upgrade{
@@ -306,26 +358,28 @@ h1{
  align-items:center;
  justify-content:space-between;
  gap:10px;
- padding:11px 0;
- border-top:1px solid #ffffff12;
 }
 
-.upgrade b{color:#d8e4da;font-weight:normal}
+.upgrade b{
+ color:#e0eadf;
+ font-size:13px;
+ font-weight:normal;
+}
 
 .upgrade p{
- margin:5px 0 0;
- color:#84998c;
- font-size:12px;
+ margin:4px 0 0;
+ color:#a0b2a4;
+ font-size:11px;
 }
 
 .upgrade button{
- border:1px solid #506b59;
- border-radius:7px;
- background:#263d30;
- color:#d8e6d9;
- padding:9px 13px;
+ border:1px solid #6b896e;
+ border-radius:8px;
+ background:linear-gradient(180deg,#36553d,#203c2a);
+ color:#e2eee0;
+ padding:10px 15px;
  font-size:12px;
- box-shadow:none;
+ box-shadow:0 3px 8px #0005;
  white-space:nowrap;
 }
 
@@ -334,32 +388,57 @@ h1{
 }
 
 .section>p{
- color:#8da194;
- margin:12px 0 0;
- font-size:12px;
-}
-
-.section>p b{color:#d5e2d7;font-weight:normal}
-
-.note{
- text-align:center;
- color:#64796d;
- padding:15px 12px 22px;
+ color:#9bac9e;
+ margin:7px 0 0;
  font-size:11px;
 }
 
-@media(max-width:380px){
- h1{font-size:20px}
- .stat b{font-size:16px}
- .section h2{font-size:15px}
- .upgrade{gap:6px}
- .upgrade button{padding:8px 10px}
+.section>p b{
+ color:#e0eadf;
+ font-weight:normal;
+}
+
+.note{
+ position:absolute;
+ z-index:8;
+ left:0;
+ right:0;
+ bottom:calc(env(safe-area-inset-bottom,0px) + 105px);
+ text-align:center;
+ color:#d0dfd0;
+ font-size:10px;
+ text-shadow:0 2px 5px #000;
+ pointer-events:none;
+}
+
+@media(max-height:650px){
+ header{padding-top:7px}
+ h1{font-size:19px}
+ .stats{top:calc(env(safe-area-inset-top,0px) + 58px)}
+ .hero{height:47%;bottom:20%}
+ .monster{height:31%;bottom:20%}
+ .enemy{bottom:calc(env(safe-area-inset-bottom,0px) + 112px)}
+ .section{padding:8px 12px}
+ .note{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+}
+
+@media(min-width:700px){
+ .game{
+  max-width:600px;
+  left:50%;
+  transform:translateX(-50%);
+ }
 }
 </style>
 </head>
 
 <body>
+
 <div class="game">
+
+<div class="arena" id="arena">
+
+<img class="background" src="./forest.png" alt="Лес">
 
 <header>
 <h1>EKET CLICKER</h1>
@@ -368,19 +447,18 @@ h1{
 </header>
 
 <div class="stats">
-<div class="stat">ЗОЛОТО<b id="gold">0</b></div>
-<div class="stat">УРОВЕНЬ<b id="level">1</b></div>
-<div class="stat">ОПЫТ<b id="xp">0 / 50</b></div>
+ <div class="stat">ЗОЛОТО<b id="gold">0</b></div>
+ <div class="stat">УРОВЕНЬ<b id="level">1</b></div>
+ <div class="stat">ОПЫТ<b id="xp">0 / 50</b></div>
 </div>
 
-<div class="arena" id="arena">
-<img class="background" src="./forest.png" alt="Лес">
 <div class="hero">
 <img class="hero-idle" src="./eket-hero.png" alt="Герой Eket">
 </div>
+
 <img class="monster" id="monster" src="./slime.png?v=2" alt="Лесной слизень">
+
 <div class="damage-pop" id="damagePop">-1</div>
-</div>
 
 <div class="enemy">
 <b id="enemyName">Лесной слизень</b>
@@ -388,23 +466,28 @@ h1{
 <div id="enemyHP">30 / 30 HP</div>
 </div>
 
+<div class="note">Нажимай на противника, чтобы атаковать</div>
+
 <div class="section">
 <h2>Улучшения</h2>
+
 <div class="upgrade">
-<div>
-<b>Сильный удар</b>
-<p>Урон +1 · Цена: <span id="price">25</span> золота</p>
+ <div>
+  <b>Сильный удар</b>
+  <p>Урон +1 · Цена: <span id="price">25</span> золота</p>
+ </div>
+ <button onclick="upgrade()">Улучшить</button>
 </div>
-<button onclick="upgrade()">Улучшить</button>
-</div>
+
 <p>Текущий урон: <b id="damage">1</b></p>
 </div>
 
-<div class="note">Нажимай на противника, чтобы атаковать</div>
+</div>
 </div>
 
 <script>
 let saved={};
+
 try{
  saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}");
 }catch(e){}
@@ -442,16 +525,26 @@ function tone(frequency,duration,type="sine",volume=0.08,slide=0){
  if(!soundEnabled)return;
  const ctx=getAudio();
  if(!ctx)return;
+
  const osc=ctx.createOscillator();
  const gain=ctx.createGain();
  const now=ctx.currentTime;
+
  osc.type=type;
  osc.frequency.setValueAtTime(frequency,now);
- if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
+
+ if(slide){
+  osc.frequency.exponentialRampToValueAtTime(
+   Math.max(1,frequency+slide),now+duration
+  );
+ }
+
  gain.gain.setValueAtTime(volume,now);
  gain.gain.exponentialRampToValueAtTime(0.001,now+duration);
+
  osc.connect(gain);
  gain.connect(ctx.destination);
+
  osc.start(now);
  osc.stop(now+duration);
 }
@@ -471,7 +564,9 @@ function playCritical(){
 }
 
 function playVictory(){
- [392,494,587,784].forEach((f,i)=>setTimeout(()=>tone(f,0.32,"triangle",0.08),i*130));
+ [392,494,587,784].forEach((f,i)=>{
+  setTimeout(()=>tone(f,0.32,"triangle",0.08),i*130);
+ });
 }
 
 function playPurchase(){
@@ -488,15 +583,22 @@ const melody=[
 
 function musicTick(){
  if(!soundEnabled)return;
+
  const phrase=melody[Math.floor(musicStep/4)%melody.length];
  const note=phrase[musicStep%4];
+
  tone(note,0.48,"triangle",0.025);
- if(musicStep%4===0)tone(note/2,0.75,"sine",0.018);
+
+ if(musicStep%4===0){
+  tone(note/2,0.75,"sine",0.018);
+ }
+
  musicStep++;
 }
 
 function toggleSound(){
  soundEnabled=!soundEnabled;
+
  const button=document.getElementById("soundButton");
 
  if(soundEnabled){
@@ -524,17 +626,20 @@ function render(){
  document.getElementById("damage").textContent=damage;
  document.getElementById("price").textContent=price;
  document.getElementById("enemyHP").textContent=hp+" / "+maxHP+" HP";
- document.getElementById("enemyBar").style.width=Math.max(0,hp/maxHP*100)+"%";
+ document.getElementById("enemyBar").style.width=
+  Math.max(0,hp/maxHP*100)+"%";
 }
 
 function resetAnimation(){
  const arena=document.getElementById("arena");
+
  arena.classList.remove("hit","dodge","dying");
  void arena.offsetWidth;
 }
 
 function attack(){
  if(isMonsterDying||attackLocked)return;
+
  attackLocked=true;
 
  const arena=document.getElementById("arena");
@@ -545,11 +650,13 @@ function attack(){
 
  if(Math.random()<DODGE_CHANCE){
   playDodge();
+
   pop.textContent="УКЛОНЕНИЕ!";
   pop.classList.add("evaded");
   arena.classList.add("dodge");
 
   clearTimeout(attackTimer);
+
   attackTimer=setTimeout(()=>{
    resetAnimation();
    attackLocked=false;
@@ -574,20 +681,25 @@ function attack(){
   playHit();
  }
 
- pop.textContent=isCritical?"КРИТ! -"+actualDamage:"-"+actualDamage;
+ pop.textContent=isCritical?
+  "КРИТ! -"+actualDamage:
+  "-"+actualDamage;
 
  if(isCritical)pop.classList.add("critical");
+
  arena.classList.add("hit");
 
  if(hp<=0){
   hp=0;
   isMonsterDying=true;
+
   render();
   save();
 
   arena.classList.add("dying");
 
   clearTimeout(attackTimer);
+
   attackTimer=setTimeout(()=>{
    playVictory();
 
@@ -601,11 +713,13 @@ function attack(){
 
    maxHP=Math.floor(maxHP*1.2);
    hp=maxHP;
+
    isMonsterDying=false;
 
    resetAnimation();
    render();
    save();
+
    attackLocked=false;
   },750);
 
@@ -616,6 +730,7 @@ function attack(){
  save();
 
  clearTimeout(attackTimer);
+
  attackTimer=setTimeout(()=>{
   resetAnimation();
   attackLocked=false;
@@ -638,10 +753,6 @@ function upgrade(){
 }
 
 document.getElementById("monster").addEventListener("click",attack);
-document.getElementById("monster").addEventListener("touchend",function(e){
- e.preventDefault();
- attack();
-},{passive:false});
 
 render();
 
@@ -650,5 +761,6 @@ document.getElementById("monster").addEventListener("error",function(){
  this.alt="Ошибка загрузки slime.png";
 });
 </script>
+
 </body>
 </html>
