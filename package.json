@@ -1,0 +1,17 @@
+
+{
+  "name": "eket-clicker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Eket Clicker mobile game",
+  "scripts": {
+    "build": "echo Build complete"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
+  
