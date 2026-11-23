@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#263b63">
+<meta name="theme-color" content="#101b19">
 <title>Eket Clicker</title>
 
 <style>
@@ -12,114 +12,90 @@
 
 body{
  margin:0;
- background:radial-gradient(ellipse at 50% 0%,#526e9b,#263b63 45%,#111b35);
- color:white;
- font-family:Georgia,serif;
  min-height:100vh;
+ background:#0b1211;
+ color:#e5eee9;
+ font-family:Georgia,serif;
 }
 
 .game{
  max-width:600px;
- margin:auto;
  min-height:100vh;
+ margin:auto;
  overflow:hidden;
- background:linear-gradient(180deg,#344e79,#202e50 55%,#18213b);
- box-shadow:0 0 40px #000b;
- border-left:3px solid #718db8;
- border-right:3px solid #718db8;
+ background:linear-gradient(180deg,#172521,#101916 65%,#0c1412);
+ box-shadow:0 0 35px #000;
 }
 
 header{
- text-align:center;
- padding:22px 14px 18px;
- background:radial-gradient(ellipse at 50% 0%,#ffe39b,#e89a45 25%,transparent 70%),linear-gradient(180deg,#87503c,#493047 65%,#283653);
- border-bottom:5px solid #f5c66c;
- box-shadow:0 7px 0 #493047,0 12px 20px #0008;
  position:relative;
+ text-align:center;
+ padding:17px 12px 12px;
+ background:linear-gradient(180deg,#263a32,#192720);
+ border-bottom:1px solid #ffffff12;
 }
 
 h1{
  margin:0;
- color:#fff3b8;
- font-size:30px;
- letter-spacing:2px;
- text-shadow:0 2px 0 #a95b25,0 4px 0 #65351e,0 6px 8px #24101b,0 0 18px #ffd36a;
+ color:#d8e6d9;
+ font-size:23px;
+ letter-spacing:3px;
+ font-weight:normal;
 }
 
-header div{
- margin-top:8px;
- color:#ffe4b0;
- font-size:14px;
- text-shadow:0 2px 3px #42231f;
+.subtitle{
+ margin-top:5px;
+ color:#91a89a;
+ font-size:12px;
+ letter-spacing:1px;
 }
-
-button{
- font-family:inherit;
- color:#fff;
- border:2px solid #f6d17c;
- border-radius:14px;
- background:linear-gradient(180deg,#e7a54e,#a95c2b);
- padding:13px;
- font-size:16px;
- font-weight:bold;
- box-shadow:inset 0 2px 4px #ffffff75,0 5px 0 #65351f,0 8px 12px #0007;
- transition:transform .12s,filter .12s;
-}
-
-button:active{
- transform:translateY(3px) scale(.98);
- filter:brightness(1.15);
-}
-
-button:disabled{opacity:.5}
 
 .sound-button{
- margin-top:14px;
- padding:10px 16px;
- font-size:13px;
- background:linear-gradient(#8e75c5,#55428c);
- border:2px solid #c9b5ff;
- border-radius:15px;
- box-shadow:0 4px 0 #302453,0 7px 10px #0007,inset 0 2px 3px #fff8;
+ position:absolute;
+ right:12px;
+ top:15px;
+ border:0;
+ background:#ffffff0d;
+ color:#c6d5cb;
+ border-radius:50%;
+ width:38px;
+ height:38px;
+ font-size:17px;
+ padding:0;
+ box-shadow:none;
 }
 
 .stats{
  display:grid;
  grid-template-columns:repeat(3,1fr);
- gap:9px;
- padding:15px 11px;
+ gap:1px;
+ background:#ffffff12;
+ border-bottom:1px solid #ffffff12;
 }
 
 .stat{
  text-align:center;
- padding:11px 4px;
- border:2px solid #f6d17c;
- border-radius:15px;
- background:linear-gradient(145deg,#547fbd,#294b80 60%,#20385f);
- color:#fff4ce;
- font-size:12px;
- box-shadow:inset 0 3px 5px #ffffff55,inset 0 -5px 8px #13274b88,0 5px 0 #172b4d,0 8px 12px #0007;
- text-shadow:0 2px 3px #172b4d;
+ padding:12px 4px;
+ background:#14201c;
+ color:#91a89a;
+ font-size:11px;
+ letter-spacing:.5px;
 }
 
 .stat b{
  display:block;
- color:#ffe78e;
- font-size:21px;
- margin-top:6px;
- text-shadow:0 2px 0 #8d552b,0 3px 5px #0009;
+ margin-top:5px;
+ color:#e0e9e1;
+ font-size:18px;
+ font-weight:normal;
 }
 
 .arena{
  position:relative;
- width:calc(100% - 20px);
- margin:4px 10px 0;
+ width:100%;
  aspect-ratio:1.5;
  overflow:hidden;
- background:#426b55;
- border:4px solid #f4ca75;
- border-radius:18px;
- box-shadow:0 0 0 3px #62432d,0 7px 0 #392a32,0 12px 18px #000a,inset 0 0 20px #fff4;
+ background:#17251e;
 }
 
 .arena>img.background{
@@ -130,15 +106,16 @@ button:disabled{opacity:.5}
  object-fit:cover;
  display:block;
  z-index:0;
+ filter:brightness(.76) saturate(.78);
 }
 
-.arena:before{
+.arena:after{
  content:"";
  position:absolute;
  inset:0;
  z-index:2;
  pointer-events:none;
- background:linear-gradient(180deg,#ffffff15,transparent 30%,transparent 75%,#07152255);
+ background:linear-gradient(180deg,#08120b22,transparent 45%,#08120b66);
 }
 
 .monster{
@@ -151,8 +128,10 @@ button:disabled{opacity:.5}
  object-position:center bottom;
  display:block;
  z-index:4;
- filter:drop-shadow(0 7px 0 #193b34) drop-shadow(0 10px 5px #0008);
+ cursor:pointer;
+ filter:drop-shadow(0 7px 5px #0009);
  transform-origin:center bottom;
+ -webkit-tap-highlight-color:transparent;
 }
 
 .hero{
@@ -173,7 +152,7 @@ button:disabled{opacity:.5}
  height:100%;
  object-fit:contain;
  object-position:center bottom;
- filter:drop-shadow(0 7px 0 #26374b) drop-shadow(0 10px 5px #0009);
+ filter:drop-shadow(0 7px 5px #0009);
  transform-origin:bottom center;
 }
 
@@ -219,9 +198,9 @@ button:disabled{opacity:.5}
  right:20%;
  bottom:48%;
  z-index:6;
- color:#fff36c;
- font:bold 27px Georgia,serif;
- text-shadow:0 3px 0 #9d401d,0 5px 8px #000;
+ color:#e5e8bd;
+ font:bold 25px Georgia,serif;
+ text-shadow:0 2px 8px #000;
  opacity:0;
  pointer-events:none;
  white-space:nowrap;
@@ -236,10 +215,9 @@ button:disabled{opacity:.5}
 }
 
 .damage-pop.critical{
- color:#fff34a;
- font-size:36px;
- font-weight:bold;
- text-shadow:0 0 8px #ff3c00,0 0 18px #ff9900,0 3px 5px #000;
+ color:#f4d18a;
+ font-size:32px;
+ text-shadow:0 0 12px #b76d32,0 2px 6px #000;
 }
 
 .arena.hit .damage-pop.critical{animation:criticalPop .8s ease-out}
@@ -252,9 +230,9 @@ button:disabled{opacity:.5}
 }
 
 .damage-pop.evaded{
- color:#9af2ff;
- font-size:23px;
- text-shadow:0 0 8px #00aaff,0 2px 5px #000;
+ color:#b4d8d4;
+ font-size:20px;
+ text-shadow:0 0 8px #397e78,0 2px 5px #000;
 }
 
 .arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
@@ -266,81 +244,61 @@ button:disabled{opacity:.5}
 }
 
 .enemy{
- margin:15px 10px 0;
- padding:15px;
+ padding:13px 18px 15px;
  text-align:center;
- background:linear-gradient(145deg,#5a6598,#343d70 65%,#252b50);
- border:3px solid #f4cf7c;
- border-radius:16px;
- box-shadow:inset 0 3px 5px #ffffff35,inset 0 -5px 8px #111a3a88,0 5px 0 #172342,0 9px 14px #0007;
+ background:#14201c;
+ border-top:1px solid #ffffff12;
+ border-bottom:1px solid #ffffff12;
 }
 
 .enemy b{
- color:#fff0b0;
- font-size:17px;
- text-shadow:0 2px 4px #151a39;
+ color:#dce8df;
+ font-size:15px;
+ font-weight:normal;
+ letter-spacing:.5px;
 }
 
 .bar{
- height:18px;
- background:#17192d;
- border:2px solid #e8c77d;
- border-radius:20px;
+ height:5px;
+ background:#26342d;
+ border-radius:10px;
  overflow:hidden;
- margin-top:10px;
- box-shadow:inset 0 3px 5px #000b;
+ margin-top:11px;
 }
 
 .bar span{
  display:block;
  height:100%;
  width:100%;
- background:linear-gradient(180deg,#ff8b75,#ed3f50 55%,#a7193c);
- box-shadow:0 0 12px #ff455d;
+ background:linear-gradient(90deg,#8b5549,#b87967);
  transition:width .2s;
 }
 
 #enemyHP{
- margin-top:7px;
- color:#fff0d0;
- font-size:13px;
- text-shadow:0 2px 3px #000;
+ margin-top:6px;
+ color:#82968a;
+ font-size:11px;
 }
 
 .attack{
- display:block;
- width:90%;
- margin:19px auto;
- background:linear-gradient(180deg,#ff8061 0%,#ed493d 45%,#a92735 100%);
- border:3px solid #ffe08b;
- border-radius:17px;
- font-size:23px;
- padding:18px;
- letter-spacing:1px;
- color:#fff8df;
- text-shadow:0 2px 0 #8d242c,0 4px 5px #48101b;
- box-shadow:inset 0 3px 5px #ffffff85,inset 0 -5px 8px #761e3188,0 6px 0 #70212b,0 10px 16px #0009,0 0 18px #ff654e55;
-}
-
-.attack:active{
- transform:translateY(4px) scale(.98);
- box-shadow:inset 0 3px 5px #0005,0 2px 0 #70212b;
+ display:none;
 }
 
 .section{
- margin:14px 10px;
- padding:16px;
- background:linear-gradient(145deg,#526b9b,#303f70 65%,#263154);
- border:3px solid #eac879;
- border-radius:17px;
- box-shadow:inset 0 3px 6px #ffffff35,inset 0 -6px 9px #111a3a88,0 5px 0 #172342,0 10px 15px #0008;
+ margin:14px 12px;
+ padding:14px;
+ background:#17241e;
+ border:1px solid #ffffff12;
+ border-radius:10px;
+ box-shadow:0 5px 15px #0003;
 }
 
 .section h2{
- margin:0 0 15px;
- color:#fff0ae;
- font-size:20px;
- text-shadow:0 2px 0 #8d582d,0 4px 5px #0008;
+ margin:0 0 13px;
+ color:#cbd9ce;
+ font-size:16px;
+ font-weight:normal;
+ letter-spacing:.5px;
 }
 
 .upgrade{
@@ -348,53 +306,54 @@ button:disabled{opacity:.5}
  align-items:center;
  justify-content:space-between;
  gap:10px;
- padding:12px;
- background:linear-gradient(145deg,#6687ba,#3b5688 65%,#2b3e68);
- border:2px solid #b9d5f1;
- border-radius:13px;
- box-shadow:inset 0 2px 5px #ffffff45,0 4px 0 #1d3154,0 6px 9px #0006;
+ padding:11px 0;
+ border-top:1px solid #ffffff12;
 }
 
-.upgrade b{color:#fff0b4}
+.upgrade b{color:#d8e4da;font-weight:normal}
 
 .upgrade p{
  margin:5px 0 0;
- color:#e4eaff;
- font-size:13px;
+ color:#84998c;
+ font-size:12px;
 }
 
 .upgrade button{
- font-size:13px;
- padding:11px 13px;
+ border:1px solid #506b59;
+ border-radius:7px;
+ background:#263d30;
+ color:#d8e6d9;
+ padding:9px 13px;
+ font-size:12px;
+ box-shadow:none;
  white-space:nowrap;
- background:linear-gradient(#8bca70,#3c8a52);
- border-color:#d3f6a2;
- box-shadow:inset 0 2px 4px #ffffff88,0 4px 0 #235432,0 6px 9px #0007;
+}
+
+.upgrade button:active{
+ transform:scale(.96);
 }
 
 .section>p{
- color:#e1eaff;
- margin:14px 2px 0;
- font-size:14px;
+ color:#8da194;
+ margin:12px 0 0;
+ font-size:12px;
 }
 
-.section>p b{color:#ffe28d}
+.section>p b{color:#d5e2d7;font-weight:normal}
 
 .note{
  text-align:center;
- color:#d5dfff;
- padding:18px 12px 23px;
- font-size:12px;
- text-shadow:0 2px 4px #000;
+ color:#64796d;
+ padding:15px 12px 22px;
+ font-size:11px;
 }
 
 @media(max-width:380px){
- h1{font-size:25px}
- .stat{font-size:11px}
- .stat b{font-size:18px}
- .section h2{font-size:18px}
- .upgrade{padding:9px}
- .upgrade button{padding:9px;font-size:12px}
+ h1{font-size:20px}
+ .stat b{font-size:16px}
+ .section h2{font-size:15px}
+ .upgrade{gap:6px}
+ .upgrade button{padding:8px 10px}
 }
 </style>
 </head>
@@ -403,19 +362,19 @@ button:disabled{opacity:.5}
 <div class="game">
 
 <header>
-<h1>⚔️ EKET CLICKER ⚔️</h1>
-<div>Легенда начинается здесь</div>
-<button class="sound-button" id="soundButton" onclick="toggleSound()">🔇 Включить звук</button>
+<h1>EKET CLICKER</h1>
+<div class="subtitle">Лесные земли</div>
+<button class="sound-button" id="soundButton" onclick="toggleSound()">♪</button>
 </header>
 
 <div class="stats">
-<div class="stat">💰 Золото<b id="gold">0</b></div>
-<div class="stat">⭐ Уровень<b id="level">1</b></div>
-<div class="stat">✨ Опыт<b id="xp">0 / 50</b></div>
+<div class="stat">ЗОЛОТО<b id="gold">0</b></div>
+<div class="stat">УРОВЕНЬ<b id="level">1</b></div>
+<div class="stat">ОПЫТ<b id="xp">0 / 50</b></div>
 </div>
 
 <div class="arena" id="arena">
-<img class="background" src="./forest.png" alt="Фэнтези-арена">
+<img class="background" src="./forest.png" alt="Лес">
 <div class="hero">
 <img class="hero-idle" src="./eket-hero.png" alt="Герой Eket">
 </div>
@@ -429,13 +388,11 @@ button:disabled{opacity:.5}
 <div id="enemyHP">30 / 30 HP</div>
 </div>
 
-<button class="attack" id="attackButton" onclick="attack()">⚔️ АТАКОВАТЬ</button>
-
 <div class="section">
-<h2>🛒 Магазин улучшений</h2>
+<h2>Улучшения</h2>
 <div class="upgrade">
 <div>
-<b>💥 Сильный удар</b>
+<b>Сильный удар</b>
 <p>Урон +1 · Цена: <span id="price">25</span> золота</p>
 </div>
 <button onclick="upgrade()">Улучшить</button>
@@ -443,7 +400,7 @@ button:disabled{opacity:.5}
 <p>Текущий урон: <b id="damage">1</b></p>
 </div>
 
-<div class="note">✦ Побеждай монстров и собирай золото ✦</div>
+<div class="note">Нажимай на противника, чтобы атаковать</div>
 </div>
 
 <script>
@@ -544,13 +501,13 @@ function toggleSound(){
 
  if(soundEnabled){
   getAudio();
-  button.textContent="🔊 Выключить звук";
+  button.textContent="♫";
   musicTick();
   musicTimer=setInterval(musicTick,520);
  }else{
   clearInterval(musicTimer);
   musicTimer=null;
-  button.textContent="🔇 Включить звук";
+  button.textContent="♪";
  }
 }
 
@@ -629,7 +586,6 @@ function attack(){
   save();
 
   arena.classList.add("dying");
-  document.getElementById("attackButton").disabled=true;
 
   clearTimeout(attackTimer);
   attackTimer=setTimeout(()=>{
@@ -646,8 +602,6 @@ function attack(){
    maxHP=Math.floor(maxHP*1.2);
    hp=maxHP;
    isMonsterDying=false;
-
-   document.getElementById("attackButton").disabled=false;
 
    resetAnimation();
    render();
@@ -682,6 +636,12 @@ function upgrade(){
  save();
  render();
 }
+
+document.getElementById("monster").addEventListener("click",attack);
+document.getElementById("monster").addEventListener("touchend",function(e){
+ e.preventDefault();
+ attack();
+},{passive:false});
 
 render();
 
