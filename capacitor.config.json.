@@ -1,0 +1,7 @@
+
+{
+  "appId": "com.eketik.eketclicker",
+  "appName": "Eket Clicker",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}
