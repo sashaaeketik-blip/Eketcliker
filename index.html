@@ -79,10 +79,20 @@ display:block;
 position:absolute;
 right:12%;
 bottom:13%;
-font-size:clamp(65px,18vw,105px);
-filter:drop-shadow(0 5px 4px #0009);
+width:28%;
+height:75%;
+display:flex;
+align-items:flex-end;
+justify-content:center;
 z-index:2;
 transform-origin:center bottom;
+}
+
+.monster img{
+width:100%;
+height:100%;
+object-fit:contain;
+filter:drop-shadow(0 5px 5px #0009);
 }
 
 .hero{
@@ -107,7 +117,6 @@ filter:drop-shadow(0 5px 4px #0009);
 transform-origin:bottom center;
 }
 
-/* Атака героя */
 .arena.hit .hero-idle,
 .arena.dodge .hero-idle{
 animation:heroAttack .45s ease-in-out;
@@ -120,7 +129,7 @@ animation:heroAttack .45s ease-in-out;
 100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-/* Обычное попадание: монстр отлетает */
+/* Обычный удар */
 .arena.hit .monster{
 animation:monsterKnockback .42s ease-out;
 }
@@ -144,34 +153,25 @@ animation:monsterDodge .48s ease-in-out;
 100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-/* Смерть монстра */
+/* Смерть */
 .arena.dying .monster{
 animation:monsterDeath .7s ease-in forwards !important;
 }
 
 @keyframes monsterDeath{
-0%{
-opacity:1;
-transform:translateY(0) rotate(0) scale(1);
-}
-35%{
-opacity:1;
-transform:translateY(-55px) rotate(35deg) scale(1.15);
-}
-100%{
-opacity:0;
-transform:translateY(35px) rotate(180deg) scale(.05);
-}
+0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}
+35%{opacity:1;transform:translateY(-55px) rotate(35deg) scale(1.15)}
+100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}
 }
 
-/* Всплывающий урон */
+/* Цифры урона */
 .damage-pop{
 position:absolute;
 right:20%;
 bottom:48%;
 z-index:5;
 color:#fff06b;
-font:bold 25px Georgia,serif;
+font:bold 27px Georgia,serif;
 text-shadow:0 2px 5px #000;
 opacity:0;
 pointer-events:none;
@@ -188,15 +188,16 @@ animation:damagePop .55s ease-out;
 100%{opacity:0;transform:translateY(-40px) scale(1.2)}
 }
 
-/* Критический урон */
+/* Критический удар */
 .damage-pop.critical{
-color:#ff493e;
-font-size:32px;
-text-shadow:0 0 8px #ff8a00,0 3px 5px #000;
+color:#ffdc35;
+font-size:36px;
+font-weight:bold;
+text-shadow:0 0 8px #ff3c00,0 0 18px #ff9900,0 3px 5px #000;
 }
 
 .arena.hit .damage-pop.critical{
-animation:criticalPop .7s ease-out;
+animation:criticalPop .8s ease-out;
 }
 
 @keyframes criticalPop{
@@ -206,10 +207,10 @@ animation:criticalPop .7s ease-out;
 100%{opacity:0;transform:translateY(-65px) scale(1.4)}
 }
 
-/* Надпись уклонения */
+/* Уклонение */
 .damage-pop.evaded{
 color:#8ceaff;
-font-size:22px;
+font-size:23px;
 text-shadow:0 0 8px #00aaff,0 2px 5px #000;
 }
 
@@ -263,6 +264,10 @@ font-weight:bold;
 
 button:active{
 transform:scale(.97);
+}
+
+button:disabled{
+opacity:.5;
 }
 
 .attack{
@@ -337,7 +342,9 @@ font-size:12px;
 <img class="hero-idle" src="eket-hero.png" alt="Герой Eket">
 </div>
 
-<div class="monster" id="monster">🟢</div>
+<div class="monster" id="monster">
+<img src="slime.png" alt="Лесной слизень">
+</div>
 
 <div class="damage-pop" id="damagePop">-1</div>
 
@@ -388,7 +395,7 @@ let price=saved.price??25;
 let maxHP=saved.maxHP??30;
 let hp=saved.hp??maxHP;
 
-const CRIT_CHANCE=0.15;
+const CRIT_CHANCE=0.30;
 const CRIT_MULTIPLIER=2;
 const DODGE_CHANCE=0.10;
 
@@ -440,15 +447,13 @@ const arena=document.getElementById("arena");
 const pop=document.getElementById("damagePop");
 
 resetAnimation();
-
 pop.className="damage-pop";
 
-/* Проверка уклонения */
+/* Уклонение монстра */
 if(Math.random()<DODGE_CHANCE){
 
 pop.textContent="УКЛОНЕНИЕ!";
 pop.classList.add("evaded");
-
 arena.classList.add("dodge");
 
 clearTimeout(attackTimer);
@@ -461,7 +466,7 @@ attackLocked=false;
 return;
 }
 
-/* Проверка критического удара */
+/* Критический удар */
 let actualDamage=damage;
 let isCritical=false;
 
@@ -470,7 +475,6 @@ actualDamage=damage*CRIT_MULTIPLIER;
 isCritical=true;
 }
 
-/* Наносим урон */
 hp-=actualDamage;
 
 pop.textContent=isCritical
@@ -483,7 +487,7 @@ pop.classList.add("critical");
 
 arena.classList.add("hit");
 
-/* Проверка смерти */
+/* Смерть монстра */
 if(hp<=0){
 
 hp=0;
@@ -493,14 +497,12 @@ render();
 save();
 
 arena.classList.add("dying");
-
 document.getElementById("attackButton").disabled=true;
 
 clearTimeout(attackTimer);
 
 attackTimer=setTimeout(()=>{
 
-/* Награда за победу */
 gold+=5+level;
 xp+=10;
 
@@ -509,7 +511,6 @@ xp-=level*50;
 level++;
 }
 
-/* Следующий монстр */
 maxHP=Math.floor(maxHP*1.2);
 hp=maxHP;
 
@@ -527,7 +528,6 @@ attackLocked=false;
 return;
 }
 
-/* Обычное попадание */
 render();
 save();
 
