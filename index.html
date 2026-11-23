@@ -78,21 +78,19 @@ display:block;
 z-index:0;
 }
 
-/* Монстр — отдельная картинка */
 .monster{
 position:absolute;
-right:10%;
-bottom:10%;
-width:30%;
-height:75%;
+right:8%;
+bottom:5%;
+width:38%;
+height:85%;
 object-fit:contain;
 display:block;
-z-index:2;
+z-index:4;
 filter:drop-shadow(0 5px 5px #0009);
 transform-origin:center bottom;
 }
 
-/* Герой */
 .hero{
 position:absolute;
 left:8%;
@@ -127,7 +125,7 @@ animation:heroAttack .45s ease-in-out;
 100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-/* Отбрасывание монстра */
+/* Отбрасывание */
 .arena.hit .monster{
 animation:monsterKnockback .42s ease-out;
 }
@@ -167,7 +165,7 @@ animation:monsterDeath .7s ease-in forwards !important;
 position:absolute;
 right:20%;
 bottom:48%;
-z-index:5;
+z-index:6;
 color:#fff06b;
 font:bold 27px Georgia,serif;
 text-shadow:0 2px 5px #000;
@@ -186,7 +184,7 @@ animation:damagePop .55s ease-out;
 100%{opacity:0;transform:translateY(-40px) scale(1.2)}
 }
 
-/* Критический удар */
+/* Крит */
 .damage-pop.critical{
 color:#ffdc35;
 font-size:36px;
@@ -201,7 +199,7 @@ animation:criticalPop .8s ease-out;
 @keyframes criticalPop{
 0%{opacity:0;transform:translateY(20px) scale(.3) rotate(-10deg)}
 25%{opacity:1;transform:translateY(-5px) scale(1.35) rotate(5deg)}
-45%{transform:translateY(-12px) scale(1.1) rotate(0)}
+45%{transform:translateY(-12px) scale(1.1)}
 100%{opacity:0;transform:translateY(-65px) scale(1.4)}
 }
 
@@ -228,9 +226,7 @@ text-align:center;
 background:#30251f;
 }
 
-.enemy b{
-color:#ffd477;
-}
+.enemy b{color:#ffd477}
 
 .bar{
 height:15px;
@@ -260,13 +256,8 @@ font-size:16px;
 font-weight:bold;
 }
 
-button:active{
-transform:scale(.97);
-}
-
-button:disabled{
-opacity:.5;
-}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.5}
 
 .attack{
 display:block;
@@ -343,7 +334,7 @@ font-size:12px;
 <img
 class="monster"
 id="monster"
-src="./slime.png"
+src="./slime.png?v=2"
 alt="Лесной слизень"
 >
 
@@ -407,15 +398,7 @@ let attackTimer;
 function save(){
 localStorage.setItem(
 "eket-clicker-save",
-JSON.stringify({
-gold,
-level,
-xp,
-damage,
-price,
-maxHP,
-hp
-})
+JSON.stringify({gold,level,xp,damage,price,maxHP,hp})
 );
 }
 
@@ -438,9 +421,7 @@ void arena.offsetWidth;
 
 function attack(){
 
-if(isMonsterDying || attackLocked){
-return;
-}
+if(isMonsterDying || attackLocked)return;
 
 attackLocked=true;
 
@@ -450,7 +431,6 @@ const pop=document.getElementById("damagePop");
 resetAnimation();
 pop.className="damage-pop";
 
-/* Уклонение */
 if(Math.random()<DODGE_CHANCE){
 
 pop.textContent="УКЛОНЕНИЕ!";
@@ -458,7 +438,6 @@ pop.classList.add("evaded");
 arena.classList.add("dodge");
 
 clearTimeout(attackTimer);
-
 attackTimer=setTimeout(()=>{
 resetAnimation();
 attackLocked=false;
@@ -467,7 +446,6 @@ attackLocked=false;
 return;
 }
 
-/* Критический удар */
 let actualDamage=damage;
 let isCritical=false;
 
@@ -482,13 +460,10 @@ pop.textContent=isCritical
 ?"КРИТ! -"+actualDamage
 :"-"+actualDamage;
 
-if(isCritical){
-pop.classList.add("critical");
-}
+if(isCritical)pop.classList.add("critical");
 
 arena.classList.add("hit");
 
-/* Смерть */
 if(hp<=0){
 
 hp=0;
@@ -533,12 +508,10 @@ render();
 save();
 
 clearTimeout(attackTimer);
-
 attackTimer=setTimeout(()=>{
 resetAnimation();
 attackLocked=false;
 },500);
-
 }
 
 function upgrade(){
@@ -557,6 +530,12 @@ render();
 }
 
 render();
+
+/* Проверка загрузки изображения */
+document.getElementById("monster").addEventListener("error",function(){
+console.error("Не удалось загрузить slime.png");
+this.alt="Ошибка загрузки slime.png";
+});
 </script>
 
 </body>
