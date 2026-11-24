@@ -5,191 +5,112 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101b19">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Eket Clicker">
-
 <title>Eket Clicker</title>
 
 <style>
-*{
- box-sizing:border-box;
- -webkit-tap-highlight-color:transparent;
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
 html,body{
- margin:0;
- width:100%;
- height:100%;
- overflow:hidden;
- background:#0b1211;
- color:#e5eee9;
- font-family:Georgia,serif;
+ margin:0;width:100%;height:100%;overflow:hidden;
+ background:#0b1211;color:#e5eee9;font-family:Georgia,serif
 }
 
-body{
- min-height:100dvh;
-}
+button,input{font-family:inherit}
+button{cursor:pointer}
 
 .game{
- position:fixed;
- inset:0;
- width:100%;
- height:100%;
- height:100dvh;
- overflow:hidden;
- background:#101b19;
+ position:fixed;inset:0;width:100%;height:100dvh;
+ overflow:hidden;background:#101b19
 }
 
 .arena{
- position:absolute;
- inset:0;
- width:100%;
- height:100%;
- overflow:hidden;
- background:#17251e;
+ position:absolute;inset:0;overflow:hidden;background:#17251e
 }
 
 .arena>img.background{
- position:absolute;
- inset:0;
- width:100%;
- height:100%;
- object-fit:cover;
- object-position:center;
- display:block;
- z-index:0;
- filter:brightness(.76) saturate(.82);
+ position:absolute;inset:0;width:100%;height:100%;
+ object-fit:cover;object-position:center;z-index:0;
+ filter:brightness(.76) saturate(.82)
 }
 
 .arena:after{
- content:"";
- position:absolute;
- inset:0;
- z-index:2;
+ content:"";position:absolute;inset:0;z-index:2;
  pointer-events:none;
- background:
- linear-gradient(180deg,#07100b99 0%,transparent 28%),
- linear-gradient(0deg,#07100be8 0%,transparent 42%);
+ background:linear-gradient(180deg,#07100b99,transparent 28%),
+ linear-gradient(0deg,#07100be8,transparent 42%)
 }
 
 header{
- position:absolute;
- z-index:10;
- top:env(safe-area-inset-top,0px);
- left:0;
- right:0;
- padding:13px 65px 8px;
- text-align:center;
- pointer-events:none;
+ position:absolute;z-index:10;top:env(safe-area-inset-top,0px);
+ left:0;right:0;padding:13px 65px 8px;text-align:center;
+ pointer-events:none
 }
 
 h1{
- margin:0;
- color:#e0eadf;
- font-size:22px;
- letter-spacing:4px;
- font-weight:normal;
- text-shadow:0 2px 8px #000;
+ margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;
+ font-weight:normal;text-shadow:0 2px 8px #000
 }
 
 .subtitle{
- margin-top:4px;
- color:#bdcbbb;
- font-size:11px;
- letter-spacing:2px;
- text-shadow:0 2px 6px #000;
+ margin-top:4px;color:#bdcbbb;font-size:11px;
+ letter-spacing:2px;text-shadow:0 2px 6px #000
 }
 
-.sound-button{
- position:absolute;
- right:15px;
- top:10px;
- width:40px;
- height:40px;
- border:1px solid #ffffff35;
- border-radius:50%;
- background:#101c18bb;
- color:#e0eadf;
- font-size:19px;
- padding:0;
- pointer-events:auto;
- backdrop-filter:blur(8px);
+.sound-button,.account-button{
+ position:absolute;top:10px;width:40px;height:40px;
+ border:1px solid #ffffff35;border-radius:50%;
+ background:#101c18bb;color:#e0eadf;font-size:17px;
+ padding:0;pointer-events:auto;backdrop-filter:blur(8px)
 }
+.sound-button{right:15px}
+.account-button{left:15px;font-size:13px}
 
 .stats{
- position:absolute;
- z-index:10;
+ position:absolute;z-index:10;
  top:calc(env(safe-area-inset-top,0px) + 75px);
- left:12px;
- right:12px;
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:7px;
+ left:12px;right:12px;
+ display:grid;grid-template-columns:repeat(3,1fr);gap:7px
 }
 
 .stat{
- text-align:center;
- padding:8px 4px;
- border:1px solid #ffffff22;
- border-radius:9px;
- background:#101b19b8;
- color:#a9bcae;
- font-size:9px;
- letter-spacing:1px;
- backdrop-filter:blur(8px);
- box-shadow:0 4px 12px #0003;
+ text-align:center;padding:8px 4px;
+ border:1px solid #ffffff22;border-radius:9px;
+ background:#101b19b8;color:#a9bcae;font-size:9px;
+ letter-spacing:1px;backdrop-filter:blur(8px);
+ box-shadow:0 4px 12px #0003
 }
 
 .stat b{
- display:block;
- margin-top:4px;
- color:#edf3e9;
- font-size:18px;
- font-weight:normal;
+ display:block;margin-top:4px;color:#edf3e9;
+ font-size:18px;font-weight:normal
 }
 
 .hero{
- position:absolute;
- left:5%;
- bottom:17%;
- width:43%;
- height:53%;
- display:flex;
- align-items:flex-end;
- justify-content:center;
- z-index:3;
- pointer-events:none;
+ position:absolute;left:5%;bottom:17%;width:43%;height:53%;
+ display:flex;align-items:flex-end;justify-content:center;
+ z-index:3;pointer-events:none
 }
 
 .hero-idle{
- width:100%;
- height:100%;
- object-fit:contain;
+ width:100%;height:100%;object-fit:contain;
  object-position:center bottom;
  filter:drop-shadow(0 8px 8px #000b);
- transform-origin:bottom center;
+ transform-origin:bottom center
 }
 
 .monster{
- position:absolute;
- right:5%;
- bottom:17%;
- width:34%;
- height:35%;
- object-fit:contain;
- object-position:center bottom;
- display:block;
- z-index:4;
- cursor:pointer;
+ position:absolute;right:5%;bottom:17%;width:34%;height:35%;
+ object-fit:contain;object-position:center bottom;
+ display:block;z-index:4;cursor:pointer;
  filter:drop-shadow(0 8px 7px #000b);
- transform-origin:center bottom;
+ transform-origin:center bottom
 }
 
-.arena.hit .hero-idle,
-.arena.dodge .hero-idle{
- animation:heroAttack .45s ease-in-out;
+.arena.hit .hero-idle,.arena.dodge .hero-idle{
+ animation:heroAttack .45s ease-in-out
 }
 
 @keyframes heroAttack{
@@ -199,9 +120,7 @@ h1{
  100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-.arena.hit .monster{
- animation:monsterKnockback .42s ease-out;
-}
+.arena.hit .monster{animation:monsterKnockback .42s ease-out}
 
 @keyframes monsterKnockback{
  0%{transform:translateX(0) rotate(0) scale(1)}
@@ -210,9 +129,7 @@ h1{
  100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-.arena.dodge .monster{
- animation:monsterDodge .48s ease-in-out;
-}
+.arena.dodge .monster{animation:monsterDodge .48s ease-in-out}
 
 @keyframes monsterDodge{
  0%{transform:translateX(0) rotate(0)}
@@ -221,9 +138,7 @@ h1{
  100%{transform:translateX(0) rotate(0) scale(1)}
 }
 
-.arena.dying .monster{
- animation:monsterDeath .7s ease-in forwards!important;
-}
+.arena.dying .monster{animation:monsterDeath .7s ease-in forwards!important}
 
 @keyframes monsterDeath{
  0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}
@@ -231,24 +146,14 @@ h1{
  100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}
 }
 
-/* Урон над противником */
-
 .damage-pop{
- position:absolute;
- right:15%;
- bottom:47%;
- z-index:8;
- color:#e5e8bd;
- font:bold 25px Georgia,serif;
- text-shadow:0 2px 8px #000;
- opacity:0;
- pointer-events:none;
- white-space:nowrap;
+ position:absolute;right:15%;bottom:47%;z-index:8;
+ color:#e5e8bd;font:bold 25px Georgia,serif;
+ text-shadow:0 2px 8px #000;opacity:0;
+ pointer-events:none;white-space:nowrap
 }
 
-.arena.hit .damage-pop{
- animation:damagePop .55s ease-out;
-}
+.arena.hit .damage-pop{animation:damagePop .55s ease-out}
 
 @keyframes damagePop{
  0%{opacity:0;transform:translateY(15px) scale(.7)}
@@ -257,14 +162,11 @@ h1{
 }
 
 .damage-pop.critical{
- color:#f4d18a;
- font-size:32px;
- text-shadow:0 0 12px #b76d32,0 2px 6px #000;
+ color:#f4d18a;font-size:32px;
+ text-shadow:0 0 12px #b76d32,0 2px 6px #000
 }
 
-.arena.hit .damage-pop.critical{
- animation:criticalPop .8s ease-out;
-}
+.arena.hit .damage-pop.critical{animation:criticalPop .8s ease-out}
 
 @keyframes criticalPop{
  0%{opacity:0;transform:translateY(20px) scale(.3) rotate(-10deg)}
@@ -273,15 +175,9 @@ h1{
  100%{opacity:0;transform:translateY(-65px) scale(1.4)}
 }
 
-.damage-pop.evaded{
- color:#b4d8d4;
- font-size:20px;
- text-shadow:0 0 8px #397e78,0 2px 5px #000;
-}
+.damage-pop.evaded{color:#b4d8d4;font-size:20px}
 
-.arena.dodge .damage-pop{
- animation:dodgePop .65s ease-out;
-}
+.arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
 
 @keyframes dodgePop{
  0%{opacity:0;transform:translateY(10px) scale(.6)}
@@ -289,152 +185,169 @@ h1{
  100%{opacity:0;transform:translateY(-45px) scale(1)}
 }
 
-/* НОВЫЙ HP-БАР НАД СЛИЗНЕМ */
-
 .enemy{
- position:absolute;
- z-index:7;
-
- right:4%;
+ position:absolute;z-index:7;right:4%;
  bottom:calc(17% + 35% + 8px);
-
- width:38%;
- max-width:210px;
-
- padding:7px 10px 6px;
-
- text-align:center;
-
- border:1px solid #d8e5d044;
+ width:38%;max-width:210px;padding:7px 10px 6px;
+ text-align:center;border:1px solid #d8e5d044;
  border-radius:9px;
-
- background:linear-gradient(
-  145deg,
-  rgba(15,29,24,.94),
-  rgba(9,17,15,.88)
- );
-
+ background:linear-gradient(145deg,rgba(15,29,24,.94),rgba(9,17,15,.88));
  backdrop-filter:blur(8px);
-
- box-shadow:
- 0 4px 12px #0008,
- inset 0 1px 0 #ffffff15;
+ box-shadow:0 4px 12px #0008,inset 0 1px 0 #ffffff15
 }
 
 .enemy b{
- display:block;
- color:#e8eee3;
- font-size:11px;
- font-weight:normal;
- letter-spacing:.4px;
- text-shadow:0 2px 5px #000;
- white-space:nowrap;
+ display:block;color:#e8eee3;font-size:11px;
+ font-weight:normal;letter-spacing:.4px;
+ white-space:nowrap
 }
 
 .bar{
- height:7px;
- background:#202e28;
- border:1px solid #ffffff18;
- border-radius:10px;
- overflow:hidden;
- margin-top:6px;
- box-shadow:inset 0 1px 3px #0009;
+ height:7px;background:#202e28;border:1px solid #ffffff18;
+ border-radius:10px;overflow:hidden;margin-top:6px
 }
 
 .bar span{
- display:block;
- height:100%;
- width:100%;
- border-radius:10px;
-
- background:linear-gradient(
-  90deg,
-  #853f38,
-  #c65e4e,
-  #e18c69
- );
-
- box-shadow:0 0 8px #d66c5266;
-
- transition:width .25s ease;
+ display:block;height:100%;width:100%;border-radius:10px;
+ background:linear-gradient(90deg,#853f38,#c65e4e,#e18c69);
+ transition:width .25s ease
 }
 
-#enemyHP{
- margin-top:4px;
- color:#bdcabe;
- font-size:9px;
- letter-spacing:.3px;
-}
-
-/* Подсказка */
+#enemyHP{margin-top:4px;color:#bdcabe;font-size:9px}
 
 .note{
- position:absolute;
- z-index:8;
- left:0;
- right:0;
+ position:absolute;z-index:8;left:0;right:0;
  bottom:calc(env(safe-area-inset-bottom,0px) + 35px);
- text-align:center;
- color:#d0dfd0;
- font-size:11px;
- text-shadow:0 2px 6px #000;
- pointer-events:none;
+ text-align:center;color:#d0dfd0;font-size:11px;
+ text-shadow:0 2px 6px #000;pointer-events:none
 }
 
-/* Адаптация */
+/* ЭКРАН АВТОРИЗАЦИИ */
+
+.auth-screen{
+ position:fixed;inset:0;z-index:100;
+ display:flex;align-items:center;justify-content:center;
+ padding:25px 18px;
+ padding-top:max(25px,env(safe-area-inset-top));
+ padding-bottom:max(25px,env(safe-area-inset-bottom));
+ background:#07110f;
+ overflow-y:auto
+}
+
+.auth-screen:before{
+ content:"";position:fixed;inset:0;
+ background-image:url("./eket-clicker-login.gif");
+ background-size:cover;background-position:center;
+ background-repeat:no-repeat;
+ animation:moonGlow 5s ease-in-out infinite alternate;
+}
+
+.auth-screen:after{
+ content:"";position:fixed;inset:0;
+ background:linear-gradient(180deg,#06100a66,#06100ac9);
+ pointer-events:none
+}
+
+@keyframes moonGlow{
+ from{filter:brightness(.82)}
+ to{filter:brightness(1.08)}
+}
+
+.auth-card{
+ position:relative;z-index:2;width:100%;max-width:390px;
+ padding:27px 23px;
+ border:1px solid #d5c18a55;border-radius:19px;
+ background:linear-gradient(145deg,#10231edb,#09130ff2);
+ backdrop-filter:blur(13px);
+ box-shadow:0 15px 60px #000a,inset 0 1px 0 #ffffff19;
+ margin:auto
+}
+
+.auth-logo{
+ text-align:center;color:#e8d5a2;
+ font-size:27px;letter-spacing:4px;
+ text-shadow:0 0 18px #d5a64b66
+}
+
+.auth-subtitle{
+ text-align:center;color:#b7c7b9;
+ font-size:12px;letter-spacing:2px;margin:8px 0 22px
+}
+
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+
+.auth-tabs button{
+ padding:11px 5px;border-radius:9px;
+ border:1px solid #ffffff25;background:#ffffff09;
+ color:#bdcbbd;font-size:13px
+}
+
+.auth-tabs button.active{
+ background:#b38b4b33;border-color:#d9bd7b;
+ color:#f0d99d
+}
+
+.auth-card label{
+ display:block;color:#c6d3c5;font-size:12px;margin:12px 0 6px
+}
+
+.auth-card input{
+ width:100%;height:45px;padding:0 12px;
+ border-radius:9px;border:1px solid #ffffff30;
+ background:#07120fe0;color:#fff;font-size:15px;
+ outline:none
+}
+
+.auth-card input:focus{border-color:#d7b66d}
+
+.auth-main-button{
+ width:100%;height:47px;margin-top:20px;
+ border:1px solid #e0c17c;border-radius:10px;
+ background:linear-gradient(135deg,#9c7138,#d4b36b,#8d632d);
+ color:#17130b;font-weight:bold;font-size:15px;
+ box-shadow:0 5px 18px #0005
+}
+
+.auth-message{
+ min-height:34px;margin-top:13px;text-align:center;
+ font-size:12px;line-height:1.5;color:#e9c98b
+}
+
+.auth-footer{
+ text-align:center;color:#aebdae;font-size:10px;
+ line-height:1.5;margin-top:8px
+}
+
+.hidden{display:none!important}
 
 @media(max-height:650px){
-
  header{padding-top:7px}
-
  h1{font-size:19px}
-
- .stats{
-  top:calc(env(safe-area-inset-top,0px) + 58px);
- }
-
- .hero{
-  height:47%;
-  bottom:20%;
- }
-
- .monster{
-  height:31%;
-  bottom:20%;
- }
-
- .enemy{
-  bottom:calc(20% + 31% + 7px);
- }
-
+ .stats{top:calc(env(safe-area-inset-top,0px) + 58px)}
+ .hero{height:47%;bottom:20%}
+ .monster{height:31%;bottom:20%}
+ .enemy{bottom:calc(20% + 31% + 7px)}
+ .auth-card{padding:19px}
 }
 
 @media(max-width:380px){
- .enemy{
-  width:40%;
-  right:3%;
- }
-
- .enemy b{
-  font-size:10px;
- }
+ .enemy{width:40%;right:3%}
+ .enemy b{font-size:10px}
 }
 
 @media(min-width:700px){
- .game{
-  max-width:600px;
-  left:50%;
-  transform:translateX(-50%);
- }
+ .game{max-width:600px;left:50%;transform:translateX(-50%)}
 }
 
+@media(prefers-reduced-motion:reduce){
+ .auth-screen:before{animation:none}
+}
 </style>
 </head>
 
 <body>
 
 <div class="game">
-
 <div class="arena" id="arena">
 
 <img class="background" src="./forest.png" alt="Лес">
@@ -442,6 +355,7 @@ h1{
 <header>
 <h1>EKET CLICKER</h1>
 <div class="subtitle">Лесные земли</div>
+<button class="account-button" onclick="logout()" title="Выйти">↪</button>
 <button class="sound-button" id="soundButton" onclick="toggleSound()">♪</button>
 </header>
 
@@ -459,22 +373,86 @@ h1{
 
 <div class="damage-pop" id="damagePop">-1</div>
 
-<!-- HP слизня теперь расположен над ним -->
-
 <div class="enemy">
  <b id="enemyName">Лесной слизень</b>
- <div class="bar">
-  <span id="enemyBar"></span>
- </div>
+ <div class="bar"><span id="enemyBar"></span></div>
  <div id="enemyHP">30 / 30 HP</div>
 </div>
 
 <div class="note">Нажимай на противника, чтобы атаковать</div>
+</div>
+</div>
+
+<!-- ВХОД И РЕГИСТРАЦИЯ -->
+
+<div class="auth-screen" id="authScreen">
+<div class="auth-card">
+
+<div class="auth-logo">EKET CLICKER</div>
+<div class="auth-subtitle">ТВОЁ ПРИКЛЮЧЕНИЕ НАЧИНАЕТСЯ</div>
+
+<div class="auth-tabs">
+ <button id="loginTab" class="active" onclick="setAuthMode('login')">Вход</button>
+ <button id="registerTab" onclick="setAuthMode('register')">Регистрация</button>
+</div>
+
+<form id="authForm">
+ <div id="nicknameField" class="hidden">
+  <label for="nicknameInput">Игровой ник</label>
+  <input id="nicknameInput" type="text"
+   placeholder="Например, Eketik"
+   minlength="3" maxlength="16"
+   autocomplete="nickname">
+ </div>
+
+ <label for="emailInput">Электронная почта</label>
+ <input id="emailInput" type="email"
+  placeholder="name@example.com"
+  autocomplete="email" required>
+
+ <label for="passwordInput">Пароль</label>
+ <input id="passwordInput" type="password"
+  placeholder="Минимум 6 символов"
+  minlength="6" autocomplete="current-password" required>
+
+ <button class="auth-main-button" id="authSubmit" type="submit">
+  Войти в игру
+ </button>
+</form>
+
+<div class="auth-message" id="authMessage"></div>
+<div class="auth-footer">
+Ваш игровой прогресс будет связан с аккаунтом.
+</div>
 
 </div>
 </div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
 <script>
+
+// FIREBASE CONFIG
+
+const firebaseConfig = {
+ apiKey: "AIzaSyBfj_yOZnuXJMNI7dpo-XzL_j2SVsc294Y",
+ authDomain: "eket-cliker.firebaseapp.com",
+ projectId: "eket-cliker",
+ storageBucket: "eket-cliker.firebasestorage.app",
+ messagingSenderId: "615317473142",
+ appId: "1:615317473142:web:d1a091eeac1d4f97f49c57",
+ measurementId: "G-Q14Z556GG7"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth=firebase.auth();
+const db=firebase.firestore();
+
+// ИГРОВОЕ СОХРАНЕНИЕ
 
 let saved={};
 
@@ -503,7 +481,305 @@ let soundEnabled=false;
 let musicTimer=null;
 let musicStep=0;
 
+let currentUser=null;
+let cloudSaveTimer=null;
+let authMode="login";
+let authReady=false;
+
+// ЗАПРЕЩЁННЫЕ СЛОВА
+// Это базовая клиентская проверка, а не полноценная
+// серверная модерация.
+
+const BAD_WORDS=[
+ "хуй","пизд","еба","ебл","бля","сука",
+ "fuck","shit","bitch","asshole"
+];
+
+function validNickname(name){
+
+ if(!/^[A-Za-zА-Яа-яЁё]{3,16}$/.test(name)){
+  return false;
+ }
+
+ const normalized=name.toLowerCase();
+
+ return !BAD_WORDS.some(word=>normalized.includes(word));
+}
+
+function getGameSave(){
+
+ return {gold,level,xp,damage,price,maxHP,hp};
+}
+
+function applyGameSave(data){
+
+ if(!data)return;
+
+ gold=data.gold??0;
+ level=data.level??1;
+ xp=data.xp??0;
+ damage=data.damage??1;
+ price=data.price??25;
+ maxHP=data.maxHP??30;
+ hp=data.hp??maxHP;
+
+ isMonsterDying=false;
+ attackLocked=false;
+
+ render();
+}
+
+// ЛОКАЛЬНОЕ И ОБЛАЧНОЕ СОХРАНЕНИЕ
+
+function save(){
+
+ const data=getGameSave();
+
+ try{
+  localStorage.setItem("eket-clicker-save",JSON.stringify(data));
+ }catch(e){
+  console.error("Ошибка локального сохранения",e);
+ }
+
+ if(!currentUser)return;
+
+ clearTimeout(cloudSaveTimer);
+
+ cloudSaveTimer=setTimeout(async()=>{
+
+  try{
+   await db.collection("users").doc(currentUser.uid).set({
+    gameSave:data,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+   },{merge:true});
+  }catch(e){
+   console.error("Ошибка облачного сохранения",e);
+  }
+
+ },800);
+}
+
+async function loadCloudSave(user){
+
+ const ref=db.collection("users").doc(user.uid);
+ const snapshot=await ref.get();
+
+ if(snapshot.exists && snapshot.data().gameSave){
+
+  applyGameSave(snapshot.data().gameSave);
+
+ }else{
+
+  // Если облачного прогресса ещё нет,
+  // переносим старое локальное сохранение.
+
+  await ref.set({
+   gameSave:getGameSave(),
+   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+
+ }
+
+ saveLocalOnly();
+}
+
+function saveLocalOnly(){
+
+ localStorage.setItem("eket-clicker-save",JSON.stringify(getGameSave()));
+}
+
+// РЕГИСТРАЦИЯ И ВХОД
+
+function setAuthMode(mode){
+
+ authMode=mode;
+
+ document.getElementById("loginTab").classList.toggle("active",mode==="login");
+ document.getElementById("registerTab").classList.toggle("active",mode==="register");
+
+ document.getElementById("nicknameField").classList.toggle("hidden",mode!=="register");
+
+ document.getElementById("authSubmit").textContent=
+  mode==="login"?"Войти в игру":"Создать аккаунт";
+
+ document.getElementById("authMessage").textContent="";
+
+ document.getElementById("passwordInput").autocomplete=
+  mode==="login"?"current-password":"new-password";
+}
+
+function showMessage(message){
+
+ document.getElementById("authMessage").textContent=message;
+}
+
+function errorMessage(error){
+
+ const messages={
+  "auth/email-already-in-use":"Эта почта уже зарегистрирована.",
+  "auth/invalid-email":"Проверь правильность электронной почты.",
+  "auth/weak-password":"Пароль должен содержать минимум 6 символов.",
+  "auth/user-not-found":"Аккаунт не найден.",
+  "auth/wrong-password":"Неверный пароль.",
+  "auth/invalid-credential":"Неверная почта или пароль.",
+  "auth/too-many-requests":"Слишком много попыток. Попробуй позже.",
+  "auth/network-request-failed":"Проверь подключение к интернету."
+ };
+
+ return messages[error.code]||"Ошибка: "+error.message;
+}
+
+async function registerAccount(email,password,nickname){
+
+ if(!validNickname(nickname)){
+  throw new Error("Ник должен содержать 3–16 русских или английских букв и не содержать запрещённых слов.");
+ }
+
+ const nicknameKey=nickname.toLowerCase();
+
+ const credential=await auth.createUserWithEmailAndPassword(email,password);
+ const user=credential.user;
+
+ try{
+
+  const nicknameRef=db.collection("nicknames").doc(nicknameKey);
+  const userRef=db.collection("users").doc(user.uid);
+
+  await db.runTransaction(async(transaction)=>{
+
+   const existing=await transaction.get(nicknameRef);
+
+   if(existing.exists){
+    throw new Error("Этот ник уже занят. Выбери другой.");
+   }
+
+   transaction.set(nicknameRef,{
+    uid:user.uid,
+    displayName:nickname,
+    nicknameKey:nicknameKey
+   });
+
+   transaction.set(userRef,{
+    uid:user.uid,
+    email:email,
+    nickname:nickname,
+    gameSave:getGameSave(),
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+   });
+
+  });
+
+ }catch(error){
+
+  // Удаляем только что созданный аккаунт,
+  // если создание профиля не удалось.
+
+  try{
+   await user.delete();
+  }catch(deleteError){
+   console.error(deleteError);
+  }
+
+  throw error;
+ }
+
+}
+
+async function loginAccount(email,password){
+
+ await auth.signInWithEmailAndPassword(email,password);
+}
+
+document.getElementById("authForm").addEventListener("submit",async(event)=>{
+
+ event.preventDefault();
+
+ const email=document.getElementById("emailInput").value.trim();
+ const password=document.getElementById("passwordInput").value;
+ const nickname=document.getElementById("nicknameInput").value.trim();
+
+ const button=document.getElementById("authSubmit");
+
+ button.disabled=true;
+ button.textContent="Подожди...";
+ showMessage("");
+
+ try{
+
+  if(authMode==="register"){
+
+   await registerAccount(email,password,nickname);
+
+  }else{
+
+   await loginAccount(email,password);
+
+  }
+
+ }catch(error){
+
+  showMessage(errorMessage(error));
+
+ }finally{
+
+  button.disabled=false;
+  button.textContent=authMode==="login"?"Войти в игру":"Создать аккаунт";
+
+ }
+
+});
+
+// ПРОВЕРКА АВТОРИЗАЦИИ
+
+auth.onAuthStateChanged(async(user)=>{
+
+ if(user){
+
+  currentUser=user;
+
+  try{
+
+   await loadCloudSave(user);
+
+   document.getElementById("authScreen").classList.add("hidden");
+   authReady=true;
+
+  }catch(error){
+
+   console.error(error);
+
+   showMessage("Не удалось загрузить сохранение. Проверь интернет и правила Firestore.");
+
+   document.getElementById("authScreen").classList.remove("hidden");
+
+  }
+
+ }else{
+
+  currentUser=null;
+  authReady=false;
+
+  document.getElementById("authScreen").classList.remove("hidden");
+
+ }
+
+});
+
+async function logout(){
+
+ if(!confirm("Выйти из аккаунта?"))return;
+
+ try{
+  await auth.signOut();
+ }catch(error){
+  alert(errorMessage(error));
+ }
+}
+
+// ЗВУКИ И МУЗЫКА
+
 function getAudio(){
+
  const AudioCtx=window.AudioContext||window.webkitAudioContext;
  if(!AudioCtx)return null;
 
@@ -573,20 +849,16 @@ function toggleSound(){
  if(soundEnabled){
 
   getAudio();
-
   button.textContent="♫";
-
   musicTick();
-
   musicTimer=setInterval(musicTick,520);
 
  }else{
 
   clearInterval(musicTimer);
-
   musicTimer=null;
-
   button.textContent="♪";
+
  }
 }
 
@@ -613,31 +885,14 @@ function musicTick(){
  musicStep++;
 }
 
-function save(){
-
- localStorage.setItem("eket-clicker-save",JSON.stringify({
-  gold,
-  level,
-  xp,
-  damage,
-  price,
-  maxHP,
-  hp
- }));
-
-}
+// ИГРОВОЙ ИНТЕРФЕЙС
 
 function render(){
 
  document.getElementById("gold").textContent=gold;
-
  document.getElementById("level").textContent=level;
-
- document.getElementById("xp").textContent=
-  xp+" / "+(level*50);
-
- document.getElementById("enemyHP").textContent=
-  hp+" / "+maxHP+" HP";
+ document.getElementById("xp").textContent=xp+" / "+(level*50);
+ document.getElementById("enemyHP").textContent=hp+" / "+maxHP+" HP";
 
  document.getElementById("enemyBar").style.width=
   Math.max(0,hp/maxHP*100)+"%";
@@ -656,7 +911,7 @@ function resetAnimation(){
 
 function attack(){
 
- if(isMonsterDying||attackLocked)return;
+ if(!currentUser||!authReady||isMonsterDying||attackLocked)return;
 
  attackLocked=true;
 
@@ -681,7 +936,6 @@ function attack(){
   attackTimer=setTimeout(()=>{
 
    resetAnimation();
-
    attackLocked=false;
 
   },550);
@@ -695,8 +949,8 @@ function attack(){
  if(Math.random()<CRIT_CHANCE){
 
   actualDamage=damage*CRIT_MULTIPLIER;
-
   isCritical=true;
+
  }
 
  hp-=actualDamage;
@@ -711,16 +965,13 @@ function attack(){
   "КРИТ! -"+actualDamage:
   "-"+actualDamage;
 
- if(isCritical){
-  pop.classList.add("critical");
- }
+ if(isCritical)pop.classList.add("critical");
 
  arena.classList.add("hit");
 
  if(hp<=0){
 
   hp=0;
-
   isMonsterDying=true;
 
   render();
@@ -735,26 +986,20 @@ function attack(){
    playVictory();
 
    gold+=5+level;
-
    xp+=10;
 
    if(xp>=level*50){
-
     xp-=level*50;
-
     level++;
    }
 
    maxHP=Math.floor(maxHP*1.2);
-
    hp=maxHP;
 
    isMonsterDying=false;
 
    resetAnimation();
-
    render();
-
    save();
 
    attackLocked=false;
@@ -765,7 +1010,6 @@ function attack(){
  }
 
  render();
-
  save();
 
  clearTimeout(attackTimer);
@@ -773,7 +1017,6 @@ function attack(){
  attackTimer=setTimeout(()=>{
 
   resetAnimation();
-
   attackLocked=false;
 
  },500);
@@ -782,17 +1025,15 @@ function attack(){
 
 document.getElementById("monster").addEventListener("click",attack);
 
-render();
-
 document.getElementById("monster").addEventListener("error",function(){
 
  console.error("Не удалось загрузить slime.png");
-
  this.alt="Ошибка загрузки slime.png";
 
 });
 
-</script>
+render();
 
+</script>
 </body>
 </html>
