@@ -12,337 +12,91 @@
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-
-html,body{
- margin:0;width:100%;height:100%;overflow:hidden;
- background:#0b1211;color:#e5eee9;font-family:Georgia,serif
-}
-
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1211;color:#e5eee9;font-family:Georgia,serif}
 button,input{font-family:inherit}
 button{cursor:pointer}
+.game{position:fixed;inset:0;width:100%;height:100dvh;overflow:hidden;background:#101b19}
+.arena{position:absolute;inset:0;overflow:hidden;background:#17251e}
+.arena>img.background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;filter:brightness(.76) saturate(.82)}
+.arena:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,#07100b99,transparent 28%),linear-gradient(0deg,#07100be8,transparent 42%)}
 
-.game{
- position:fixed;inset:0;width:100%;height:100dvh;
- overflow:hidden;background:#101b19
-}
-
-.arena{
- position:absolute;inset:0;overflow:hidden;background:#17251e
-}
-
-.arena>img.background{
- position:absolute;inset:0;width:100%;height:100%;
- object-fit:cover;object-position:center;z-index:0;
- filter:brightness(.76) saturate(.82)
-}
-
-.arena:after{
- content:"";position:absolute;inset:0;z-index:2;
- pointer-events:none;
- background:linear-gradient(180deg,#07100b99,transparent 28%),
- linear-gradient(0deg,#07100be8,transparent 42%)
-}
-
-header{
- position:absolute;z-index:10;top:env(safe-area-inset-top,0px);
- left:0;right:0;padding:13px 65px 8px;text-align:center;
- pointer-events:none
-}
-
-h1{
- margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;
- font-weight:normal;text-shadow:0 2px 8px #000
-}
-
-.subtitle{
- margin-top:4px;color:#bdcbbb;font-size:11px;
- letter-spacing:2px;text-shadow:0 2px 6px #000
-}
-
-.sound-button,.account-button{
- position:absolute;top:10px;width:40px;height:40px;
- border:1px solid #ffffff35;border-radius:50%;
- background:#101c18bb;color:#e0eadf;font-size:17px;
- padding:0;pointer-events:auto;backdrop-filter:blur(8px)
-}
-.sound-button{right:15px}
-.account-button{left:15px;font-size:13px}
-
-.stats{
- position:absolute;z-index:10;
- top:calc(env(safe-area-inset-top,0px) + 75px);
- left:12px;right:12px;
- display:grid;grid-template-columns:repeat(3,1fr);gap:7px
-}
-
-.stat{
- text-align:center;padding:8px 4px;
- border:1px solid #ffffff22;border-radius:9px;
- background:#101b19b8;color:#a9bcae;font-size:9px;
- letter-spacing:1px;backdrop-filter:blur(8px);
- box-shadow:0 4px 12px #0003
-}
-
-.stat b{
- display:block;margin-top:4px;color:#edf3e9;
- font-size:18px;font-weight:normal
-}
-
-.hero{
- position:absolute;left:5%;bottom:17%;width:43%;height:53%;
- display:flex;align-items:flex-end;justify-content:center;
- z-index:3;pointer-events:none
-}
-
-.hero-idle{
- width:100%;height:100%;object-fit:contain;
- object-position:center bottom;
- filter:drop-shadow(0 8px 8px #000b);
- transform-origin:bottom center
-}
-
-.monster{
- position:absolute;right:5%;bottom:17%;width:34%;height:35%;
- object-fit:contain;object-position:center bottom;
- display:block;z-index:4;cursor:pointer;
- filter:drop-shadow(0 8px 7px #000b);
- transform-origin:center bottom
-}
-
-.arena.hit .hero-idle,.arena.dodge .hero-idle{
- animation:heroAttack .45s ease-in-out
-}
-
-@keyframes heroAttack{
- 0%{transform:translateX(0) rotate(0) scale(1)}
- 40%{transform:translateX(35px) rotate(-8deg) scale(1.08)}
- 70%{transform:translateX(25px) rotate(5deg) scale(1.04)}
- 100%{transform:translateX(0) rotate(0) scale(1)}
-}
-
+header{position:absolute;z-index:10;top:env(safe-area-inset-top,0px);left:0;right:0;padding:13px 65px 8px;text-align:center;pointer-events:none}
+h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;text-shadow:0 2px 8px #000}
+.subtitle{margin-top:4px;color:#bdcbbb;font-size:11px;letter-spacing:2px;text-shadow:0 2px 6px #000}
+.sound-button,.account-button{position:absolute;top:10px;width:40px;height:40px;border:1px solid #ffffff35;border-radius:50%;background:#101c18bb;color:#e0eadf;font-size:17px;padding:0;pointer-events:auto;backdrop-filter:blur(8px)}
+.sound-button{right:15px}.account-button{left:15px;font-size:13px}
+.stats{position:absolute;z-index:10;top:calc(env(safe-area-inset-top,0px) + 75px);left:12px;right:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.stat{text-align:center;padding:8px 4px;border:1px solid #ffffff22;border-radius:9px;background:#101b19b8;color:#a9bcae;font-size:9px;letter-spacing:1px;backdrop-filter:blur(8px);box-shadow:0 4px 12px #0003}
+.stat b{display:block;margin-top:4px;color:#edf3e9;font-size:18px;font-weight:normal}
+.player-health{position:absolute;z-index:10;top:calc(env(safe-area-inset-top,0px) + 143px);left:12px;width:45%;padding:7px 9px;border:1px solid #ffffff28;border-radius:9px;background:#101b19c9;backdrop-filter:blur(8px)}
+.health-title{display:flex;justify-content:space-between;color:#e4eadd;font-size:10px}
+.player-bar{height:8px;background:#202e28;border-radius:10px;overflow:hidden;margin-top:5px}
+.player-bar span{display:block;width:100%;height:100%;background:linear-gradient(90deg,#398b55,#6bc77c);transition:width .25s}
+.hero{position:absolute;left:5%;bottom:17%;width:43%;height:53%;display:flex;align-items:flex-end;justify-content:center;z-index:3;pointer-events:none}
+.hero-idle{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 8px #000b);transform-origin:bottom center}
+.monster{position:absolute;right:5%;bottom:17%;width:34%;height:35%;object-fit:contain;object-position:center bottom;display:block;z-index:4;cursor:pointer;filter:drop-shadow(0 8px 7px #000b);transform-origin:center bottom}
+.arena.hit .hero-idle{animation:heroAttack .45s ease-in-out}
+@keyframes heroAttack{0%{transform:translateX(0)}40%{transform:translateX(35px) rotate(-8deg) scale(1.08)}70%{transform:translateX(25px) rotate(5deg)}100%{transform:translateX(0)}}
 .arena.hit .monster{animation:monsterKnockback .42s ease-out}
-
-@keyframes monsterKnockback{
- 0%{transform:translateX(0) rotate(0) scale(1)}
- 25%{transform:translateX(35px) rotate(18deg) scale(.82)}
- 55%{transform:translateX(20px) rotate(-12deg) scale(.9)}
- 100%{transform:translateX(0) rotate(0) scale(1)}
-}
-
-.arena.dodge .monster{animation:monsterDodge .48s ease-in-out}
-
-@keyframes monsterDodge{
- 0%{transform:translateX(0) rotate(0)}
- 35%{transform:translateX(-45px) rotate(-18deg) scale(.85)}
- 65%{transform:translateX(-30px) rotate(12deg)}
- 100%{transform:translateX(0) rotate(0) scale(1)}
-}
-
+@keyframes monsterKnockback{0%{transform:translateX(0)}25%{transform:translateX(35px) rotate(18deg) scale(.82)}55%{transform:translateX(20px) rotate(-12deg)}100%{transform:translateX(0)}}
+.arena.enemy-hit .hero-idle{animation:enemyHit .4s ease}
+@keyframes enemyHit{0%{transform:translateX(0)}30%{transform:translateX(-22px) rotate(8deg)}60%{transform:translateX(12px)}100%{transform:translateX(0)}}
+.arena.dodge .hero-idle{animation:heroDodge .5s ease}
+@keyframes heroDodge{0%{transform:translateX(0)}35%{transform:translateX(-35px) rotate(-8deg)}100%{transform:translateX(0)}}
 .arena.dying .monster{animation:monsterDeath .7s ease-in forwards!important}
-
-@keyframes monsterDeath{
- 0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}
- 35%{opacity:1;transform:translateY(-55px) rotate(35deg) scale(1.15)}
- 100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}
-}
-
-.damage-pop{
- position:absolute;right:15%;bottom:47%;z-index:8;
- color:#e5e8bd;font:bold 25px Georgia,serif;
- text-shadow:0 2px 8px #000;opacity:0;
- pointer-events:none;white-space:nowrap
-}
-
+@keyframes monsterDeath{0%{opacity:1;transform:translateY(0)}35%{opacity:1;transform:translateY(-55px) rotate(35deg) scale(1.15)}100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}}
+.damage-pop{position:absolute;right:15%;bottom:47%;z-index:8;color:#e5e8bd;font:bold 25px Georgia,serif;text-shadow:0 2px 8px #000;opacity:0;pointer-events:none;white-space:nowrap}
 .arena.hit .damage-pop{animation:damagePop .55s ease-out}
-
-@keyframes damagePop{
- 0%{opacity:0;transform:translateY(15px) scale(.7)}
- 25%{opacity:1}
- 100%{opacity:0;transform:translateY(-40px) scale(1.2)}
-}
-
-.damage-pop.critical{
- color:#f4d18a;font-size:32px;
- text-shadow:0 0 12px #b76d32,0 2px 6px #000
-}
-
-.arena.hit .damage-pop.critical{animation:criticalPop .8s ease-out}
-
-@keyframes criticalPop{
- 0%{opacity:0;transform:translateY(20px) scale(.3) rotate(-10deg)}
- 25%{opacity:1;transform:translateY(-5px) scale(1.35) rotate(5deg)}
- 45%{transform:translateY(-12px) scale(1.1)}
- 100%{opacity:0;transform:translateY(-65px) scale(1.4)}
-}
-
+@keyframes damagePop{0%{opacity:0;transform:translateY(15px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.2)}}
+.damage-pop.critical{color:#f4d18a;font-size:32px;text-shadow:0 0 12px #b76d32,0 2px 6px #000}
 .damage-pop.evaded{color:#b4d8d4;font-size:20px}
-
 .arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
-
-@keyframes dodgePop{
- 0%{opacity:0;transform:translateY(10px) scale(.6)}
- 25%{opacity:1;transform:translateY(-5px) scale(1.15)}
- 100%{opacity:0;transform:translateY(-45px) scale(1)}
-}
-
-.enemy{
- position:absolute;z-index:7;right:4%;
- bottom:calc(17% + 35% + 8px);
- width:38%;max-width:210px;padding:7px 10px 6px;
- text-align:center;border:1px solid #d8e5d044;
- border-radius:9px;
- background:linear-gradient(145deg,rgba(15,29,24,.94),rgba(9,17,15,.88));
- backdrop-filter:blur(8px);
- box-shadow:0 4px 12px #0008,inset 0 1px 0 #ffffff15
-}
-
-.enemy b{
- display:block;color:#e8eee3;font-size:11px;
- font-weight:normal;letter-spacing:.4px;
- white-space:nowrap
-}
-
-.bar{
- height:7px;background:#202e28;border:1px solid #ffffff18;
- border-radius:10px;overflow:hidden;margin-top:6px
-}
-
-.bar span{
- display:block;height:100%;width:100%;border-radius:10px;
- background:linear-gradient(90deg,#853f38,#c65e4e,#e18c69);
- transition:width .25s ease
-}
-
+@keyframes dodgePop{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-5px) scale(1.15)}100%{opacity:0;transform:translateY(-45px)}}
+.enemy{position:absolute;z-index:7;right:4%;bottom:calc(17% + 35% + 8px);width:38%;max-width:210px;padding:7px 10px 6px;text-align:center;border:1px solid #d8e5d044;border-radius:9px;background:linear-gradient(145deg,rgba(15,29,24,.94),rgba(9,17,15,.88));backdrop-filter:blur(8px);box-shadow:0 4px 12px #0008}
+.enemy b{display:block;color:#e8eee3;font-size:11px;font-weight:normal;letter-spacing:.4px;white-space:nowrap}
+.bar{height:7px;background:#202e28;border:1px solid #ffffff18;border-radius:10px;overflow:hidden;margin-top:6px}
+.bar span{display:block;height:100%;width:100%;border-radius:10px;background:linear-gradient(90deg,#853f38,#c65e4e,#e18c69);transition:width .25s}
 #enemyHP{margin-top:4px;color:#bdcabe;font-size:9px}
-
-.note{
- position:absolute;z-index:8;left:0;right:0;
- bottom:calc(env(safe-area-inset-bottom,0px) + 35px);
- text-align:center;color:#d0dfd0;font-size:11px;
- text-shadow:0 2px 6px #000;pointer-events:none
-}
-
-/* ЭКРАН АВТОРИЗАЦИИ */
-
-.auth-screen{
- position:fixed;inset:0;z-index:100;
- display:flex;align-items:center;justify-content:center;
- padding:25px 18px;
- padding-top:max(25px,env(safe-area-inset-top));
- padding-bottom:max(25px,env(safe-area-inset-bottom));
- background:#07110f;
- overflow-y:auto
-}
-
-.auth-screen:before{
- content:"";position:fixed;inset:0;
- background-image:url("./eketoria_animated_background.gif?v=1");
- background-size:cover;background-position:center;
- background-repeat:no-repeat;
-}
-
-.auth-screen:after{
- content:"";position:fixed;inset:0;
- background:linear-gradient(180deg,#06100a66,#06100ac9);
- pointer-events:none
-}
-
-.auth-card{
- position:relative;z-index:2;width:100%;max-width:390px;
- padding:27px 23px;
- border:1px solid #d5c18a55;border-radius:19px;
- background:linear-gradient(145deg,#10231edb,#09130ff2);
- backdrop-filter:blur(13px);
- box-shadow:0 15px 60px #000a,inset 0 1px 0 #ffffff19;
- margin:auto
-}
-
-.auth-logo{
- text-align:center;color:#e8d5a2;
- font-size:27px;letter-spacing:4px;
- text-shadow:0 0 18px #d5a64b66
-}
-
-.auth-subtitle{
- text-align:center;color:#b7c7b9;
- font-size:12px;letter-spacing:2px;margin:8px 0 22px
-}
-
+.note{position:absolute;z-index:8;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 35px);text-align:center;color:#d0dfd0;font-size:11px;text-shadow:0 2px 6px #000;pointer-events:none}
+.action-button{position:absolute;z-index:12;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 65px);transform:translateX(-50%);padding:10px 20px;border:1px solid #d8bd7d;border-radius:10px;background:#17271fe8;color:#f0d99d;font-size:12px;backdrop-filter:blur(8px)}
+.panel{position:absolute;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#050b09c9;backdrop-filter:blur(7px)}
+.panel-card{width:100%;max-width:390px;max-height:85dvh;overflow-y:auto;padding:20px;border:1px solid #d5c18a66;border-radius:16px;background:linear-gradient(145deg,#14251f,#09130f);box-shadow:0 15px 50px #000a}
+.panel-title{text-align:center;color:#e8d5a2;font-size:20px;letter-spacing:2px;margin-bottom:8px}
+.panel-subtitle{text-align:center;color:#b7c7b9;font-size:12px;margin-bottom:15px}
+.stat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #ffffff18;color:#dce6d9;font-size:13px}
+.stat-row small{display:block;color:#91a595;font-size:10px;margin-top:3px}
+.stat-row button,.close-button{border:1px solid #cbb477;border-radius:8px;background:#a17b42;color:#17130b;padding:8px 12px;font-weight:bold}
+.stat-row button:disabled{opacity:.3}
+.close-button{display:block;width:100%;margin-top:17px;padding:11px}
+.death-card{text-align:center}
+.death-title{font-size:25px;color:#e6a18c;margin-bottom:10px}
+.death-text{color:#d3ded2;font-size:13px;line-height:1.6}
+.auth-screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:25px 18px;padding-top:max(25px,env(safe-area-inset-top));padding-bottom:max(25px,env(safe-area-inset-bottom));background:#07110f;overflow-y:auto}
+.auth-screen:before{content:"";position:fixed;inset:0;background-image:url("./eketoria_animated_background.gif?v=1");background-size:cover;background-position:center;background-repeat:no-repeat}
+.auth-screen:after{content:"";position:fixed;inset:0;background:linear-gradient(180deg,#06100a66,#06100ac9);pointer-events:none}
+.auth-card{position:relative;z-index:2;width:100%;max-width:390px;padding:27px 23px;border:1px solid #d5c18a55;border-radius:19px;background:linear-gradient(145deg,#10231edb,#09130ff2);backdrop-filter:blur(13px);box-shadow:0 15px 60px #000a,inset 0 1px 0 #ffffff19;margin:auto}
+.auth-logo{text-align:center;color:#e8d5a2;font-size:27px;letter-spacing:4px;text-shadow:0 0 18px #d5a64b66}
+.auth-subtitle{text-align:center;color:#b7c7b9;font-size:12px;letter-spacing:2px;margin:8px 0 22px}
 .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
-
-.auth-tabs button{
- padding:11px 5px;border-radius:9px;
- border:1px solid #ffffff25;background:#ffffff09;
- color:#bdcbbd;font-size:13px
-}
-
-.auth-tabs button.active{
- background:#b38b4b33;border-color:#d9bd7b;
- color:#f0d99d
-}
-
-.auth-card label{
- display:block;color:#c6d3c5;font-size:12px;margin:12px 0 6px
-}
-
-.auth-card input{
- width:100%;height:45px;padding:0 12px;
- border-radius:9px;border:1px solid #ffffff30;
- background:#07120fe0;color:#fff;font-size:15px;
- outline:none
-}
-
+.auth-tabs button{padding:11px 5px;border-radius:9px;border:1px solid #ffffff25;background:#ffffff09;color:#bdcbbd;font-size:13px}
+.auth-tabs button.active{background:#b38b4b33;border-color:#d9bd7b;color:#f0d99d}
+.auth-card label{display:block;color:#c6d3c5;font-size:12px;margin:12px 0 6px}
+.auth-card input{width:100%;height:45px;padding:0 12px;border-radius:9px;border:1px solid #ffffff30;background:#07120fe0;color:#fff;font-size:15px;outline:none}
 .auth-card input:focus{border-color:#d7b66d}
-
-.auth-main-button{
- width:100%;height:47px;margin-top:20px;
- border:1px solid #e0c17c;border-radius:10px;
- background:linear-gradient(135deg,#9c7138,#d4b36b,#8d632d);
- color:#17130b;font-weight:bold;font-size:15px;
- box-shadow:0 5px 18px #0005
-}
-
-.auth-message{
- min-height:34px;margin-top:13px;text-align:center;
- font-size:12px;line-height:1.5;color:#e9c98b
-}
-
-.auth-footer{
- text-align:center;color:#aebdae;font-size:10px;
- line-height:1.5;margin-top:8px
-}
-
+.auth-main-button{width:100%;height:47px;margin-top:20px;border:1px solid #e0c17c;border-radius:10px;background:linear-gradient(135deg,#9c7138,#d4b36b,#8d632d);color:#17130b;font-weight:bold;font-size:15px;box-shadow:0 5px 18px #0005}
+.auth-message{min-height:34px;margin-top:13px;text-align:center;font-size:12px;line-height:1.5;color:#e9c98b}
+.auth-footer{text-align:center;color:#aebdae;font-size:10px;line-height:1.5;margin-top:8px}
 .hidden{display:none!important}
-
-@media(max-height:650px){
- header{padding-top:7px}
- h1{font-size:19px}
- .stats{top:calc(env(safe-area-inset-top,0px) + 58px)}
- .hero{height:47%;bottom:20%}
- .monster{height:31%;bottom:20%}
- .enemy{bottom:calc(20% + 31% + 7px)}
- .auth-card{padding:19px}
-}
-
-@media(max-width:380px){
- .enemy{width:40%;right:3%}
- .enemy b{font-size:10px}
-}
-
-@media(min-width:700px){
- .game{max-width:600px;left:50%;transform:translateX(-50%)}
-}
-
+@media(max-height:650px){header{padding-top:7px}h1{font-size:19px}.stats{top:calc(env(safe-area-inset-top,0px) + 58px)}.player-health{top:calc(env(safe-area-inset-top,0px) + 122px)}.hero{height:47%;bottom:20%}.monster{height:31%;bottom:20%}.enemy{bottom:calc(20% + 31% + 7px)}.auth-card{padding:19px}}
+@media(max-width:380px){.enemy{width:40%;right:3%}.enemy b{font-size:10px}}
+@media(min-width:700px){.game{max-width:600px;left:50%;transform:translateX(-50%)}}
 </style>
 </head>
 
 <body>
-
 <div class="game">
 <div class="arena" id="arena">
-
 <img class="background" src="./forest.png" alt="Лес">
-
 <header>
 <h1>EKET CLICKER</h1>
 <div class="subtitle">Лесные земли</div>
@@ -356,76 +110,72 @@ h1{
  <div class="stat">ОПЫТ<b id="xp">0 / 50</b></div>
 </div>
 
-<div class="hero">
-<img class="hero-idle" src="./eket-hero.png" alt="Герой Eket">
+<div class="player-health">
+ <div class="health-title"><span>ЗДОРОВЬЕ ГЕРОЯ</span><span id="playerHP">100 / 100</span></div>
+ <div class="player-bar"><span id="playerBar"></span></div>
 </div>
 
+<div class="hero"><img class="hero-idle" src="./eket-hero.png" alt="Герой Eket"></div>
 <img class="monster" id="monster" src="./slime.png?v=2" alt="Лесной слизень">
-
-<div class="damage-pop" id="damagePop">-1</div>
+<div class="damage-pop" id="damagePop">-10</div>
 
 <div class="enemy">
  <b id="enemyName">Лесной слизень</b>
  <div class="bar"><span id="enemyBar"></span></div>
- <div id="enemyHP">30 / 30 HP</div>
+ <div id="enemyHP">20 / 20 HP</div>
 </div>
 
-<div class="note">Нажимай на противника, чтобы атаковать</div>
+<button class="action-button" onclick="openStats()">ХАРАКТЕРИСТИКИ <span id="pointsBadge"></span></button>
+<div class="note" id="battleNote">Нажимай на противника, чтобы атаковать</div>
 </div>
 </div>
 
-<!-- ВХОД И РЕГИСТРАЦИЯ -->
+<div class="panel hidden" id="statsPanel">
+ <div class="panel-card">
+  <div class="panel-title">ХАРАКТЕРИСТИКИ</div>
+  <div class="panel-subtitle">Свободных очков: <b id="statPoints">0</b></div>
+  <div id="statRows"></div>
+  <button class="close-button" onclick="closeStats()">ЗАКРЫТЬ</button>
+ </div>
+</div>
+
+<div class="panel hidden" id="deathPanel">
+ <div class="panel-card death-card">
+  <div class="death-title">ГЕРОЙ ПАЛ</div>
+  <div class="death-text">Ты потерял сознание в лесу.<br>Скоро приключение продолжится...</div>
+  <div class="panel-subtitle" id="respawnTimer">Возрождение через 3...</div>
+ </div>
+</div>
 
 <div class="auth-screen" id="authScreen">
 <div class="auth-card">
-
 <div class="auth-logo">EKET CLICKER</div>
 <div class="auth-subtitle">ТВОЁ ПРИКЛЮЧЕНИЕ НАЧИНАЕТСЯ</div>
-
 <div class="auth-tabs">
  <button id="loginTab" class="active" onclick="setAuthMode('login')">Вход</button>
  <button id="registerTab" onclick="setAuthMode('register')">Регистрация</button>
 </div>
-
 <form id="authForm">
  <div id="nicknameField" class="hidden">
   <label for="nicknameInput">Игровой ник</label>
-  <input id="nicknameInput" type="text"
-   placeholder="Например, Eketik"
-   minlength="3" maxlength="16"
-   autocomplete="nickname">
+  <input id="nicknameInput" type="text" placeholder="Например, Eketik" minlength="3" maxlength="16" autocomplete="nickname">
  </div>
-
  <label for="emailInput">Электронная почта</label>
- <input id="emailInput" type="email"
-  placeholder="name@example.com"
-  autocomplete="email" required>
-
+ <input id="emailInput" type="email" placeholder="name@example.com" autocomplete="email" required>
  <label for="passwordInput">Пароль</label>
- <input id="passwordInput" type="password"
-  placeholder="Минимум 6 символов"
-  minlength="6" autocomplete="current-password" required>
-
- <button class="auth-main-button" id="authSubmit" type="submit">
-  Войти в игру
- </button>
+ <input id="passwordInput" type="password" placeholder="Минимум 6 символов" minlength="6" autocomplete="current-password" required>
+ <button class="auth-main-button" id="authSubmit" type="submit">Войти в игру</button>
 </form>
-
 <div class="auth-message" id="authMessage"></div>
-<div class="auth-footer">
-Ваш игровой прогресс будет связан с аккаунтом.
-</div>
-
+<div class="auth-footer">Ваш игровой прогресс будет связан с аккаунтом.</div>
 </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
 <script>
-
 const firebaseConfig = {
  apiKey: "AIzaSyBfj_yOZnuXJMNI7dpo-XzL_j2SVsc294Y",
  authDomain: "eket-cliker.firebaseapp.com",
@@ -437,46 +187,59 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth=firebase.auth();
 const db=firebase.firestore();
 
 let saved={};
-
-try{
- saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}");
-}catch(e){}
+try{saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}");}catch(e){}
 
 let gold=saved.gold??0;
 let level=saved.level??1;
 let xp=saved.xp??0;
-let damage=saved.damage??1;
-let price=saved.price??25;
-let maxHP=saved.maxHP??30;
-let hp=saved.hp??maxHP;
+let statPoints=saved.statPoints??0;
 
-const CRIT_CHANCE=0.30;
-const CRIT_MULTIPLIER=2;
-const DODGE_CHANCE=0.10;
+const defaultStats={
+ damage:10,
+ maxPlayerHP:100,
+ agility:10,
+ critChance:5,
+ critDamage:150,
+ defense:0,
+ dodge:10
+};
+
+let stats={...defaultStats,...(saved.stats||{})};
+if(!saved.stats && saved.damage!==undefined)stats.damage=Math.max(10,saved.damage);
+
+const monsterHPTable=[20,30,42,58,78,100,130,165,205,250];
+function getMonsterMaxHP(lvl){
+ if(lvl<=10)return monsterHPTable[Math.max(0,lvl-1)];
+ return Math.floor(250*Math.pow(1.18,lvl-10));
+}
+let maxMonsterHP=saved.maxMonsterHP??getMonsterMaxHP(level);
+let monsterHP=saved.monsterHP??saved.hp??maxMonsterHP;
+monsterHP=Math.min(monsterHP,maxMonsterHP);
+
+let playerHP=saved.playerHP??stats.maxPlayerHP;
+playerHP=Math.min(playerHP,stats.maxPlayerHP);
 
 let isMonsterDying=false;
 let attackLocked=false;
-let attackTimer;
+let playerDead=false;
+let respawnInterval=null;
+let monsterAttackInterval=null;
+let attackTimer=null;
 
 let audioContext=null;
 let soundEnabled=false;
 let musicTimer=null;
 let musicStep=0;
-
 let currentUser=null;
 let cloudSaveTimer=null;
 let authMode="login";
 let authReady=false;
 
-const BAD_WORDS=[
- "хуй","пизд","еба","ебл","бля","сука",
- "fuck","shit","bitch","asshole"
-];
+const BAD_WORDS=["хуй","пизд","еба","ебл","бля","сука","fuck","shit","bitch","asshole"];
 
 function validNickname(name){
  if(!/^[A-Za-zА-Яа-яЁё]{3,16}$/.test(name))return false;
@@ -484,8 +247,15 @@ function validNickname(name){
  return !BAD_WORDS.some(word=>normalized.includes(word));
 }
 
+function getAttackDelay(){
+ return Math.max(300,700-(stats.agility-10)*20);
+}
+
 function getGameSave(){
- return {gold,level,xp,damage,price,maxHP,hp};
+ return {
+  gold,level,xp,statPoints,stats,
+  maxMonsterHP,monsterHP,playerHP
+ };
 }
 
 function applyGameSave(data){
@@ -493,22 +263,24 @@ function applyGameSave(data){
  gold=data.gold??0;
  level=data.level??1;
  xp=data.xp??0;
- damage=data.damage??1;
- price=data.price??25;
- maxHP=data.maxHP??30;
- hp=data.hp??maxHP;
+ statPoints=data.statPoints??0;
+ stats={...defaultStats,...(data.stats||{})};
+ if(!data.stats && data.damage!==undefined)stats.damage=Math.max(10,data.damage);
+ maxMonsterHP=data.maxMonsterHP??getMonsterMaxHP(level);
+ monsterHP=data.monsterHP??data.hp??maxMonsterHP;
+ monsterHP=Math.min(monsterHP,maxMonsterHP);
+ playerHP=data.playerHP??stats.maxPlayerHP;
+ playerHP=Math.min(playerHP,stats.maxPlayerHP);
  isMonsterDying=false;
  attackLocked=false;
+ playerDead=false;
  render();
 }
 
 function save(){
  const data=getGameSave();
- try{
-  localStorage.setItem("eket-clicker-save",JSON.stringify(data));
- }catch(e){
-  console.error("Ошибка локального сохранения",e);
- }
+ try{localStorage.setItem("eket-clicker-save",JSON.stringify(data));}
+ catch(e){console.error("Ошибка локального сохранения",e);}
  if(!currentUser)return;
  clearTimeout(cloudSaveTimer);
  cloudSaveTimer=setTimeout(async()=>{
@@ -517,9 +289,7 @@ function save(){
     gameSave:data,
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
    },{merge:true});
-  }catch(e){
-   console.error("Ошибка облачного сохранения",e);
-  }
+  }catch(e){console.error("Ошибка облачного сохранения",e);}
  },800);
 }
 
@@ -551,9 +321,7 @@ function setAuthMode(mode){
  document.getElementById("passwordInput").autocomplete=mode==="login"?"current-password":"new-password";
 }
 
-function showMessage(message){
- document.getElementById("authMessage").textContent=message;
-}
+function showMessage(message){document.getElementById("authMessage").textContent=message;}
 
 function errorMessage(error){
  const messages={
@@ -609,14 +377,10 @@ document.getElementById("authForm").addEventListener("submit",async(event)=>{
  button.textContent="Подожди...";
  showMessage("");
  try{
-  if(authMode==="register"){
-   await registerAccount(email,password,nickname);
-  }else{
-   await loginAccount(email,password);
-  }
- }catch(error){
-  showMessage(errorMessage(error));
- }finally{
+  if(authMode==="register")await registerAccount(email,password,nickname);
+  else await loginAccount(email,password);
+ }catch(error){showMessage(errorMessage(error));}
+ finally{
   button.disabled=false;
   button.textContent=authMode==="login"?"Войти в игру":"Создать аккаунт";
  }
@@ -629,6 +393,7 @@ auth.onAuthStateChanged(async(user)=>{
    await loadCloudSave(user);
    document.getElementById("authScreen").classList.add("hidden");
    authReady=true;
+   startMonsterAttacks();
   }catch(error){
    console.error(error);
    showMessage("Не удалось загрузить сохранение. Проверь интернет и правила Firestore.");
@@ -637,6 +402,7 @@ auth.onAuthStateChanged(async(user)=>{
  }else{
   currentUser=null;
   authReady=false;
+  stopMonsterAttacks();
   document.getElementById("authScreen").classList.remove("hidden");
  }
 });
@@ -664,55 +430,39 @@ function tone(frequency,duration,type="sine",volume=0.08,slide=0){
  const now=ctx.currentTime;
  osc.type=type;
  osc.frequency.setValueAtTime(frequency,now);
- if(slide){
-  osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
- }
+ if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
  gain.gain.setValueAtTime(volume,now);
  gain.gain.exponentialRampToValueAtTime(0.001,now+duration);
- osc.connect(gain);
- gain.connect(ctx.destination);
- osc.start(now);
- osc.stop(now+duration);
+ osc.connect(gain);gain.connect(ctx.destination);
+ osc.start(now);osc.stop(now+duration);
 }
 
 function playHit(){
  tone(150,0.12,"sawtooth",0.12,-75);
  setTimeout(()=>tone(85,0.10,"triangle",0.07,-25),45);
 }
-
 function playDodge(){tone(520,0.16,"sine",0.07,420);}
-
 function playCritical(){
  tone(220,0.16,"sawtooth",0.10,260);
  setTimeout(()=>tone(440,0.22,"triangle",0.08,180),90);
 }
-
 function playVictory(){
  [392,494,587,784].forEach((f,i)=>setTimeout(()=>tone(f,0.32,"triangle",0.08),i*130));
 }
+function playEnemyHit(){tone(110,0.18,"square",0.09,-45);}
 
 function toggleSound(){
  soundEnabled=!soundEnabled;
  const button=document.getElementById("soundButton");
  if(soundEnabled){
-  getAudio();
-  button.textContent="♫";
-  musicTick();
+  getAudio();button.textContent="♫";musicTick();
   musicTimer=setInterval(musicTick,520);
  }else{
-  clearInterval(musicTimer);
-  musicTimer=null;
-  button.textContent="♪";
+  clearInterval(musicTimer);musicTimer=null;button.textContent="♪";
  }
 }
 
-const melody=[
- [392,494,587,494],
- [330,392,494,392],
- [349,440,523,440],
- [294,392,494,392]
-];
-
+const melody=[[392,494,587,494],[330,392,494,392],[349,440,523,440],[294,392,494,392]];
 function musicTick(){
  if(!soundEnabled)return;
  const phrase=melody[Math.floor(musicStep/4)%melody.length];
@@ -726,81 +476,199 @@ function render(){
  document.getElementById("gold").textContent=gold;
  document.getElementById("level").textContent=level;
  document.getElementById("xp").textContent=xp+" / "+(level*50);
- document.getElementById("enemyHP").textContent=hp+" / "+maxHP+" HP";
- document.getElementById("enemyBar").style.width=Math.max(0,hp/maxHP*100)+"%";
+ document.getElementById("enemyHP").textContent=monsterHP+" / "+maxMonsterHP+" HP";
+ document.getElementById("enemyBar").style.width=Math.max(0,monsterHP/maxMonsterHP*100)+"%";
+ document.getElementById("playerHP").textContent=playerHP+" / "+stats.maxPlayerHP;
+ document.getElementById("playerBar").style.width=Math.max(0,playerHP/stats.maxPlayerHP*100)+"%";
+ document.getElementById("pointsBadge").textContent=statPoints>0?"("+statPoints+")":"";
+ renderStatPanel();
+}
+
+function renderStatPanel(){
+ document.getElementById("statPoints").textContent=statPoints;
+ const rows=[
+  ["damage","Урон","+"+stats.damage+" к обычному удару","Увеличивает урон на 2"],
+  ["maxPlayerHP","Здоровье",stats.maxPlayerHP+" HP","Увеличивает максимум на 10 HP"],
+  ["agility","Ловкость",stats.agility,"Ускоряет ручные атаки"],
+  ["critChance","Критический шанс",stats.critChance.toFixed(1)+"%","Увеличивает шанс крита на 0,5%"],
+  ["critDamage","Критический урон",stats.critDamage+"%","Увеличивает силу крита на 5%"],
+  ["defense","Защита",stats.defense,"Снижает входящий урон на 1"],
+  ["dodge","Уклонение",stats.dodge+"%","Увеличивает шанс уклониться на 1%"]
+ ];
+ document.getElementById("statRows").innerHTML=rows.map(([key,name,value,description])=>{
+  let disabled=statPoints<=0;
+  if(key==="critChance"&&stats.critChance>=35)disabled=true;
+  if(key==="dodge"&&stats.dodge>=50)disabled=true;
+  return `<div class="stat-row"><div>${name}<small>${value} · ${description}</small></div><button ${disabled?"disabled":""} onclick="allocateStat('${key}')">+1</button></div>`;
+ }).join("");
+}
+
+function openStats(){
+ if(!authReady)return;
+ document.getElementById("statsPanel").classList.remove("hidden");
+ renderStatPanel();
+}
+function closeStats(){document.getElementById("statsPanel").classList.add("hidden");}
+
+function allocateStat(key){
+ if(statPoints<=0)return;
+ if(key==="critChance"&&stats.critChance>=35)return;
+ if(key==="dodge"&&stats.dodge>=50)return;
+
+ if(key==="damage")stats.damage+=2;
+ if(key==="maxPlayerHP"){
+  stats.maxPlayerHP+=10;
+  playerHP+=10;
+ }
+ if(key==="agility")stats.agility+=1;
+ if(key==="critChance")stats.critChance=Math.min(35,stats.critChance+0.5);
+ if(key==="critDamage")stats.critDamage+=5;
+ if(key==="defense")stats.defense+=1;
+ if(key==="dodge")stats.dodge=Math.min(50,stats.dodge+1);
+
+ statPoints--;
+ render();
+ save();
 }
 
 function resetAnimation(){
  const arena=document.getElementById("arena");
- arena.classList.remove("hit","dodge","dying");
+ arena.classList.remove("hit","dodge","dying","enemy-hit");
  void arena.offsetWidth;
 }
 
 function attack(){
- if(!currentUser||!authReady||isMonsterDying||attackLocked)return;
+ if(!currentUser||!authReady||isMonsterDying||attackLocked||playerDead)return;
  attackLocked=true;
+
  const arena=document.getElementById("arena");
  const pop=document.getElementById("damagePop");
  resetAnimation();
  pop.className="damage-pop";
- if(Math.random()<DODGE_CHANCE){
-  playDodge();
-  pop.textContent="УКЛОНЕНИЕ!";
-  pop.classList.add("evaded");
-  arena.classList.add("dodge");
-  clearTimeout(attackTimer);
-  attackTimer=setTimeout(()=>{resetAnimation();attackLocked=false;},550);
-  return;
- }
- let actualDamage=damage;
+
+ let actualDamage=stats.damage;
  let isCritical=false;
- if(Math.random()<CRIT_CHANCE){
-  actualDamage=damage*CRIT_MULTIPLIER;
+ if(Math.random()<stats.critChance/100){
+  actualDamage=Math.round(stats.damage*stats.critDamage/100);
   isCritical=true;
  }
- hp-=actualDamage;
- if(isCritical)playCritical();
- else playHit();
+
+ monsterHP=Math.max(0,monsterHP-actualDamage);
+ if(isCritical)playCritical();else playHit();
+
  pop.textContent=isCritical?"КРИТ! -"+actualDamage:"-"+actualDamage;
  if(isCritical)pop.classList.add("critical");
  arena.classList.add("hit");
- if(hp<=0){
-  hp=0;
+
+ if(monsterHP<=0){
   isMonsterDying=true;
-  render();
-  save();
+  render();save();
   arena.classList.add("dying");
   clearTimeout(attackTimer);
   attackTimer=setTimeout(()=>{
    playVictory();
    gold+=5+level;
    xp+=10;
-   if(xp>=level*50){xp-=level*50;level++;}
-   maxHP=Math.floor(maxHP*1.2);
-   hp=maxHP;
+   while(xp>=level*50){
+    xp-=level*50;
+    level++;
+    statPoints++;
+   }
+   maxMonsterHP=getMonsterMaxHP(level);
+   monsterHP=maxMonsterHP;
    isMonsterDying=false;
    resetAnimation();
-   render();
-   save();
+   render();save();
    attackLocked=false;
   },750);
   return;
  }
- render();
- save();
+
+ render();save();
  clearTimeout(attackTimer);
- attackTimer=setTimeout(()=>{resetAnimation();attackLocked=false;},500);
+ attackTimer=setTimeout(()=>{
+  resetAnimation();
+  attackLocked=false;
+ },getAttackDelay());
 }
 
 document.getElementById("monster").addEventListener("click",attack);
-
 document.getElementById("monster").addEventListener("error",function(){
  console.error("Не удалось загрузить slime.png");
  this.alt="Ошибка загрузки slime.png";
 });
 
-render();
+function startMonsterAttacks(){
+ stopMonsterAttacks();
+ monsterAttackInterval=setInterval(monsterAttack,3000);
+}
 
+function stopMonsterAttacks(){
+ if(monsterAttackInterval){
+  clearInterval(monsterAttackInterval);
+  monsterAttackInterval=null;
+ }
+}
+
+function monsterAttack(){
+ if(!authReady||!currentUser||playerDead||isMonsterDying)return;
+
+ const arena=document.getElementById("arena");
+ const pop=document.getElementById("damagePop");
+ resetAnimation();
+ pop.className="damage-pop";
+
+ if(Math.random()<stats.dodge/100){
+  playDodge();
+  pop.textContent="УКЛОНЕНИЕ!";
+  pop.classList.add("evaded");
+  arena.classList.add("dodge");
+  return;
+ }
+
+ const enemyDamage=5+level*2;
+ const receivedDamage=Math.max(1,enemyDamage-stats.defense);
+ playerHP=Math.max(0,playerHP-receivedDamage);
+
+ playEnemyHit();
+ pop.textContent="-"+receivedDamage+" HP";
+ pop.style.right="auto";
+ pop.style.left="18%";
+ arena.classList.add("enemy-hit","hit");
+
+ render();save();
+
+ if(playerHP<=0)playerDeath();
+}
+
+function playerDeath(){
+ if(playerDead)return;
+ playerDead=true;
+ attackLocked=true;
+ document.getElementById("deathPanel").classList.remove("hidden");
+
+ let seconds=3;
+ document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
+ respawnInterval=setInterval(()=>{
+  seconds--;
+  if(seconds>0){
+   document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
+  }else{
+   clearInterval(respawnInterval);
+   respawnInterval=null;
+   playerHP=stats.maxPlayerHP;
+   playerDead=false;
+   attackLocked=false;
+   document.getElementById("deathPanel").classList.add("hidden");
+   document.getElementById("damagePop").style.left="";
+   document.getElementById("damagePop").style.right="";
+   resetAnimation();
+   render();save();
+  }
+ },1000);
+}
+
+render();
 </script>
 </body>
 </html>
