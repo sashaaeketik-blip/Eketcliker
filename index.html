@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101b19">
 
-<!-- Полноэкранный режим iPhone -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Eket Clicker">
@@ -231,11 +231,13 @@ h1{
  100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}
 }
 
+/* Урон над противником */
+
 .damage-pop{
  position:absolute;
- right:19%;
+ right:15%;
  bottom:47%;
- z-index:6;
+ z-index:8;
  color:#e5e8bd;
  font:bold 25px Georgia,serif;
  text-shadow:0 2px 8px #000;
@@ -287,139 +289,135 @@ h1{
  100%{opacity:0;transform:translateY(-45px) scale(1)}
 }
 
+/* НОВЫЙ HP-БАР НАД СЛИЗНЕМ */
+
 .enemy{
  position:absolute;
- z-index:10;
- left:18px;
- right:18px;
- bottom:calc(env(safe-area-inset-bottom,0px) + 125px);
- padding:10px 15px;
+ z-index:7;
+
+ right:4%;
+ bottom:calc(17% + 35% + 8px);
+
+ width:38%;
+ max-width:210px;
+
+ padding:7px 10px 6px;
+
  text-align:center;
- border:1px solid #ffffff25;
- border-radius:10px;
- background:#101b19c9;
+
+ border:1px solid #d8e5d044;
+ border-radius:9px;
+
+ background:linear-gradient(
+  145deg,
+  rgba(15,29,24,.94),
+  rgba(9,17,15,.88)
+ );
+
  backdrop-filter:blur(8px);
- box-shadow:0 4px 15px #0004;
+
+ box-shadow:
+ 0 4px 12px #0008,
+ inset 0 1px 0 #ffffff15;
 }
 
 .enemy b{
- color:#e0eadf;
- font-size:14px;
+ display:block;
+ color:#e8eee3;
+ font-size:11px;
  font-weight:normal;
- letter-spacing:.5px;
+ letter-spacing:.4px;
+ text-shadow:0 2px 5px #000;
+ white-space:nowrap;
 }
 
 .bar{
- height:6px;
- background:#26342d;
+ height:7px;
+ background:#202e28;
+ border:1px solid #ffffff18;
  border-radius:10px;
  overflow:hidden;
- margin-top:8px;
+ margin-top:6px;
+ box-shadow:inset 0 1px 3px #0009;
 }
 
 .bar span{
  display:block;
  height:100%;
  width:100%;
- background:linear-gradient(90deg,#8b5549,#d18a70);
- transition:width .2s;
+ border-radius:10px;
+
+ background:linear-gradient(
+  90deg,
+  #853f38,
+  #c65e4e,
+  #e18c69
+ );
+
+ box-shadow:0 0 8px #d66c5266;
+
+ transition:width .25s ease;
 }
 
 #enemyHP{
- margin-top:5px;
- color:#b1c0b3;
- font-size:10px;
+ margin-top:4px;
+ color:#bdcabe;
+ font-size:9px;
+ letter-spacing:.3px;
 }
 
-.section{
- position:absolute;
- z-index:11;
- left:12px;
- right:12px;
- bottom:calc(env(safe-area-inset-bottom,0px) + 12px);
- padding:11px 14px;
- border:1px solid #ffffff25;
- border-radius:12px;
- background:#101b19e8;
- backdrop-filter:blur(12px);
- box-shadow:0 5px 20px #0007;
-}
-
-.section h2{
- margin:0 0 7px;
- color:#dce8df;
- font-size:14px;
- font-weight:normal;
- letter-spacing:1px;
-}
-
-.upgrade{
- display:flex;
- align-items:center;
- justify-content:space-between;
- gap:10px;
-}
-
-.upgrade b{
- color:#e0eadf;
- font-size:13px;
- font-weight:normal;
-}
-
-.upgrade p{
- margin:4px 0 0;
- color:#a0b2a4;
- font-size:11px;
-}
-
-.upgrade button{
- border:1px solid #6b896e;
- border-radius:8px;
- background:linear-gradient(180deg,#36553d,#203c2a);
- color:#e2eee0;
- padding:10px 15px;
- font-size:12px;
- box-shadow:0 3px 8px #0005;
- white-space:nowrap;
-}
-
-.upgrade button:active{
- transform:scale(.96);
-}
-
-.section>p{
- color:#9bac9e;
- margin:7px 0 0;
- font-size:11px;
-}
-
-.section>p b{
- color:#e0eadf;
- font-weight:normal;
-}
+/* Подсказка */
 
 .note{
  position:absolute;
  z-index:8;
  left:0;
  right:0;
- bottom:calc(env(safe-area-inset-bottom,0px) + 105px);
+ bottom:calc(env(safe-area-inset-bottom,0px) + 35px);
  text-align:center;
  color:#d0dfd0;
- font-size:10px;
- text-shadow:0 2px 5px #000;
+ font-size:11px;
+ text-shadow:0 2px 6px #000;
  pointer-events:none;
 }
 
+/* Адаптация */
+
 @media(max-height:650px){
+
  header{padding-top:7px}
+
  h1{font-size:19px}
- .stats{top:calc(env(safe-area-inset-top,0px) + 58px)}
- .hero{height:47%;bottom:20%}
- .monster{height:31%;bottom:20%}
- .enemy{bottom:calc(env(safe-area-inset-bottom,0px) + 112px)}
- .section{padding:8px 12px}
- .note{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+
+ .stats{
+  top:calc(env(safe-area-inset-top,0px) + 58px);
+ }
+
+ .hero{
+  height:47%;
+  bottom:20%;
+ }
+
+ .monster{
+  height:31%;
+  bottom:20%;
+ }
+
+ .enemy{
+  bottom:calc(20% + 31% + 7px);
+ }
+
+}
+
+@media(max-width:380px){
+ .enemy{
+  width:40%;
+  right:3%;
+ }
+
+ .enemy b{
+  font-size:10px;
+ }
 }
 
 @media(min-width:700px){
@@ -429,6 +427,7 @@ h1{
   transform:translateX(-50%);
  }
 }
+
 </style>
 </head>
 
@@ -460,32 +459,23 @@ h1{
 
 <div class="damage-pop" id="damagePop">-1</div>
 
+<!-- HP слизня теперь расположен над ним -->
+
 <div class="enemy">
-<b id="enemyName">Лесной слизень</b>
-<div class="bar"><span id="enemyBar"></span></div>
-<div id="enemyHP">30 / 30 HP</div>
+ <b id="enemyName">Лесной слизень</b>
+ <div class="bar">
+  <span id="enemyBar"></span>
+ </div>
+ <div id="enemyHP">30 / 30 HP</div>
 </div>
 
 <div class="note">Нажимай на противника, чтобы атаковать</div>
-
-<div class="section">
-<h2>Улучшения</h2>
-
-<div class="upgrade">
- <div>
-  <b>Сильный удар</b>
-  <p>Урон +1 · Цена: <span id="price">25</span> золота</p>
- </div>
- <button onclick="upgrade()">Улучшить</button>
-</div>
-
-<p>Текущий урон: <b id="damage">1</b></p>
-</div>
 
 </div>
 </div>
 
 <script>
+
 let saved={};
 
 try{
@@ -516,13 +506,18 @@ let musicStep=0;
 function getAudio(){
  const AudioCtx=window.AudioContext||window.webkitAudioContext;
  if(!AudioCtx)return null;
+
  if(!audioContext)audioContext=new AudioCtx();
+
  if(audioContext.state==="suspended")audioContext.resume();
+
  return audioContext;
 }
 
 function tone(frequency,duration,type="sine",volume=0.08,slide=0){
+
  if(!soundEnabled)return;
+
  const ctx=getAudio();
  if(!ctx)return;
 
@@ -569,9 +564,30 @@ function playVictory(){
  });
 }
 
-function playPurchase(){
- tone(660,0.10,"sine",0.07,120);
- setTimeout(()=>tone(880,0.16,"sine",0.07,100),100);
+function toggleSound(){
+
+ soundEnabled=!soundEnabled;
+
+ const button=document.getElementById("soundButton");
+
+ if(soundEnabled){
+
+  getAudio();
+
+  button.textContent="♫";
+
+  musicTick();
+
+  musicTimer=setInterval(musicTick,520);
+
+ }else{
+
+  clearInterval(musicTimer);
+
+  musicTimer=null;
+
+  button.textContent="♪";
+ }
 }
 
 const melody=[
@@ -582,6 +598,7 @@ const melody=[
 ];
 
 function musicTick(){
+
  if(!soundEnabled)return;
 
  const phrase=melody[Math.floor(musicStep/4)%melody.length];
@@ -596,48 +613,49 @@ function musicTick(){
  musicStep++;
 }
 
-function toggleSound(){
- soundEnabled=!soundEnabled;
-
- const button=document.getElementById("soundButton");
-
- if(soundEnabled){
-  getAudio();
-  button.textContent="♫";
-  musicTick();
-  musicTimer=setInterval(musicTick,520);
- }else{
-  clearInterval(musicTimer);
-  musicTimer=null;
-  button.textContent="♪";
- }
-}
-
 function save(){
+
  localStorage.setItem("eket-clicker-save",JSON.stringify({
-  gold,level,xp,damage,price,maxHP,hp
+  gold,
+  level,
+  xp,
+  damage,
+  price,
+  maxHP,
+  hp
  }));
+
 }
 
 function render(){
+
  document.getElementById("gold").textContent=gold;
+
  document.getElementById("level").textContent=level;
- document.getElementById("xp").textContent=xp+" / "+(level*50);
- document.getElementById("damage").textContent=damage;
- document.getElementById("price").textContent=price;
- document.getElementById("enemyHP").textContent=hp+" / "+maxHP+" HP";
+
+ document.getElementById("xp").textContent=
+  xp+" / "+(level*50);
+
+ document.getElementById("enemyHP").textContent=
+  hp+" / "+maxHP+" HP";
+
  document.getElementById("enemyBar").style.width=
   Math.max(0,hp/maxHP*100)+"%";
+
 }
 
 function resetAnimation(){
+
  const arena=document.getElementById("arena");
 
  arena.classList.remove("hit","dodge","dying");
+
  void arena.offsetWidth;
+
 }
 
 function attack(){
+
  if(isMonsterDying||attackLocked)return;
 
  attackLocked=true;
@@ -646,20 +664,26 @@ function attack(){
  const pop=document.getElementById("damagePop");
 
  resetAnimation();
+
  pop.className="damage-pop";
 
  if(Math.random()<DODGE_CHANCE){
+
   playDodge();
 
   pop.textContent="УКЛОНЕНИЕ!";
   pop.classList.add("evaded");
+
   arena.classList.add("dodge");
 
   clearTimeout(attackTimer);
 
   attackTimer=setTimeout(()=>{
+
    resetAnimation();
+
    attackLocked=false;
+
   },550);
 
   return;
@@ -669,7 +693,9 @@ function attack(){
  let isCritical=false;
 
  if(Math.random()<CRIT_CHANCE){
+
   actualDamage=damage*CRIT_MULTIPLIER;
+
   isCritical=true;
  }
 
@@ -685,12 +711,16 @@ function attack(){
   "КРИТ! -"+actualDamage:
   "-"+actualDamage;
 
- if(isCritical)pop.classList.add("critical");
+ if(isCritical){
+  pop.classList.add("critical");
+ }
 
  arena.classList.add("hit");
 
  if(hp<=0){
+
   hp=0;
+
   isMonsterDying=true;
 
   render();
@@ -701,55 +731,53 @@ function attack(){
   clearTimeout(attackTimer);
 
   attackTimer=setTimeout(()=>{
+
    playVictory();
 
    gold+=5+level;
+
    xp+=10;
 
    if(xp>=level*50){
+
     xp-=level*50;
+
     level++;
    }
 
    maxHP=Math.floor(maxHP*1.2);
+
    hp=maxHP;
 
    isMonsterDying=false;
 
    resetAnimation();
+
    render();
+
    save();
 
    attackLocked=false;
+
   },750);
 
   return;
  }
 
  render();
+
  save();
 
  clearTimeout(attackTimer);
 
  attackTimer=setTimeout(()=>{
+
   resetAnimation();
+
   attackLocked=false;
+
  },500);
-}
 
-function upgrade(){
- if(gold<price){
-  alert("Не хватает золота!");
-  return;
- }
-
- gold-=price;
- damage++;
- price+=25;
-
- playPurchase();
- save();
- render();
 }
 
 document.getElementById("monster").addEventListener("click",attack);
@@ -757,9 +785,13 @@ document.getElementById("monster").addEventListener("click",attack);
 render();
 
 document.getElementById("monster").addEventListener("error",function(){
+
  console.error("Не удалось загрузить slime.png");
+
  this.alt="Ошибка загрузки slime.png";
+
 });
+
 </script>
 
 </body>
