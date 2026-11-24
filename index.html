@@ -23,8 +23,23 @@ button{cursor:pointer}
 header{position:absolute;z-index:10;top:env(safe-area-inset-top,0px);left:0;right:0;padding:13px 65px 8px;text-align:center;pointer-events:none}
 h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;text-shadow:0 2px 8px #000}
 .subtitle{margin-top:4px;color:#bdcbbb;font-size:11px;letter-spacing:2px;text-shadow:0 2px 6px #000}
-.sound-button,.account-button{position:absolute;top:10px;width:40px;height:40px;border:1px solid #ffffff35;border-radius:50%;background:#101c18bb;color:#e0eadf;font-size:17px;padding:0;pointer-events:auto;backdrop-filter:blur(8px)}
-.sound-button{right:15px}.account-button{left:15px;font-size:13px}
+
+.sound-button,.account-button,.theme-button{
+ position:absolute;top:10px;width:40px;height:40px;
+ border:1px solid #ffffff35;border-radius:50%;
+ background:#101c18bb;color:#e0eadf;font-size:17px;
+ padding:0;pointer-events:auto;backdrop-filter:blur(8px)
+}
+.sound-button{right:15px}
+.account-button{left:15px;font-size:13px}
+.theme-button{right:63px;color:#f0d99d}
+
+.theme-volume{
+ position:absolute;right:108px;top:24px;width:65px;
+ z-index:12;pointer-events:auto;accent-color:#d5bd7b;
+ height:14px
+}
+
 .stats{position:absolute;z-index:10;top:calc(env(safe-area-inset-top,0px) + 75px);left:12px;right:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .stat{text-align:center;padding:8px 4px;border:1px solid #ffffff22;border-radius:9px;background:#101b19b8;color:#a9bcae;font-size:9px;letter-spacing:1px;backdrop-filter:blur(8px);box-shadow:0 4px 12px #0003}
 .stat b{display:block;margin-top:4px;color:#edf3e9;font-size:18px;font-weight:normal}
@@ -74,70 +89,49 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 
 /* Экран входа и регистрации */
 .auth-screen{
- position:fixed;
- inset:0;
- z-index:100;
- display:flex;
- align-items:center;
- justify-content:center;
+ position:fixed;inset:0;z-index:100;
+ display:flex;align-items:center;justify-content:center;
  padding:25px 18px;
  padding-top:max(25px,env(safe-area-inset-top));
  padding-bottom:max(25px,env(safe-area-inset-bottom));
- background:#07110f;
- overflow-y:auto;
- isolation:isolate;
+ background:#07110f;overflow-y:auto;isolation:isolate
 }
 .auth-screen:before{
- content:"";
- position:absolute;
- inset:0;
- z-index:0;
- background:linear-gradient(145deg,#10251d,#07110f);
+ content:"";position:absolute;inset:0;z-index:0;
+ background:linear-gradient(145deg,#10251d,#07110f)
 }
 .auth-background-video{
- position:absolute;
- inset:0;
- z-index:1;
- width:100%;
- height:100%;
- object-fit:cover;
- object-position:center;
- pointer-events:none;
- background:#07110f;
+ position:absolute;inset:0;z-index:1;width:100%;height:100%;
+ object-fit:cover;object-position:center;pointer-events:none;background:#07110f
 }
 .auth-screen:after{
- content:"";
- position:absolute;
- inset:0;
- z-index:2;
+ content:"";position:absolute;inset:0;z-index:2;
  background:linear-gradient(180deg,#06100a66,#06100ac9);
- pointer-events:none;
+ pointer-events:none
 }
 .auth-video-sound{
- position:absolute;
- z-index:4;
- top:calc(env(safe-area-inset-top,0px) + 16px);
- right:16px;
- padding:10px 14px;
- border:1px solid #d5c18a88;
- border-radius:20px;
- background:#101c18bb;
- color:#f0d99d;
- font-size:12px;
- backdrop-filter:blur(8px);
+ position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 16px);
+ right:16px;padding:10px 14px;border:1px solid #d5c18a88;
+ border-radius:20px;background:#101c18bb;color:#f0d99d;
+ font-size:12px;backdrop-filter:blur(8px)
 }
+.auth-theme-controls{
+ position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 62px);
+ right:16px;display:flex;align-items:center;gap:8px;
+ padding:8px 12px;border:1px solid #d5c18a88;
+ border-radius:20px;background:#101c18dd;backdrop-filter:blur(8px)
+}
+.auth-theme-controls button{
+ border:0;background:transparent;color:#f0d99d;font-size:12px;
+ padding:3px;white-space:nowrap
+}
+.auth-theme-controls input{width:65px;accent-color:#d5bd7b}
 .auth-card{
- position:relative;
- z-index:3;
- width:100%;
- max-width:390px;
- padding:27px 23px;
- border:1px solid #d5c18a55;
- border-radius:19px;
+ position:relative;z-index:3;width:100%;max-width:390px;
+ padding:27px 23px;border:1px solid #d5c18a55;border-radius:19px;
  background:linear-gradient(145deg,#10231edb,#09130ff2);
  backdrop-filter:blur(13px);
- box-shadow:0 15px 60px #000a,inset 0 1px 0 #ffffff19;
- margin:auto;
+ box-shadow:0 15px 60px #000a,inset 0 1px 0 #ffffff19;margin:auto
 }
 .auth-logo{text-align:center;color:#e8d5a2;font-size:27px;letter-spacing:4px;text-shadow:0 0 18px #d5a64b66}
 .auth-subtitle{text-align:center;color:#b7c7b9;font-size:12px;letter-spacing:2px;margin:8px 0 22px}
@@ -151,21 +145,45 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .auth-message{min-height:34px;margin-top:13px;text-align:center;font-size:12px;line-height:1.5;color:#e9c98b}
 .auth-footer{text-align:center;color:#aebdae;font-size:10px;line-height:1.5;margin-top:8px}
 .hidden{display:none!important}
-@media(max-height:650px){header{padding-top:7px}h1{font-size:19px}.stats{top:calc(env(safe-area-inset-top,0px) + 58px)}.player-health{top:calc(env(safe-area-inset-top,0px) + 122px)}.hero{height:47%;bottom:20%}.monster{height:31%;bottom:20%}.enemy{bottom:calc(20% + 31% + 7px)}.auth-card{padding:19px}}
-@media(max-width:380px){.enemy{width:40%;right:3%}.enemy b{font-size:10px}}
-@media(min-width:700px){.game{max-width:600px;left:50%;transform:translateX(-50%)}}
+@media(max-height:650px){
+ header{padding-top:7px}h1{font-size:19px}
+ .stats{top:calc(env(safe-area-inset-top,0px) + 58px)}
+ .player-health{top:calc(env(safe-area-inset-top,0px) + 122px)}
+ .hero{height:47%;bottom:20%}.monster{height:31%;bottom:20%}
+ .enemy{bottom:calc(20% + 31% + 7px)}
+ .auth-card{padding:19px}
+}
+@media(max-width:380px){
+ .enemy{width:40%;right:3%}.enemy b{font-size:10px}
+ .theme-volume{width:48px;right:105px}
+}
+@media(min-width:700px){
+ .game{max-width:600px;left:50%;transform:translateX(-50%)}
+}
 </style>
 </head>
 
 <body>
+
+<!-- Главная музыкальная тема Экетории -->
+<audio
+ id="eketoriaTheme"
+ src="./eketoria_mysterious_melody.wav"
+ loop
+ preload="auto">
+</audio>
+
 <div class="game">
 <div class="arena" id="arena">
 <img class="background" src="./forest.png" alt="Лес">
+
 <header>
 <h1>EKET CLICKER</h1>
 <div class="subtitle">Лесные земли</div>
 <button class="account-button" onclick="logout()" title="Выйти">↪</button>
 <button class="sound-button" id="soundButton" onclick="toggleSound()">♪</button>
+<button class="theme-button" id="themeButton" onclick="toggleThemeMusic()" title="Музыка Экетории">♫</button>
+<input class="theme-volume" id="themeVolume" type="range" min="0" max="100" value="35" aria-label="Громкость музыки" oninput="setThemeVolume(this.value)">
 </header>
 
 <div class="stats">
@@ -213,7 +231,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 
 <div class="auth-screen" id="authScreen">
 
-<!-- Видео-фон авторизации -->
 <video
  id="authBackgroundVideo"
  class="auth-background-video"
@@ -229,6 +246,11 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <button class="auth-video-sound" id="authVideoSound" onclick="toggleAuthVideoSound()">
  🔇 Звук выключен
 </button>
+
+<div class="auth-theme-controls">
+ <button id="authThemeButton" onclick="toggleThemeMusic()">♫ Включить мелодию</button>
+ <input id="authThemeVolume" type="range" min="0" max="100" value="35" aria-label="Громкость музыки" oninput="setThemeVolume(this.value)">
+</div>
 
 <div class="auth-card">
 <div class="auth-logo">EKET CLICKER</div>
@@ -272,7 +294,7 @@ firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
 
-/* Видео и звук экрана авторизации */
+/* Видео экрана авторизации */
 const authBackgroundVideo=document.getElementById("authBackgroundVideo");
 let authVideoSoundEnabled=false;
 
@@ -294,11 +316,9 @@ function startAuthVideo(){
 
 function toggleAuthVideoSound(){
  authVideoSoundEnabled=!authVideoSoundEnabled;
-
  authBackgroundVideo.muted=!authVideoSoundEnabled;
 
  const button=document.getElementById("authVideoSound");
-
  button.textContent=authVideoSoundEnabled
   ?"🔊 Звук включён"
   :"🔇 Звук выключен";
@@ -322,6 +342,59 @@ document.addEventListener("visibilitychange",()=>{
 
 startAuthVideo();
 
+/* Музыкальная тема Экетории */
+const themeAudio=document.getElementById("eketoriaTheme");
+let themeEnabled=false;
+
+themeAudio.volume=0.35;
+
+function updateThemeButtons(){
+ const gameButton=document.getElementById("themeButton");
+ const authButton=document.getElementById("authThemeButton");
+
+ if(gameButton){
+  gameButton.textContent=themeEnabled?"♫":"♪";
+  gameButton.style.color=themeEnabled?"#f0d99d":"#e0eadf";
+  gameButton.title=themeEnabled?"Выключить мелодию":"Включить мелодию";
+ }
+
+ if(authButton){
+  authButton.textContent=themeEnabled
+   ?"♫ Мелодия включена"
+   :"♫ Включить мелодию";
+ }
+}
+
+async function toggleThemeMusic(){
+ if(!themeAudio)return;
+
+ if(themeEnabled){
+  themeAudio.pause();
+  themeEnabled=false;
+ }else{
+  try{
+   await themeAudio.play();
+   themeEnabled=true;
+  }catch(error){
+   console.warn("Не удалось запустить мелодию:",error);
+   themeEnabled=false;
+  }
+ }
+
+ updateThemeButtons();
+}
+
+function setThemeVolume(value){
+ const volume=Math.max(0,Math.min(100,Number(value)))/100;
+ themeAudio.volume=volume;
+
+ document.getElementById("themeVolume").value=value;
+ document.getElementById("authThemeVolume").value=value;
+}
+
+updateThemeButtons();
+
+/* Игровое сохранение */
 let saved={};
 try{saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}");}catch(e){}
 
@@ -344,10 +417,12 @@ let stats={...defaultStats,...(saved.stats||{})};
 if(!saved.stats && saved.damage!==undefined)stats.damage=Math.max(10,saved.damage);
 
 const monsterHPTable=[20,30,42,58,78,100,130,165,205,250];
+
 function getMonsterMaxHP(lvl){
  if(lvl<=10)return monsterHPTable[Math.max(0,lvl-1)];
  return Math.floor(250*Math.pow(1.18,lvl-10));
 }
+
 let maxMonsterHP=saved.maxMonsterHP??getMonsterMaxHP(level);
 let monsterHP=saved.monsterHP??saved.hp??maxMonsterHP;
 monsterHP=Math.min(monsterHP,maxMonsterHP);
@@ -364,8 +439,6 @@ let attackTimer=null;
 
 let audioContext=null;
 let soundEnabled=false;
-let musicTimer=null;
-let musicStep=0;
 let currentUser=null;
 let cloudSaveTimer=null;
 let authMode="login";
@@ -411,23 +484,33 @@ function applyGameSave(data){
 
 function save(){
  const data=getGameSave();
- try{localStorage.setItem("eket-clicker-save",JSON.stringify(data));}
- catch(e){console.error("Ошибка локального сохранения",e);}
+
+ try{
+  localStorage.setItem("eket-clicker-save",JSON.stringify(data));
+ }catch(e){
+  console.error("Ошибка локального сохранения",e);
+ }
+
  if(!currentUser)return;
+
  clearTimeout(cloudSaveTimer);
+
  cloudSaveTimer=setTimeout(async()=>{
   try{
    await db.collection("users").doc(currentUser.uid).set({
     gameSave:data,
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
    },{merge:true});
-  }catch(e){console.error("Ошибка облачного сохранения",e);}
+  }catch(e){
+   console.error("Ошибка облачного сохранения",e);
+  }
  },800);
 }
 
 async function loadCloudSave(user){
  const ref=db.collection("users").doc(user.uid);
  const snapshot=await ref.get();
+
  if(snapshot.exists && snapshot.data().gameSave){
   applyGameSave(snapshot.data().gameSave);
  }else{
@@ -436,6 +519,7 @@ async function loadCloudSave(user){
    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true});
  }
+
  saveLocalOnly();
 }
 
@@ -445,6 +529,7 @@ function saveLocalOnly(){
 
 function setAuthMode(mode){
  authMode=mode;
+
  document.getElementById("loginTab").classList.toggle("active",mode==="login");
  document.getElementById("registerTab").classList.toggle("active",mode==="register");
  document.getElementById("nicknameField").classList.toggle("hidden",mode!=="register");
@@ -453,7 +538,9 @@ function setAuthMode(mode){
  document.getElementById("passwordInput").autocomplete=mode==="login"?"current-password":"new-password";
 }
 
-function showMessage(message){document.getElementById("authMessage").textContent=message;}
+function showMessage(message){
+ document.getElementById("authMessage").textContent=message;
+}
 
 function errorMessage(error){
  const messages={
@@ -466,6 +553,7 @@ function errorMessage(error){
   "auth/too-many-requests":"Слишком много попыток. Попробуй позже.",
   "auth/network-request-failed":"Проверь подключение к интернету."
  };
+
  return messages[error.code]||"Ошибка: "+error.message;
 }
 
@@ -473,18 +561,30 @@ async function registerAccount(email,password,nickname){
  if(!validNickname(nickname)){
   throw new Error("Ник должен содержать 3–16 русских или английских букв и не содержать запрещённых слов.");
  }
+
  const nicknameKey=nickname.toLowerCase();
  const credential=await auth.createUserWithEmailAndPassword(email,password);
  const user=credential.user;
+
  try{
   const nicknameRef=db.collection("nicknames").doc(nicknameKey);
   const userRef=db.collection("users").doc(user.uid);
+
   await db.runTransaction(async(transaction)=>{
    const existing=await transaction.get(nicknameRef);
+
    if(existing.exists)throw new Error("Этот ник уже занят. Выбери другой.");
-   transaction.set(nicknameRef,{uid:user.uid,displayName:nickname,nicknameKey:nicknameKey});
+
+   transaction.set(nicknameRef,{
+    uid:user.uid,
+    displayName:nickname,
+    nicknameKey:nicknameKey
+   });
+
    transaction.set(userRef,{
-    uid:user.uid,email:email,nickname:nickname,
+    uid:user.uid,
+    email:email,
+    nickname:nickname,
     gameSave:getGameSave(),
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
    });
@@ -501,18 +601,22 @@ async function loginAccount(email,password){
 
 document.getElementById("authForm").addEventListener("submit",async(event)=>{
  event.preventDefault();
+
  const email=document.getElementById("emailInput").value.trim();
  const password=document.getElementById("passwordInput").value;
  const nickname=document.getElementById("nicknameInput").value.trim();
  const button=document.getElementById("authSubmit");
+
  button.disabled=true;
  button.textContent="Подожди...";
  showMessage("");
+
  try{
   if(authMode==="register")await registerAccount(email,password,nickname);
   else await loginAccount(email,password);
- }catch(error){showMessage(errorMessage(error));}
- finally{
+ }catch(error){
+  showMessage(errorMessage(error));
+ }finally{
   button.disabled=false;
   button.textContent=authMode==="login"?"Войти в игру":"Создать аккаунт";
  }
@@ -521,6 +625,7 @@ document.getElementById("authForm").addEventListener("submit",async(event)=>{
 auth.onAuthStateChanged(async(user)=>{
  if(user){
   currentUser=user;
+
   try{
    await loadCloudSave(user);
    document.getElementById("authScreen").classList.add("hidden");
@@ -543,69 +648,86 @@ auth.onAuthStateChanged(async(user)=>{
 
 async function logout(){
  if(!confirm("Выйти из аккаунта?"))return;
- try{await auth.signOut();}
- catch(error){alert(errorMessage(error));}
+
+ try{
+  await auth.signOut();
+ }catch(error){
+  alert(errorMessage(error));
+ }
 }
 
+/* Игровые звуковые эффекты */
 function getAudio(){
  const AudioCtx=window.AudioContext||window.webkitAudioContext;
  if(!AudioCtx)return null;
+
  if(!audioContext)audioContext=new AudioCtx();
  if(audioContext.state==="suspended")audioContext.resume();
+
  return audioContext;
 }
 
 function tone(frequency,duration,type="sine",volume=0.08,slide=0){
  if(!soundEnabled)return;
+
  const ctx=getAudio();
  if(!ctx)return;
+
  const osc=ctx.createOscillator();
  const gain=ctx.createGain();
  const now=ctx.currentTime;
+
  osc.type=type;
  osc.frequency.setValueAtTime(frequency,now);
- if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
+
+ if(slide){
+  osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
+ }
+
  gain.gain.setValueAtTime(volume,now);
  gain.gain.exponentialRampToValueAtTime(0.001,now+duration);
- osc.connect(gain);gain.connect(ctx.destination);
- osc.start(now);osc.stop(now+duration);
+
+ osc.connect(gain);
+ gain.connect(ctx.destination);
+
+ osc.start(now);
+ osc.stop(now+duration);
 }
 
 function playHit(){
  tone(150,0.12,"sawtooth",0.12,-75);
  setTimeout(()=>tone(85,0.10,"triangle",0.07,-25),45);
 }
-function playDodge(){tone(520,0.16,"sine",0.07,420);}
+
+function playDodge(){
+ tone(520,0.16,"sine",0.07,420);
+}
+
 function playCritical(){
  tone(220,0.16,"sawtooth",0.10,260);
  setTimeout(()=>tone(440,0.22,"triangle",0.08,180),90);
 }
+
 function playVictory(){
- [392,494,587,784].forEach((f,i)=>setTimeout(()=>tone(f,0.32,"triangle",0.08),i*130));
+ [392,494,587,784].forEach((f,i)=>{
+  setTimeout(()=>tone(f,0.32,"triangle",0.08),i*130);
+ });
 }
-function playEnemyHit(){tone(110,0.18,"square",0.09,-45);}
+
+function playEnemyHit(){
+ tone(110,0.18,"square",0.09,-45);
+}
 
 function toggleSound(){
  soundEnabled=!soundEnabled;
+
  const button=document.getElementById("soundButton");
- if(soundEnabled){
-  getAudio();button.textContent="♫";musicTick();
-  musicTimer=setInterval(musicTick,520);
- }else{
-  clearInterval(musicTimer);musicTimer=null;button.textContent="♪";
- }
+ button.textContent=soundEnabled?"♫":"♪";
+
+ if(soundEnabled)getAudio();
 }
 
-const melody=[[392,494,587,494],[330,392,494,392],[349,440,523,440],[294,392,494,392]];
-function musicTick(){
- if(!soundEnabled)return;
- const phrase=melody[Math.floor(musicStep/4)%melody.length];
- const note=phrase[musicStep%4];
- tone(note,0.48,"triangle",0.025);
- if(musicStep%4===0)tone(note/2,0.75,"sine",0.018);
- musicStep++;
-}
-
+/* Отрисовка игры */
 function render(){
  document.getElementById("gold").textContent=gold;
  document.getElementById("level").textContent=level;
@@ -615,11 +737,13 @@ function render(){
  document.getElementById("playerHP").textContent=playerHP+" / "+stats.maxPlayerHP;
  document.getElementById("playerBar").style.width=Math.max(0,playerHP/stats.maxPlayerHP*100)+"%";
  document.getElementById("pointsBadge").textContent=statPoints>0?"("+statPoints+")":"";
+
  renderStatPanel();
 }
 
 function renderStatPanel(){
  document.getElementById("statPoints").textContent=statPoints;
+
  const rows=[
   ["damage","Урон","+"+stats.damage+" к обычному удару","Увеличивает урон на 2"],
   ["maxPlayerHP","Здоровье",stats.maxPlayerHP+" HP","Увеличивает максимум на 10 HP"],
@@ -629,20 +753,27 @@ function renderStatPanel(){
   ["defense","Защита",stats.defense,"Снижает входящий урон на 1"],
   ["dodge","Уклонение",stats.dodge+"%","Увеличивает шанс уклониться на 1%"]
  ];
+
  document.getElementById("statRows").innerHTML=rows.map(([key,name,value,description])=>{
   let disabled=statPoints<=0;
+
   if(key==="critChance"&&stats.critChance>=35)disabled=true;
   if(key==="dodge"&&stats.dodge>=50)disabled=true;
+
   return `<div class="stat-row"><div>${name}<small>${value} · ${description}</small></div><button ${disabled?"disabled":""} onclick="allocateStat('${key}')">+1</button></div>`;
  }).join("");
 }
 
 function openStats(){
  if(!authReady)return;
+
  document.getElementById("statsPanel").classList.remove("hidden");
  renderStatPanel();
 }
-function closeStats(){document.getElementById("statsPanel").classList.add("hidden");}
+
+function closeStats(){
+ document.getElementById("statsPanel").classList.add("hidden");
+}
 
 function allocateStat(key){
  if(statPoints<=0)return;
@@ -650,10 +781,12 @@ function allocateStat(key){
  if(key==="dodge"&&stats.dodge>=50)return;
 
  if(key==="damage")stats.damage+=2;
+
  if(key==="maxPlayerHP"){
   stats.maxPlayerHP+=10;
   playerHP+=10;
  }
+
  if(key==="agility")stats.agility+=1;
  if(key==="critChance")stats.critChance=Math.min(35,stats.critChance+0.5);
  if(key==="critDamage")stats.critDamage+=5;
@@ -661,65 +794,88 @@ function allocateStat(key){
  if(key==="dodge")stats.dodge=Math.min(50,stats.dodge+1);
 
  statPoints--;
+
  render();
  save();
 }
 
 function resetAnimation(){
  const arena=document.getElementById("arena");
+
  arena.classList.remove("hit","dodge","dying","enemy-hit");
  void arena.offsetWidth;
 }
 
+/* Атака героя */
 function attack(){
  if(!currentUser||!authReady||isMonsterDying||attackLocked||playerDead)return;
+
  attackLocked=true;
 
  const arena=document.getElementById("arena");
  const pop=document.getElementById("damagePop");
+
  resetAnimation();
  pop.className="damage-pop";
 
  let actualDamage=stats.damage;
  let isCritical=false;
+
  if(Math.random()<stats.critChance/100){
   actualDamage=Math.round(stats.damage*stats.critDamage/100);
   isCritical=true;
  }
 
  monsterHP=Math.max(0,monsterHP-actualDamage);
- if(isCritical)playCritical();else playHit();
+
+ if(isCritical)playCritical();
+ else playHit();
 
  pop.textContent=isCritical?"КРИТ! -"+actualDamage:"-"+actualDamage;
+
  if(isCritical)pop.classList.add("critical");
+
  arena.classList.add("hit");
 
  if(monsterHP<=0){
   isMonsterDying=true;
-  render();save();
+  render();
+  save();
+
   arena.classList.add("dying");
   clearTimeout(attackTimer);
+
   attackTimer=setTimeout(()=>{
    playVictory();
+
    gold+=5+level;
    xp+=10;
+
    while(xp>=level*50){
     xp-=level*50;
     level++;
     statPoints++;
    }
+
    maxMonsterHP=getMonsterMaxHP(level);
    monsterHP=maxMonsterHP;
    isMonsterDying=false;
+
    resetAnimation();
-   render();save();
+   render();
+   save();
+
    attackLocked=false;
   },750);
+
   return;
  }
 
- render();save();
+ render();
+ save();
+
  clearTimeout(attackTimer);
+
  attackTimer=setTimeout(()=>{
   resetAnimation();
   attackLocked=false;
@@ -727,11 +883,13 @@ function attack(){
 }
 
 document.getElementById("monster").addEventListener("click",attack);
+
 document.getElementById("monster").addEventListener("error",function(){
  console.error("Не удалось загрузить slime.png");
  this.alt="Ошибка загрузки slime.png";
 });
 
+/* Атаки противника */
 function startMonsterAttacks(){
  stopMonsterAttacks();
  monsterAttackInterval=setInterval(monsterAttack,3000);
@@ -749,55 +907,72 @@ function monsterAttack(){
 
  const arena=document.getElementById("arena");
  const pop=document.getElementById("damagePop");
+
  resetAnimation();
  pop.className="damage-pop";
 
  if(Math.random()<stats.dodge/100){
   playDodge();
+
   pop.textContent="УКЛОНЕНИЕ!";
   pop.classList.add("evaded");
   arena.classList.add("dodge");
+
   return;
  }
 
  const enemyDamage=5+level*2;
  const receivedDamage=Math.max(1,enemyDamage-stats.defense);
+
  playerHP=Math.max(0,playerHP-receivedDamage);
 
  playEnemyHit();
+
  pop.textContent="-"+receivedDamage+" HP";
  pop.style.right="auto";
  pop.style.left="18%";
+
  arena.classList.add("enemy-hit","hit");
 
- render();save();
+ render();
+ save();
 
  if(playerHP<=0)playerDeath();
 }
 
+/* Возрождение героя */
 function playerDeath(){
  if(playerDead)return;
+
  playerDead=true;
  attackLocked=true;
+
  document.getElementById("deathPanel").classList.remove("hidden");
 
  let seconds=3;
+
  document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
+
  respawnInterval=setInterval(()=>{
   seconds--;
+
   if(seconds>0){
    document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
   }else{
    clearInterval(respawnInterval);
    respawnInterval=null;
+
    playerHP=stats.maxPlayerHP;
    playerDead=false;
    attackLocked=false;
+
    document.getElementById("deathPanel").classList.add("hidden");
    document.getElementById("damagePop").style.left="";
    document.getElementById("damagePop").style.right="";
+
    resetAnimation();
-   render();save();
+   render();
+   save();
   }
  },1000);
 }
