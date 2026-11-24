@@ -109,12 +109,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  background:linear-gradient(180deg,#06100a66,#06100ac9);
  pointer-events:none
 }
-.auth-video-sound{
- position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 16px);
- right:16px;padding:10px 14px;border:1px solid #d5c18a88;
- border-radius:20px;background:#101c18bb;color:#f0d99d;
- font-size:12px;backdrop-filter:blur(8px)
-}
 .auth-theme-controls{
  position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 62px);
  right:16px;display:flex;align-items:center;gap:8px;
@@ -241,10 +235,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  preload="auto">
  <source src="./eketoria_animated_background.mp4?v=2" type="video/mp4">
 </video>
-
-<div class="auth-video-sound">
- 🔇 Звук видео выключен
-</div>
 
 <div class="auth-theme-controls">
  <button id="authThemeButton" onclick="toggleThemeMusic()">♫ Включить мелодию</button>
