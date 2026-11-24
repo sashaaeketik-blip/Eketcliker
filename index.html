@@ -165,7 +165,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 
 <body>
 
-<!-- Главная музыкальная тема Экетории -->
 <audio
  id="eketoriaTheme"
  src="./eketoria_mysterious_melody.wav"
@@ -243,9 +242,9 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  <source src="./eketoria_animated_background.mp4?v=2" type="video/mp4">
 </video>
 
-<button class="auth-video-sound" id="authVideoSound" onclick="toggleAuthVideoSound()">
- 🔇 Звук выключен
-</button>
+<div class="auth-video-sound">
+ 🔇 Звук видео выключен
+</div>
 
 <div class="auth-theme-controls">
  <button id="authThemeButton" onclick="toggleThemeMusic()">♫ Включить мелодию</button>
@@ -294,16 +293,15 @@ firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
 
-/* Видео экрана авторизации */
+/* Видео авторизации: звук всегда выключен */
 const authBackgroundVideo=document.getElementById("authBackgroundVideo");
-let authVideoSoundEnabled=false;
 
 function startAuthVideo(){
  if(!authBackgroundVideo)return;
 
  authBackgroundVideo.playsInline=true;
- authBackgroundVideo.volume=0.35;
- authBackgroundVideo.muted=!authVideoSoundEnabled;
+ authBackgroundVideo.volume=0;
+ authBackgroundVideo.muted=true;
 
  const playPromise=authBackgroundVideo.play();
 
@@ -312,20 +310,6 @@ function startAuthVideo(){
    console.warn("Автозапуск видео не удался:",error);
   });
  }
-}
-
-function toggleAuthVideoSound(){
- authVideoSoundEnabled=!authVideoSoundEnabled;
- authBackgroundVideo.muted=!authVideoSoundEnabled;
-
- const button=document.getElementById("authVideoSound");
- button.textContent=authVideoSoundEnabled
-  ?"🔊 Звук включён"
-  :"🔇 Звук выключен";
-
- authBackgroundVideo.play().catch(error=>{
-  console.warn("Не удалось запустить видео:",error);
- });
 }
 
 authBackgroundVideo.addEventListener("loadeddata",startAuthVideo);
