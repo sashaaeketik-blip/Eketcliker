@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -56,11 +56,13 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .bar span{display:block;height:100%;width:100%;border-radius:10px;background:linear-gradient(90deg,#853f38,#c65e4e,#e18c69);transition:width .25s}
 #enemyHP{margin-top:4px;color:#bdcabe;font-size:9px}
 .note{position:absolute;z-index:8;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 35px);text-align:center;color:#d0dfd0;font-size:11px;text-shadow:0 2px 6px #000;pointer-events:none}
-.action-button,.shop-button,.inventory-button{position:absolute;z-index:12;bottom:calc(env(safe-area-inset-bottom,0px) + 65px);padding:10px 14px;border:1px solid #d8bd7d;border-radius:10px;background:#17271fe8;color:#f0d99d;font-size:12px;backdrop-filter:blur(8px)}
+.action-button,.shop-button,.inventory-button,.map-button{position:absolute;z-index:12;padding:10px 14px;border:1px solid #d8bd7d;border-radius:10px;background:#17271fe8;color:#f0d99d;font-size:12px;backdrop-filter:blur(8px)}
+.action-button,.shop-button,.inventory-button,.map-button{bottom:calc(env(safe-area-inset-bottom,0px) + 65px)}
 .action-button{left:50%;transform:translateX(-50%);padding:10px 20px}
 .shop-button{left:12px}
 .inventory-button{left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 115px)}
-.action-button:active,.shop-button:active,.inventory-button:active{filter:brightness(1.3)}
+.map-button{right:12px}
+.action-button:active,.shop-button:active,.inventory-button:active,.map-button:active{filter:brightness(1.3)}
 .panel{position:absolute;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:#050b09c9;backdrop-filter:blur(7px)}
 .panel-card{width:100%;max-width:390px;max-height:88dvh;overflow-y:auto;padding:20px;border:1px solid #d5c18a66;border-radius:16px;background:linear-gradient(145deg,#14251f,#09130f);box-shadow:0 15px 50px #000a}
 .panel-title{text-align:center;color:#e8d5a2;font-size:20px;letter-spacing:2px;margin-bottom:8px}
@@ -106,40 +108,99 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .auth-main-button{width:100%;height:47px;margin-top:20px;border:1px solid #e0c17c;border-radius:10px;background:linear-gradient(135deg,#9c7138,#d4b36b,#8d632d);color:#17130b;font-weight:bold;font-size:15px;box-shadow:0 5px 18px #0005}
 .auth-message{min-height:34px;margin-top:13px;text-align:center;font-size:12px;line-height:1.5;color:#e9c98b}
 .auth-footer{text-align:center;color:#aebdae;font-size:10px;line-height:1.5;margin-top:8px}
+
+/* Карта мира */
+.world-map-panel{position:fixed;z-index:60;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#050b09ed;backdrop-filter:blur(7px)}
+.world-map-card{position:relative;width:100%;max-width:650px;max-height:95dvh;overflow:auto;border:1px solid #d5c18a;border-radius:14px;background:#101b19;box-shadow:0 15px 50px #000a}
+.world-map-image{display:block;width:100%;height:auto}
+.map-location{position:absolute;transform:translate(-50%,-50%);padding:9px 10px;border:1px solid #e6ce91;border-radius:9px;background:#101b19e8;color:#f0d99d;font-size:11px;white-space:nowrap;box-shadow:0 3px 12px #0009}
+.map-location:active{filter:brightness(1.4)}
+.map-forest{left:23%;top:58%}
+.map-dungeon{left:51%;top:29%}
+.map-mountains{left:78%;top:55%}
+.map-close{display:block;width:100%;padding:13px;border:0;background:#17271f;color:#f0d99d;font-size:14px}
 @media(max-height:650px){header{padding-top:7px}h1{font-size:19px}.stats{top:calc(env(safe-area-inset-top,0px) + 58px)}.player-health{top:calc(env(safe-area-inset-top,0px) + 122px)}.hero{height:47%;bottom:20%}.monster{height:31%;bottom:20%}.enemy{bottom:calc(20% + 31% + 7px)}.auth-card{padding:19px}}
-@media(max-width:380px){.enemy{width:40%;right:3%}.enemy b{font-size:10px}.theme-volume{width:48px;right:105px}.inventory-button{bottom:calc(env(safe-area-inset-bottom,0px) + 112px)}}
+@media(max-width:380px){.enemy{width:40%;right:3%}.enemy b{font-size:10px}.theme-volume{width:48px;right:105px}.inventory-button{bottom:calc(env(safe-area-inset-bottom,0px) + 112px)}.map-location{font-size:9px;padding:7px 6px}}
 @media(min-width:700px){.game{max-width:600px;left:50%;transform:translateX(-50%)}}
 </style>
 </head>
 <body>
 <audio id="eketoriaTheme" src="./eketoria_mysterious_melody.wav" loop preload="auto"></audio>
+
 <div class="game">
 <div class="arena" id="arena">
 <img class="background" src="./forest.png" alt="Лес">
+
 <header>
-<h1>EKET CLICKER</h1><div class="subtitle">Лесные земли</div>
+<h1>EKET CLICKER</h1>
+<div class="subtitle" id="locationSubtitle">Лесные земли</div>
 <button class="account-button" onclick="logout()" title="Выйти">↪</button>
 <button class="sound-button" id="soundButton" onclick="toggleSound()">♪</button>
 <button class="theme-button" id="themeButton" onclick="toggleThemeMusic()" title="Музыка Экетории">♫</button>
 <input class="theme-volume" id="themeVolume" type="range" min="0" max="100" value="35" aria-label="Громкость музыки" oninput="setThemeVolume(this.value)">
 </header>
+
 <div class="stats">
-<div class="stat">ЗОЛОТО<b id="gold">0</b></div><div class="stat">УРОВЕНЬ<b id="level">1</b></div><div class="stat">ОПЫТ<b id="xp">0 / 50</b></div>
+<div class="stat">ЗОЛОТО<b id="gold">0</b></div>
+<div class="stat">УРОВЕНЬ<b id="level">1</b></div>
+<div class="stat">ОПЫТ<b id="xp">0 / 50</b></div>
 </div>
-<div class="player-health"><div class="health-title"><span>ЗДОРОВЬЕ ГЕРОЯ</span><span id="playerHP">100 / 100</span></div><div class="player-bar"><span id="playerBar"></span></div></div>
+
+<div class="player-health">
+<div class="health-title"><span>ЗДОРОВЬЕ ГЕРОЯ</span><span id="playerHP">100 / 100</span></div>
+<div class="player-bar"><span id="playerBar"></span></div>
+</div>
+
 <div class="hero"><img class="hero-idle" src="./eket-hero.png" alt="Герой Eket"></div>
-<img class="monster" id="monster" src="./slime.png?v=2" alt="Лесной слизень">
+<img class="monster" id="monster" src="./slime.png?v=2" alt="Монстр">
 <div class="damage-pop" id="damagePop">-10</div>
-<div class="enemy"><b id="enemyName">Лесной слизень</b><div class="bar"><span id="enemyBar"></span></div><div id="enemyHP">20 / 20 HP</div></div>
+
+<div class="enemy">
+<b id="enemyName">Лесной слизень</b>
+<div class="bar"><span id="enemyBar"></span></div>
+<div id="enemyHP">20 / 20 HP</div>
+</div>
+
 <div class="drop-message" id="dropMessage"></div>
+
 <button class="shop-button" onclick="openShop()">⚒ МАГАЗИН</button>
 <button class="inventory-button" onclick="openInventory()">🎒 ИНВЕНТАРЬ</button>
+<button class="map-button" onclick="openWorldMap()">🗺 КАРТА</button>
 <button class="action-button" onclick="openStats()">ХАРАКТЕРИСТИКИ <span id="pointsBadge"></span></button>
 <div class="note" id="battleNote">Нажимай на противника, чтобы атаковать</div>
-</div></div>
+</div>
+</div>
 
-<div class="panel hidden" id="statsPanel"><div class="panel-card"><div class="panel-title">ХАРАКТЕРИСТИКИ</div><div class="panel-subtitle">Свободных очков: <b id="statPoints">0</b></div><div id="statRows"></div><button class="close-button" onclick="closeStats()">ЗАКРЫТЬ</button></div></div>
-<div class="panel hidden" id="shopPanel"><div class="panel-card"><div class="panel-title">⚒ МАГАЗИН УЛУЧШЕНИЙ</div><div class="panel-subtitle">Твоё золото: <b id="shopGold">0</b> 🪙</div><div id="shopRows"></div><button class="close-button" onclick="closeShop()">ЗАКРЫТЬ</button></div></div>
+<!-- Карта мира -->
+<div class="world-map-panel hidden" id="worldMapPanel">
+ <div class="world-map-card">
+  <img class="world-map-image"
+   src="https://raw.githubusercontent.com/sashaaeketik-blip/Eketcliker/main/a_vibrant_fantasy_rpg_world_map_illustrated_in_a_h.png"
+   alt="Карта мира Eket Clicker">
+  <button class="map-location map-forest" onclick="travelToLocation('forest')">🌲 Зелёный лес</button>
+  <button class="map-location map-dungeon" onclick="travelToLocation('dungeon')">🏚 Подземелье</button>
+  <button class="map-location map-mountains" onclick="travelToLocation('mountains')">❄️ Морозные горы</button>
+  <button class="map-close" onclick="closeWorldMap()">ЗАКРЫТЬ КАРТУ</button>
+ </div>
+</div>
+
+<div class="panel hidden" id="statsPanel">
+<div class="panel-card">
+<div class="panel-title">ХАРАКТЕРИСТИКИ</div>
+<div class="panel-subtitle">Свободных очков: <b id="statPoints">0</b></div>
+<div id="statRows"></div>
+<button class="close-button" onclick="closeStats()">ЗАКРЫТЬ</button>
+</div>
+</div>
+
+<div class="panel hidden" id="shopPanel">
+<div class="panel-card">
+<div class="panel-title">⚒ МАГАЗИН УЛУЧШЕНИЙ</div>
+<div class="panel-subtitle">Твоё золото: <b id="shopGold">0</b> 🪙</div>
+<div id="shopRows"></div>
+<button class="close-button" onclick="closeShop()">ЗАКРЫТЬ</button>
+</div>
+</div>
 
 <div class="panel hidden" id="inventoryPanel">
  <div class="panel-card">
@@ -155,26 +216,49 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  </div>
 </div>
 
-<div class="panel hidden" id="deathPanel"><div class="panel-card death-card"><div class="death-title">ГЕРОЙ ПАЛ</div><div class="death-text">Ты потерял сознание в лесу.<br>Скоро приключение продолжится...</div><div class="panel-subtitle" id="respawnTimer">Возрождение через 3...</div></div></div>
+<div class="panel hidden" id="deathPanel">
+<div class="panel-card death-card">
+<div class="death-title">ГЕРОЙ ПАЛ</div>
+<div class="death-text">Ты потерял сознание.<br>Скоро приключение продолжится...</div>
+<div class="panel-subtitle" id="respawnTimer">Возрождение через 3...</div>
+</div>
+</div>
 
 <div class="auth-screen" id="authScreen">
-<video id="authBackgroundVideo" class="auth-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto"><source src="./eketoria_animated_background.mp4?v=2" type="video/mp4"></video>
-<div class="auth-theme-controls"><button id="authThemeButton" onclick="toggleThemeMusic()">♫ Включить мелодию</button><input id="authThemeVolume" type="range" min="0" max="100" value="35" aria-label="Громкость музыки" oninput="setThemeVolume(this.value)"></div>
+<video id="authBackgroundVideo" class="auth-background-video" autoplay muted loop playsinline webkit-playsinline preload="auto">
+<source src="./eketoria_animated_background.mp4?v=2" type="video/mp4">
+</video>
+<div class="auth-theme-controls">
+<button id="authThemeButton" onclick="toggleThemeMusic()">♫ Включить мелодию</button>
+<input id="authThemeVolume" type="range" min="0" max="100" value="35" aria-label="Громкость музыки" oninput="setThemeVolume(this.value)">
+</div>
 <div class="auth-card">
-<div class="auth-logo">EKET CLICKER</div><div class="auth-subtitle">ТВОЁ ПРИКЛЮЧЕНИЕ НАЧИНАЕТСЯ</div>
-<div class="auth-tabs"><button id="loginTab" class="active" onclick="setAuthMode('login')">Вход</button><button id="registerTab" onclick="setAuthMode('register')">Регистрация</button></div>
+<div class="auth-logo">EKET CLICKER</div>
+<div class="auth-subtitle">ТВОЁ ПРИКЛЮЧЕНИЕ НАЧИНАЕТСЯ</div>
+<div class="auth-tabs">
+<button id="loginTab" class="active" onclick="setAuthMode('login')">Вход</button>
+<button id="registerTab" onclick="setAuthMode('register')">Регистрация</button>
+</div>
 <form id="authForm">
-<div id="nicknameField" class="hidden"><label for="nicknameInput">Игровой ник</label><input id="nicknameInput" type="text" placeholder="Например, Eketik" minlength="3" maxlength="16" autocomplete="nickname"></div>
-<label for="emailInput">Электронная почта</label><input id="emailInput" type="email" placeholder="name@example.com" autocomplete="email" required>
-<label for="passwordInput">Пароль</label><input id="passwordInput" type="password" placeholder="Минимум 6 символов" minlength="6" autocomplete="current-password" required>
+<div id="nicknameField" class="hidden">
+<label for="nicknameInput">Игровой ник</label>
+<input id="nicknameInput" type="text" placeholder="Например, Eketik" minlength="3" maxlength="16" autocomplete="nickname">
+</div>
+<label for="emailInput">Электронная почта</label>
+<input id="emailInput" type="email" placeholder="name@example.com" autocomplete="email" required>
+<label for="passwordInput">Пароль</label>
+<input id="passwordInput" type="password" placeholder="Минимум 6 символов" minlength="6" autocomplete="current-password" required>
 <button class="auth-main-button" id="authSubmit" type="submit">Войти в игру</button>
 </form>
-<div class="auth-message" id="authMessage"></div><div class="auth-footer">Ваш игровой прогресс будет связан с аккаунтом.</div>
-</div></div>
+<div class="auth-message" id="authMessage"></div>
+<div class="auth-footer">Ваш игровой прогресс будет связан с аккаунтом.</div>
+</div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
 <script>
 const firebaseConfig={
  apiKey:"AIzaSyBfj_yOZnuXJMNI7dpo-XzL_j2SVsc294Y",
@@ -185,51 +269,140 @@ const firebaseConfig={
  appId:"1:615317473142:web:d1a091eeac1d4f97f49c57",
  measurementId:"G-Q14Z556GG7"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
 
 /* Видео авторизации */
 const authBackgroundVideo=document.getElementById("authBackgroundVideo");
+
 function startAuthVideo(){
  if(!authBackgroundVideo)return;
- authBackgroundVideo.playsInline=true;authBackgroundVideo.volume=0;authBackgroundVideo.muted=true;
+ authBackgroundVideo.playsInline=true;
+ authBackgroundVideo.volume=0;
+ authBackgroundVideo.muted=true;
  const playPromise=authBackgroundVideo.play();
- if(playPromise&&typeof playPromise.catch==="function")playPromise.catch(error=>console.warn("Автозапуск видео не удался:",error));
+ if(playPromise&&typeof playPromise.catch==="function"){
+  playPromise.catch(error=>console.warn("Автозапуск видео не удался:",error));
+ }
 }
+
 authBackgroundVideo.addEventListener("loadeddata",startAuthVideo);
 authBackgroundVideo.addEventListener("canplay",startAuthVideo);
 authBackgroundVideo.addEventListener("error",()=>console.error("Не удалось загрузить eketoria_animated_background.mp4"));
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!document.getElementById("authScreen").classList.contains("hidden"))startAuthVideo()});
+document.addEventListener("visibilitychange",()=>{
+ if(!document.hidden&&!document.getElementById("authScreen").classList.contains("hidden"))startAuthVideo();
+});
 startAuthVideo();
 
 /* Музыкальная тема */
 const themeAudio=document.getElementById("eketoriaTheme");
-let themeEnabled=false;themeAudio.volume=.35;
+let themeEnabled=false;
+themeAudio.volume=.35;
+
 function updateThemeButtons(){
- const gameButton=document.getElementById("themeButton"),authButton=document.getElementById("authThemeButton");
- if(gameButton){gameButton.textContent=themeEnabled?"♫":"♪";gameButton.style.color=themeEnabled?"#f0d99d":"#e0eadf";gameButton.title=themeEnabled?"Выключить мелодию":"Включить мелодию"}
+ const gameButton=document.getElementById("themeButton");
+ const authButton=document.getElementById("authThemeButton");
+ if(gameButton){
+  gameButton.textContent=themeEnabled?"♫":"♪";
+  gameButton.style.color=themeEnabled?"#f0d99d":"#e0eadf";
+  gameButton.title=themeEnabled?"Выключить мелодию":"Включить мелодию";
+ }
  if(authButton)authButton.textContent=themeEnabled?"♫ Мелодия включена":"♫ Включить мелодию";
 }
+
 async function toggleThemeMusic(){
- if(themeEnabled){themeAudio.pause();themeEnabled=false}
- else{try{await themeAudio.play();themeEnabled=true}catch(error){console.warn("Не удалось запустить мелодию:",error);themeEnabled=false}}
+ if(themeEnabled){
+  themeAudio.pause();
+  themeEnabled=false;
+ }else{
+  try{
+   await themeAudio.play();
+   themeEnabled=true;
+  }catch(error){
+   console.warn("Не удалось запустить мелодию:",error);
+   themeEnabled=false;
+  }
+ }
  updateThemeButtons();
 }
+
 function setThemeVolume(value){
- const volume=Math.max(0,Math.min(100,Number(value)))/100;themeAudio.volume=volume;
- document.getElementById("themeVolume").value=value;document.getElementById("authThemeVolume").value=value;
+ const volume=Math.max(0,Math.min(100,Number(value)))/100;
+ themeAudio.volume=volume;
+ document.getElementById("themeVolume").value=value;
+ document.getElementById("authThemeVolume").value=value;
 }
+
 updateThemeButtons();
 
+/* Данные локаций */
+const LOCATIONS={
+ forest:{
+  name:"Зелёный лес",
+  subtitle:"Лесные земли",
+  multiplier:1,
+  monsters:["Лесной слизень","Лесной гоблин","Дикий волк","Лесной паук"]
+ },
+ dungeon:{
+  name:"Старое подземелье",
+  subtitle:"Подземные глубины",
+  multiplier:2,
+  monsters:["Подземный слизень","Скелет-воин","Пещерный гоблин","Страж подземелья"]
+ },
+ mountains:{
+  name:"Морозные горы",
+  subtitle:"Земли вечного холода",
+  multiplier:3,
+  monsters:["Ледяной волк","Снежный голем","Горный тролль"]
+ }
+};
+
 /* Игровые данные */
-let saved={};try{saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}")}catch(e){}
-let gold=saved.gold??0,level=saved.level??1,xp=saved.xp??0,statPoints=saved.statPoints??0;
-const defaultStats={damage:10,maxPlayerHP:100,agility:10,critChance:5,critDamage:150,defense:0,dodge:10};
+let saved={};
+try{
+ saved=JSON.parse(localStorage.getItem("eket-clicker-save")||"{}");
+}catch(e){}
+
+let currentLocation=LOCATIONS[saved.currentLocation]?
+ saved.currentLocation:"forest";
+
+let currentMonsterName=saved.currentMonsterName||
+ LOCATIONS[currentLocation].monsters[0];
+
+let gold=saved.gold??0;
+let level=saved.level??1;
+let xp=saved.xp??0;
+let statPoints=saved.statPoints??0;
+
+const defaultStats={
+ damage:10,
+ maxPlayerHP:100,
+ agility:10,
+ critChance:5,
+ critDamage:150,
+ defense:0,
+ dodge:10
+};
+
 let stats={...defaultStats,...(saved.stats||{})};
-if(!saved.stats&&saved.damage!==undefined)stats.damage=Math.max(10,saved.damage);
-const defaultUpgradeLevels={damage:0,hp:0,agility:0,critChance:0,critDamage:0,gold:0};
+
+if(!saved.stats&&saved.damage!==undefined){
+ stats.damage=Math.max(10,saved.damage);
+}
+
+const defaultUpgradeLevels={
+ damage:0,
+ hp:0,
+ agility:0,
+ critChance:0,
+ critDamage:0,
+ gold:0
+};
+
 let upgradeLevels={...defaultUpgradeLevels,...(saved.upgradeLevels||{})};
+
 const shopUpgrades=[
  {key:"damage",name:"Мастерство клинка",icon:"⚔️",description:"+2 к урону за покупку",base:50,growth:1.55,max:Infinity},
  {key:"hp",name:"Крепкое тело",icon:"❤️",description:"+10 к максимальному здоровью",base:45,growth:1.5,max:Infinity},
@@ -238,18 +411,41 @@ const shopUpgrades=[
  {key:"critDamage",name:"Смертельный удар",icon:"💥",description:"+5% к критическому урону",base:120,growth:1.65,max:Infinity},
  {key:"gold",name:"Золотая добыча",icon:"🪙",description:"+10% золота за убийство",base:150,growth:1.75,max:20}
 ];
-function getUpgradeCost(upgrade){return Math.floor(upgrade.base*Math.pow(upgrade.growth,upgradeLevels[upgrade.key]))}
-const monsterHPTable=[20,30,42,58,78,100,130,165,205,250];
-function getMonsterMaxHP(lvl){if(lvl<=10)return monsterHPTable[Math.max(0,lvl-1)];return Math.floor(250*Math.pow(1.18,lvl-10))}
-let maxMonsterHP=saved.maxMonsterHP??getMonsterMaxHP(level);
-let monsterHP=saved.monsterHP??saved.hp??maxMonsterHP;monsterHP=Math.min(monsterHP,maxMonsterHP);
-let playerHP=saved.playerHP??stats.maxPlayerHP;playerHP=Math.min(playerHP,stats.maxPlayerHP);
 
-let isMonsterDying=false,attackLocked=false,playerDead=false,respawnInterval=null,monsterAttackInterval=null,attackTimer=null;
-let audioContext=null,soundEnabled=false,currentUser=null,cloudSaveTimer=null,authMode="login",authReady=false;
+function getUpgradeCost(upgrade){
+ return Math.floor(upgrade.base*Math.pow(upgrade.growth,upgradeLevels[upgrade.key]));
+}
+
+const monsterHPTable=[20,30,42,58,78,100,130,165,205,250];
+
+function getMonsterMaxHP(lvl){
+ if(lvl<=10)return monsterHPTable[Math.max(0,lvl-1)];
+ return Math.floor(250*Math.pow(1.18,lvl-10));
+}
+
+let maxMonsterHP=saved.maxMonsterHP??Math.floor(getMonsterMaxHP(level)*LOCATIONS[currentLocation].multiplier);
+let monsterHP=saved.monsterHP??saved.hp??maxMonsterHP;
+monsterHP=Math.min(monsterHP,maxMonsterHP);
+
+let playerHP=saved.playerHP??stats.maxPlayerHP;
+playerHP=Math.min(playerHP,stats.maxPlayerHP);
+
+let isMonsterDying=false;
+let attackLocked=false;
+let playerDead=false;
+let respawnInterval=null;
+let monsterAttackInterval=null;
+let attackTimer=null;
+let audioContext=null;
+let soundEnabled=false;
+let currentUser=null;
+let cloudSaveTimer=null;
+let authMode="login";
+let authReady=false;
 
 /* Предметы и экипировка */
 const INVENTORY_LIMIT=30;
+
 const RARITIES=[
  {id:"common",name:"Обычный",chance:50,multiplier:1,sell:8},
  {id:"uncommon",name:"Необычный",chance:25,multiplier:1.35,sell:18},
@@ -258,23 +454,31 @@ const RARITIES=[
  {id:"legendary",name:"Легендарный",chance:3,multiplier:3.5,sell:200},
  {id:"mythic",name:"Мифический",chance:1,multiplier:5,sell:500}
 ];
+
 const ITEM_NAMES={
  weapon:["Железный клинок","Меч лесного стража","Клинок древнего трона","Меч забытого королевства","Клинок вечного пламени","Меч королевской клятвы"],
  armor:["Кожаная броня следопыта","Броня лесного стража","Стальные доспехи","Доспехи древнего трона","Золотая королевская броня","Броня последнего защитника"]
 };
+
 let inventory=Array.isArray(saved.inventory)?saved.inventory:[];
-let equipment=saved.equipment&&typeof saved.equipment==="object"?saved.equipment:{weapon:null,armor:null};
-equipment.weapon=equipment.weapon||null;equipment.armor=equipment.armor||null;
+let equipment=saved.equipment&&typeof saved.equipment==="object"?
+ saved.equipment:{weapon:null,armor:null};
+
+equipment.weapon=equipment.weapon||null;
+equipment.armor=equipment.armor||null;
+
 inventory=inventory.filter(item=>item&&item.id&&["weapon","armor"].includes(item.type)).slice(0,INVENTORY_LIMIT);
 
 function getEquipmentBonuses(){
  const result={damage:0,critChance:0,critDamage:0,maxPlayerHP:0,defense:0,dodge:0};
  ["weapon","armor"].forEach(slot=>{
-  const item=equipment[slot];if(!item||!item.bonuses)return;
+  const item=equipment[slot];
+  if(!item||!item.bonuses)return;
   Object.keys(result).forEach(key=>result[key]+=Number(item.bonuses[key]||0));
  });
  return result;
 }
+
 function getEffectiveStats(){
  const b=getEquipmentBonuses();
  return {
@@ -286,11 +490,16 @@ function getEffectiveStats(){
   dodge:Math.min(75,stats.dodge+b.dodge)
  };
 }
+
 function getRarity(){
  let roll=Math.random()*100;
- for(const r of RARITIES){roll-=r.chance;if(roll<0)return r}
+ for(const r of RARITIES){
+  roll-=r.chance;
+  if(roll<0)return r;
+ }
  return RARITIES[0];
 }
+
 function generateItem(){
  const type=Math.random()<.5?"weapon":"armor";
  const rarity=getRarity();
@@ -298,17 +507,39 @@ function generateItem(){
  const name=names[Math.floor(Math.random()*names.length)];
  const power=Math.max(1,Math.floor((level+1)*rarity.multiplier));
  let bonuses;
+
  if(type==="weapon"){
-  bonuses={damage:Math.max(1,Math.floor(power*1.5)),critChance:Math.random()<.5?Number((power*.15).toFixed(1)):0,critDamage:Math.random()<.3?power*2:0};
+  bonuses={
+   damage:Math.max(1,Math.floor(power*1.5)),
+   critChance:Math.random()<.5?Number((power*.15).toFixed(1)):0,
+   critDamage:Math.random()<.3?power*2:0
+  };
  }else{
-  bonuses={maxPlayerHP:power*5,defense:Math.max(1,Math.floor(power*.6)),dodge:Math.random()<.3?Number((power*.1).toFixed(1)):0};
+  bonuses={
+   maxPlayerHP:power*5,
+   defense:Math.max(1,Math.floor(power*.6)),
+   dodge:Math.random()<.3?Number((power*.1).toFixed(1)):0
+  };
  }
+
  const id="item_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8);
- return {id,type,name,rarity:rarity.id,rarityName:rarity.name,bonuses,sellPrice:Math.max(1,Math.floor(rarity.sell*(1+level*.08))),createdAt:Date.now()};
+
+ return {
+  id,type,name,rarity:rarity.id,rarityName:rarity.name,
+  bonuses,
+  sellPrice:Math.max(1,Math.floor(rarity.sell*(1+level*.08))),
+  createdAt:Date.now()
+ };
 }
-function getRarityClass(item){return "rarity-"+(item.rarity||"common")}
+
+function getRarityClass(item){
+ return "rarity-"+(item.rarity||"common");
+}
+
 function formatBonuses(item){
- const b=item.bonuses||{},parts=[];
+ const b=item.bonuses||{};
+ const parts=[];
+
  if(item.type==="weapon"){
   if(b.damage)parts.push("Урон +"+b.damage);
   if(b.critChance)parts.push("Крит. шанс +"+b.critChance+"%");
@@ -318,58 +549,122 @@ function formatBonuses(item){
   if(b.defense)parts.push("Защита +"+b.defense);
   if(b.dodge)parts.push("Уклонение +"+b.dodge+"%");
  }
+
  return parts.join(" · ")||"Без бонусов";
 }
-function getItemRarity(item){return RARITIES.find(r=>r.id===item.rarity)||RARITIES[0]}
-function showDropMessage(message){
- const el=document.getElementById("dropMessage");el.textContent=message;el.classList.add("show");
- clearTimeout(showDropMessage.timer);showDropMessage.timer=setTimeout(()=>el.classList.remove("show"),2600);
+
+function getItemRarity(item){
+ return RARITIES.find(r=>r.id===item.rarity)||RARITIES[0];
 }
+
+function showDropMessage(message){
+ const el=document.getElementById("dropMessage");
+ el.textContent=message;
+ el.classList.add("show");
+ clearTimeout(showDropMessage.timer);
+ showDropMessage.timer=setTimeout(()=>el.classList.remove("show"),2600);
+}
+
 function dropItem(){
- if(inventory.length>=INVENTORY_LIMIT){showDropMessage("Инвентарь заполнен — предмет не выпал");return}
- const item=generateItem();inventory.push(item);
+ if(inventory.length>=INVENTORY_LIMIT){
+  showDropMessage("Инвентарь заполнен — предмет не выпал");
+  return;
+ }
+ const item=generateItem();
+ inventory.push(item);
  showDropMessage("Найден предмет: "+item.name+" · "+item.rarityName);
 }
-function openInventory(){if(!authReady)return;document.getElementById("inventoryPanel").classList.remove("hidden");renderInventory()}
-function closeInventory(){document.getElementById("inventoryPanel").classList.add("hidden")}
+
+function openInventory(){
+ if(!authReady)return;
+ document.getElementById("inventoryPanel").classList.remove("hidden");
+ renderInventory();
+}
+
+function closeInventory(){
+ document.getElementById("inventoryPanel").classList.add("hidden");
+}
+
 function equipItem(id){
  if(!authReady)return;
- const index=inventory.findIndex(item=>item.id===id);if(index<0)return;
- const item=inventory[index],slot=item.type;
+ const index=inventory.findIndex(item=>item.id===id);
+ if(index<0)return;
+
+ const item=inventory[index];
+ const slot=item.type;
  const previous=equipment[slot];
- equipment[slot]=item;inventory.splice(index,1);
- if(previous&&inventory.length<INVENTORY_LIMIT)inventory.unshift(previous);
- else if(previous){equipment[slot]=previous;inventory.splice(index,0,item);showDropMessage("Нет места для снятого предмета");return}
+
+ equipment[slot]=item;
+ inventory.splice(index,1);
+
+ if(previous&&inventory.length<INVENTORY_LIMIT){
+  inventory.unshift(previous);
+ }else if(previous){
+  equipment[slot]=previous;
+  inventory.splice(index,0,item);
+  showDropMessage("Нет места для снятого предмета");
+  return;
+ }
+
  const effective=getEffectiveStats();
  playerHP=Math.min(effective.maxPlayerHP,playerHP);
- render();renderInventory();save();
+ render();
+ renderInventory();
+ save();
 }
+
 function unequipItem(slot){
  if(!authReady||!equipment[slot])return;
- if(inventory.length>=INVENTORY_LIMIT){showDropMessage("В инвентаре нет свободного места");return}
- inventory.unshift(equipment[slot]);equipment[slot]=null;
+ if(inventory.length>=INVENTORY_LIMIT){
+  showDropMessage("В инвентаре нет свободного места");
+  return;
+ }
+
+ inventory.unshift(equipment[slot]);
+ equipment[slot]=null;
  playerHP=Math.min(playerHP,getEffectiveStats().maxPlayerHP);
- render();renderInventory();save();
+ render();
+ renderInventory();
+ save();
 }
+
 function sellItem(id){
  if(!authReady)return;
- const index=inventory.findIndex(item=>item.id===id);if(index<0)return;
- const item=inventory[index];gold+=Number(item.sellPrice)||1;inventory.splice(index,1);
- render();renderInventory();save();showDropMessage("Продано за "+item.sellPrice+" золота");
+ const index=inventory.findIndex(item=>item.id===id);
+ if(index<0)return;
+
+ const item=inventory[index];
+ gold+=Number(item.sellPrice)||1;
+ inventory.splice(index,1);
+
+ render();
+ renderInventory();
+ save();
+ showDropMessage("Продано за "+item.sellPrice+" золота");
 }
+
 function renderInventory(){
  const count=document.getElementById("inventoryCount");
  if(count)count.textContent=inventory.length+" / "+INVENTORY_LIMIT;
+
  ["weapon","armor"].forEach(slot=>{
-  const el=document.getElementById(slot+"Slot"),item=equipment[slot];
+  const el=document.getElementById(slot+"Slot");
+  const item=equipment[slot];
   if(!el)return;
+
   el.innerHTML=item?
    `<span class="${getRarityClass(item)}">${item.name}</span><br><small>${formatBonuses(item)}</small><br><button onclick="unequipItem('${slot}')">СНЯТЬ</button>`:
    "Пусто";
  });
+
  const list=document.getElementById("inventoryItems");
  if(!list)return;
- if(!inventory.length){list.innerHTML='<div class="inventory-empty">Пока здесь пусто.<br>Побеждай монстров, чтобы находить оружие и броню.</div>';return}
+
+ if(!inventory.length){
+  list.innerHTML='<div class="inventory-empty">Пока здесь пусто.<br>Побеждай монстров, чтобы находить оружие и броню.</div>';
+  return;
+ }
+
  list.innerHTML=inventory.map(item=>`
   <div class="item-card">
    <div class="item-name ${getRarityClass(item)}">${item.type==="weapon"?"⚔️":"🛡️"} ${item.name}</div>
@@ -381,29 +676,124 @@ function renderInventory(){
   </div>`).join("");
 }
 
+/* Карта и путешествия */
+function openWorldMap(){
+ if(!authReady)return;
+ document.getElementById("worldMapPanel").classList.remove("hidden");
+}
+
+function closeWorldMap(){
+ document.getElementById("worldMapPanel").classList.add("hidden");
+}
+
+function travelToLocation(locationId){
+ if(!authReady||!LOCATIONS[locationId])return;
+
+ if(isMonsterDying||attackLocked){
+  showDropMessage("Подожди окончания боя");
+  return;
+ }
+
+ currentLocation=locationId;
+ const location=LOCATIONS[currentLocation];
+
+ currentMonsterName=location.monsters[
+  Math.floor(Math.random()*location.monsters.length)
+ ];
+
+ maxMonsterHP=Math.floor(getMonsterMaxHP(level)*location.multiplier);
+ monsterHP=maxMonsterHP;
+
+ document.getElementById("locationSubtitle").textContent=location.subtitle;
+ document.getElementById("enemyName").textContent=currentMonsterName;
+
+ closeWorldMap();
+ resetAnimation();
+ render();
+ save();
+ showDropMessage("Ты прибыл: "+location.name);
+}
+
 /* Сохранение */
-function getGameSave(){return {gold,level,xp,statPoints,stats,upgradeLevels,maxMonsterHP,monsterHP,playerHP,inventory,equipment}}
+function getGameSave(){
+ return {
+  gold,level,xp,statPoints,stats,upgradeLevels,
+  maxMonsterHP,monsterHP,playerHP,inventory,equipment,
+  currentLocation,currentMonsterName
+ };
+}
+
 function applyGameSave(data){
  if(!data)return;
- gold=data.gold??0;level=data.level??1;xp=data.xp??0;statPoints=data.statPoints??0;
- stats={...defaultStats,...(data.stats||{})};upgradeLevels={...defaultUpgradeLevels,...(data.upgradeLevels||{})};
- if(!data.stats&&data.damage!==undefined)stats.damage=Math.max(10,data.damage);
- maxMonsterHP=data.maxMonsterHP??getMonsterMaxHP(level);monsterHP=data.monsterHP??data.hp??maxMonsterHP;monsterHP=Math.min(monsterHP,maxMonsterHP);
- inventory=Array.isArray(data.inventory)?data.inventory.filter(item=>item&&item.id&&["weapon","armor"].includes(item.type)).slice(0,INVENTORY_LIMIT):[];
- equipment=data.equipment&&typeof data.equipment==="object"?data.equipment:{weapon:null,armor:null};
- equipment.weapon=equipment.weapon||null;equipment.armor=equipment.armor||null;
- isMonsterDying=false;attackLocked=false;playerDead=false;
- playerHP=data.playerHP??stats.maxPlayerHP;playerHP=Math.min(playerHP,getEffectiveStats().maxPlayerHP);
+
+ currentLocation=LOCATIONS[data.currentLocation]?
+  data.currentLocation:"forest";
+
+ currentMonsterName=data.currentMonsterName||
+  LOCATIONS[currentLocation].monsters[0];
+
+ document.getElementById("locationSubtitle").textContent=
+  LOCATIONS[currentLocation].subtitle;
+
+ document.getElementById("enemyName").textContent=currentMonsterName;
+
+ gold=data.gold??0;
+ level=data.level??1;
+ xp=data.xp??0;
+ statPoints=data.statPoints??0;
+
+ stats={...defaultStats,...(data.stats||{})};
+ upgradeLevels={...defaultUpgradeLevels,...(data.upgradeLevels||{})};
+
+ if(!data.stats&&data.damage!==undefined){
+  stats.damage=Math.max(10,data.damage);
+ }
+
+ maxMonsterHP=data.maxMonsterHP??Math.floor(getMonsterMaxHP(level)*LOCATIONS[currentLocation].multiplier);
+ monsterHP=data.monsterHP??data.hp??maxMonsterHP;
+ monsterHP=Math.min(monsterHP,maxMonsterHP);
+
+ inventory=Array.isArray(data.inventory)?
+  data.inventory.filter(item=>item&&item.id&&["weapon","armor"].includes(item.type)).slice(0,INVENTORY_LIMIT):[];
+
+ equipment=data.equipment&&typeof data.equipment==="object"?
+  data.equipment:{weapon:null,armor:null};
+
+ equipment.weapon=equipment.weapon||null;
+ equipment.armor=equipment.armor||null;
+
+ isMonsterDying=false;
+ attackLocked=false;
+ playerDead=false;
+
+ playerHP=data.playerHP??stats.maxPlayerHP;
+ playerHP=Math.min(playerHP,getEffectiveStats().maxPlayerHP);
+
  render();
 }
+
 function save(){
  const data=getGameSave();
- try{localStorage.setItem("eket-clicker-save",JSON.stringify(data))}catch(e){console.error("Ошибка локального сохранения",e)}
+
+ try{
+  localStorage.setItem("eket-clicker-save",JSON.stringify(data));
+ }catch(e){
+  console.error("Ошибка локального сохранения",e);
+ }
+
  if(!currentUser)return;
+
  clearTimeout(cloudSaveTimer);
+
  cloudSaveTimer=setTimeout(async()=>{
-  try{await db.collection("users").doc(currentUser.uid).set({gameSave:data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}
-  catch(error){console.error("Ошибка облачного сохранения:",error)}
+  try{
+   await db.collection("users").doc(currentUser.uid).set({
+    gameSave:data,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+   },{merge:true});
+  }catch(error){
+   console.error("Ошибка облачного сохранения:",error);
+  }
  },500);
 }
 
@@ -411,6 +801,7 @@ function save(){
 function setAuthMode(mode){
  authMode=mode;
  const registering=mode==="register";
+
  document.getElementById("loginTab").classList.toggle("active",!registering);
  document.getElementById("registerTab").classList.toggle("active",registering);
  document.getElementById("nicknameField").classList.toggle("hidden",!registering);
@@ -419,6 +810,7 @@ function setAuthMode(mode){
  document.getElementById("passwordInput").autocomplete=registering?"new-password":"current-password";
  document.getElementById("authMessage").textContent="";
 }
+
 function errorMessage(error){
  const code=error&&error.code||"";
  const messages={
@@ -433,109 +825,254 @@ function errorMessage(error){
  };
  return messages[code]||"Не удалось выполнить действие. "+(error&&error.message?error.message:"");
 }
+
 async function reserveNickname(nickname,uid){
  const normalized=nickname.trim().toLowerCase();
  const ref=db.collection("nicknames").doc(normalized);
+
  await db.runTransaction(async transaction=>{
   const snap=await transaction.get(ref);
-  if(snap.exists&&snap.data().uid!==uid)throw new Error("Этот игровой ник уже занят.");
+  if(snap.exists&&snap.data().uid!==uid){
+   throw new Error("Этот игровой ник уже занят.");
+  }
   transaction.set(ref,{uid,nickname:nickname.trim()});
  });
 }
+
 document.getElementById("authForm").addEventListener("submit",async event=>{
  event.preventDefault();
+
  const email=document.getElementById("emailInput").value.trim();
  const password=document.getElementById("passwordInput").value;
- const message=document.getElementById("authMessage"),submit=document.getElementById("authSubmit");
- submit.disabled=true;message.textContent="Подожди...";
+ const message=document.getElementById("authMessage");
+ const submit=document.getElementById("authSubmit");
+
+ submit.disabled=true;
+ message.textContent="Подожди...";
+
  try{
   if(authMode==="register"){
    const nickname=document.getElementById("nicknameInput").value.trim();
-   if(!/^[a-zA-Zа-яА-ЯёЁ0-9_]{3,16}$/.test(nickname))throw new Error("Ник: от 3 до 16 символов. Разрешены буквы, цифры и _");
+
+   if(!/^[a-zA-Zа-яА-ЯёЁ0-9_]{3,16}$/.test(nickname)){
+    throw new Error("Ник: от 3 до 16 символов. Разрешены буквы, цифры и _");
+   }
+
    const credential=await auth.createUserWithEmailAndPassword(email,password);
+
    try{
     await reserveNickname(nickname,credential.user.uid);
-    await db.collection("users").doc(credential.user.uid).set({nickname,gameSave:getGameSave(),createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-   }catch(error){await credential.user.delete();throw error}
+    await db.collection("users").doc(credential.user.uid).set({
+     nickname,
+     gameSave:getGameSave(),
+     createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+   }catch(error){
+    await credential.user.delete();
+    throw error;
+   }
+
    message.textContent="Аккаунт создан!";
   }else{
    await auth.signInWithEmailAndPassword(email,password);
    message.textContent="Вход выполнен!";
   }
- }catch(error){message.textContent=error.message||errorMessage(error)}
- finally{submit.disabled=false}
+ }catch(error){
+  message.textContent=error.message||errorMessage(error);
+ }finally{
+  submit.disabled=false;
+ }
 });
+
 auth.onAuthStateChanged(async user=>{
  currentUser=user;
+
  if(user){
   try{
    const doc=await db.collection("users").doc(user.uid).get();
-   if(doc.exists&&doc.data().gameSave)applyGameSave(doc.data().gameSave);
-   else await db.collection("users").doc(user.uid).set({gameSave:getGameSave()},{merge:true});
-   authReady=true;document.getElementById("authScreen").classList.add("hidden");
-   startMonsterAttacks();render();save();
+
+   if(doc.exists&&doc.data().gameSave){
+    applyGameSave(doc.data().gameSave);
+   }else{
+    await db.collection("users").doc(user.uid).set({
+     gameSave:getGameSave()
+    },{merge:true});
+   }
+
+   authReady=true;
+   document.getElementById("authScreen").classList.add("hidden");
+   startMonsterAttacks();
+   render();
+   save();
+
   }catch(error){
    console.error("Не удалось загрузить сохранение:",error);
    document.getElementById("authMessage").textContent="Не удалось загрузить игровой прогресс. Проверь интернет.";
-   authReady=false;stopMonsterAttacks();document.getElementById("authScreen").classList.remove("hidden");startAuthVideo();
+   authReady=false;
+   stopMonsterAttacks();
+   document.getElementById("authScreen").classList.remove("hidden");
+   startAuthVideo();
   }
  }else{
-  authReady=false;stopMonsterAttacks();document.getElementById("authScreen").classList.remove("hidden");startAuthVideo();
+  authReady=false;
+  stopMonsterAttacks();
+  document.getElementById("authScreen").classList.remove("hidden");
+  startAuthVideo();
  }
 });
-async function logout(){if(!confirm("Выйти из аккаунта?"))return;try{await auth.signOut()}catch(error){alert(errorMessage(error))}}
+
+async function logout(){
+ if(!confirm("Выйти из аккаунта?"))return;
+ try{
+  await auth.signOut();
+ }catch(error){
+  alert(errorMessage(error));
+ }
+}
 
 /* Звуковые эффекты */
-function getAudio(){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return null;if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")audioContext.resume();return audioContext}
-function tone(frequency,duration,type="sine",volume=.08,slide=0){
- if(!soundEnabled)return;const ctx=getAudio();if(!ctx)return;
- const osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;osc.type=type;osc.frequency.setValueAtTime(frequency,now);
- if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
- gain.gain.setValueAtTime(volume,now);gain.gain.exponentialRampToValueAtTime(.001,now+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+duration);
+function getAudio(){
+ const AudioCtx=window.AudioContext||window.webkitAudioContext;
+ if(!AudioCtx)return null;
+ if(!audioContext)audioContext=new AudioCtx();
+ if(audioContext.state==="suspended")audioContext.resume();
+ return audioContext;
 }
-function playHit(){tone(150,.12,"sawtooth",.12,-75);setTimeout(()=>tone(85,.10,"triangle",.07,-25),45)}
-function playDodge(){tone(520,.16,"sine",.07,420)}
-function playCritical(){tone(220,.16,"sawtooth",.10,260);setTimeout(()=>tone(440,.22,"triangle",.08,180),90)}
-function playVictory(){[392,494,587,784].forEach((f,i)=>setTimeout(()=>tone(f,.32,"triangle",.08),i*130))}
-function playEnemyHit(){tone(110,.18,"square",.09,-45)}
-function toggleSound(){soundEnabled=!soundEnabled;document.getElementById("soundButton").textContent=soundEnabled?"♫":"♪";if(soundEnabled)getAudio()}
+
+function tone(frequency,duration,type="sine",volume=.08,slide=0){
+ if(!soundEnabled)return;
+
+ const ctx=getAudio();
+ if(!ctx)return;
+
+ const osc=ctx.createOscillator();
+ const gain=ctx.createGain();
+ const now=ctx.currentTime;
+
+ osc.type=type;
+ osc.frequency.setValueAtTime(frequency,now);
+
+ if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(1,frequency+slide),now+duration);
+
+ gain.gain.setValueAtTime(volume,now);
+ gain.gain.exponentialRampToValueAtTime(.001,now+duration);
+
+ osc.connect(gain);
+ gain.connect(ctx.destination);
+ osc.start(now);
+ osc.stop(now+duration);
+}
+
+function playHit(){
+ tone(150,.12,"sawtooth",.12,-75);
+ setTimeout(()=>tone(85,.10,"triangle",.07,-25),45);
+}
+
+function playDodge(){
+ tone(520,.16,"sine",.07,420);
+}
+
+function playCritical(){
+ tone(220,.16,"sawtooth",.10,260);
+ setTimeout(()=>tone(440,.22,"triangle",.08,180),90);
+}
+
+function playVictory(){
+ [392,494,587,784].forEach((f,i)=>setTimeout(()=>tone(f,.32,"triangle",.08),i*130));
+}
+
+function playEnemyHit(){
+ tone(110,.18,"square",.09,-45);
+}
+
+function toggleSound(){
+ soundEnabled=!soundEnabled;
+ document.getElementById("soundButton").textContent=soundEnabled?"♫":"♪";
+ if(soundEnabled)getAudio();
+}
 
 /* Магазин */
-function openShop(){if(!authReady)return;document.getElementById("shopPanel").classList.remove("hidden");renderShop()}
-function closeShop(){document.getElementById("shopPanel").classList.add("hidden")}
+function openShop(){
+ if(!authReady)return;
+ document.getElementById("shopPanel").classList.remove("hidden");
+ renderShop();
+}
+
+function closeShop(){
+ document.getElementById("shopPanel").classList.add("hidden");
+}
+
 function renderShop(){
  document.getElementById("shopGold").textContent=gold;
+
  document.getElementById("shopRows").innerHTML=shopUpgrades.map(upgrade=>{
-  const lvl=upgradeLevels[upgrade.key],cost=getUpgradeCost(upgrade),maxed=lvl>=upgrade.max,canBuy=gold>=cost&&!maxed;
+  const lvl=upgradeLevels[upgrade.key];
+  const cost=getUpgradeCost(upgrade);
+  const maxed=lvl>=upgrade.max;
+  const canBuy=gold>=cost&&!maxed;
+
   return `<div class="stat-row"><div style="flex:1"><div>${upgrade.icon} ${upgrade.name}</div><small>${upgrade.description}</small><small>Уровень: ${lvl}${upgrade.max===Infinity?"":" / "+upgrade.max}</small><small>${maxed?"МАКСИМАЛЬНЫЙ УРОВЕНЬ":"Цена: "+cost+" золота"}</small></div><button ${canBuy?"":"disabled"} onclick="buyUpgrade('${upgrade.key}')">${maxed?"MAX":"КУПИТЬ"}</button></div>`;
  }).join("");
 }
+
 function buyUpgrade(key){
- if(!authReady||!currentUser)return;const upgrade=shopUpgrades.find(item=>item.key===key);if(!upgrade)return;
- const lvl=upgradeLevels[key];if(lvl>=upgrade.max)return;const cost=getUpgradeCost(upgrade);if(gold<cost)return;if(key==="critChance"&&stats.critChance>=35)return;
- gold-=cost;upgradeLevels[key]++;
+ if(!authReady||!currentUser)return;
+
+ const upgrade=shopUpgrades.find(item=>item.key===key);
+ if(!upgrade)return;
+
+ const lvl=upgradeLevels[key];
+ if(lvl>=upgrade.max)return;
+
+ const cost=getUpgradeCost(upgrade);
+ if(gold<cost)return;
+ if(key==="critChance"&&stats.critChance>=35)return;
+
+ gold-=cost;
+ upgradeLevels[key]++;
+
  switch(key){
   case "damage":stats.damage+=2;break;
-  case "hp":stats.maxPlayerHP+=10;playerHP=Math.min(getEffectiveStats().maxPlayerHP,playerHP+10);break;
+  case "hp":
+   stats.maxPlayerHP+=10;
+   playerHP=Math.min(getEffectiveStats().maxPlayerHP,playerHP+10);
+   break;
   case "agility":stats.agility+=1;break;
   case "critChance":stats.critChance=Math.min(35,stats.critChance+.5);break;
   case "critDamage":stats.critDamage+=5;break;
  }
- render();renderShop();save();
+
+ render();
+ renderShop();
+ save();
 }
 
 /* Характеристики */
 function render(){
  const effective=getEffectiveStats();
- document.getElementById("gold").textContent=gold;document.getElementById("level").textContent=level;document.getElementById("xp").textContent=xp+" / "+(level*50);
- document.getElementById("enemyHP").textContent=monsterHP+" / "+maxMonsterHP+" HP";document.getElementById("enemyBar").style.width=Math.max(0,monsterHP/maxMonsterHP*100)+"%";
- document.getElementById("playerHP").textContent=playerHP+" / "+effective.maxPlayerHP;document.getElementById("playerBar").style.width=Math.max(0,playerHP/effective.maxPlayerHP*100)+"%";
- document.getElementById("pointsBadge").textContent=statPoints>0?"("+statPoints+")":"";renderStatPanel();
+
+ document.getElementById("gold").textContent=gold;
+ document.getElementById("level").textContent=level;
+ document.getElementById("xp").textContent=xp+" / "+(level*50);
+
+ document.getElementById("enemyHP").textContent=monsterHP+" / "+maxMonsterHP+" HP";
+ document.getElementById("enemyBar").style.width=Math.max(0,monsterHP/maxMonsterHP*100)+"%";
+
+ document.getElementById("playerHP").textContent=playerHP+" / "+effective.maxPlayerHP;
+ document.getElementById("playerBar").style.width=Math.max(0,playerHP/effective.maxPlayerHP*100)+"%";
+
+ document.getElementById("pointsBadge").textContent=statPoints>0?"("+statPoints+")":"";
+
+ renderStatPanel();
+
  if(!document.getElementById("shopPanel").classList.contains("hidden"))renderShop();
  if(!document.getElementById("inventoryPanel").classList.contains("hidden"))renderInventory();
 }
+
 function renderStatPanel(){
- const effective=getEffectiveStats();document.getElementById("statPoints").textContent=statPoints;
+ const effective=getEffectiveStats();
+ document.getElementById("statPoints").textContent=statPoints;
+
  const rows=[
   ["damage","Урон","+"+effective.damage+" к обычному удару","Базовый урон "+stats.damage+(getEquipmentBonuses().damage?" · экипировка +"+getEquipmentBonuses().damage:""),"Увеличивает урон на 2"],
   ["maxPlayerHP","Здоровье",effective.maxPlayerHP+" HP","Базовое здоровье "+stats.maxPlayerHP+(getEquipmentBonuses().maxPlayerHP?" · экипировка +"+getEquipmentBonuses().maxPlayerHP:""),"Увеличивает максимум на 10 HP"],
@@ -545,74 +1082,243 @@ function renderStatPanel(){
   ["defense","Защита",effective.defense,"Базовая защита "+stats.defense,"Снижает входящий урон на 1"],
   ["dodge","Уклонение",effective.dodge+"%","Базовое уклонение "+stats.dodge+"%","Увеличивает шанс уклониться на 1%"]
  ];
+
  document.getElementById("statRows").innerHTML=rows.map(([key,name,value,detail,description])=>{
-  let disabled=statPoints<=0;if(key==="critChance"&&stats.critChance>=35)disabled=true;if(key==="dodge"&&stats.dodge>=50)disabled=true;
+  let disabled=statPoints<=0;
+  if(key==="critChance"&&stats.critChance>=35)disabled=true;
+  if(key==="dodge"&&stats.dodge>=50)disabled=true;
+
   return `<div class="stat-row"><div>${name}<small>${value} · ${detail}${description?" · "+description:""}</small></div><button ${disabled?"disabled":""} onclick="allocateStat('${key}')">+1</button></div>`;
  }).join("");
 }
-function openStats(){if(!authReady)return;document.getElementById("statsPanel").classList.remove("hidden");renderStatPanel()}
-function closeStats(){document.getElementById("statsPanel").classList.add("hidden")}
+
+function openStats(){
+ if(!authReady)return;
+ document.getElementById("statsPanel").classList.remove("hidden");
+ renderStatPanel();
+}
+
+function closeStats(){
+ document.getElementById("statsPanel").classList.add("hidden");
+}
+
 function allocateStat(key){
- if(statPoints<=0)return;if(key==="critChance"&&stats.critChance>=35)return;if(key==="dodge"&&stats.dodge>=50)return;
+ if(statPoints<=0)return;
+ if(key==="critChance"&&stats.critChance>=35)return;
+ if(key==="dodge"&&stats.dodge>=50)return;
+
  if(key==="damage")stats.damage+=2;
- if(key==="maxPlayerHP"){stats.maxPlayerHP+=10;playerHP+=10}
- if(key==="agility")stats.agility+=1;if(key==="critChance")stats.critChance=Math.min(35,stats.critChance+.5);
- if(key==="critDamage")stats.critDamage+=5;if(key==="defense")stats.defense+=1;if(key==="dodge")stats.dodge=Math.min(50,stats.dodge+1);
- statPoints--;render();save();
+
+ if(key==="maxPlayerHP"){
+  stats.maxPlayerHP+=10;
+  playerHP+=10;
+ }
+
+ if(key==="agility")stats.agility+=1;
+ if(key==="critChance")stats.critChance=Math.min(35,stats.critChance+.5);
+ if(key==="critDamage")stats.critDamage+=5;
+ if(key==="defense")stats.defense+=1;
+ if(key==="dodge")stats.dodge=Math.min(50,stats.dodge+1);
+
+ statPoints--;
+ render();
+ save();
 }
 
 /* Анимации и бой */
-function resetAnimation(){const arena=document.getElementById("arena");arena.classList.remove("hit","dodge","dying","enemy-hit");void arena.offsetWidth}
+function resetAnimation(){
+ const arena=document.getElementById("arena");
+ arena.classList.remove("hit","dodge","dying","enemy-hit");
+ void arena.offsetWidth;
+}
+
+/* ИСПРАВЛЕННАЯ АТАКА */
 function attack(){
  if(!currentUser||!authReady||isMonsterDying||attackLocked||playerDead)return;
- attackLocked=true;const arena=document.getElementById("arena"),pop=document.getElementById("damagePop");
- resetAnimation();pop.className="damage-pop";pop.style.left="";pop.style.right="";
- const effective=getEffectiveStats();let actualDamage=effective.damage,isCritical=false;
- if(Math.random()<effective.critChance/100){actualDamage=Math.round(effective.damage*effective.critDamage/100);isCritical=true}
- monsterHP=Math.max(0,monsterHP-actualDamage);
- if(isCritical)playCritical();else playHit();
- pop.textContent=isCritical?"КРИТ! -"+actualDamage:"-"+actualDamage;if(isCritical)pop.classList.add("critical");arena.classList.add("hit");
- if(monsterHP<=0){
-  isMonsterDying=true;render();save();arena.classList.add("dying");clearTimeout(attackTimer);
-  attackTimer=setTimeout(()=>{
-   playVictory();const goldReward=Math.floor((5+level)*(1+upgradeLevels.gold*.1));gold+=goldReward;xp+=10;
-   while(xp>=level*50){xp-=level*50;level++;statPoints++}
-   dropItem();maxMonsterHP=getMonsterMaxHP(level);monsterHP=maxMonsterHP;isMonsterDying=false;
-   resetAnimation();render();save();attackLocked=false;
-  },750);return;
+
+ attackLocked=true;
+
+ const arena=document.getElementById("arena");
+ const pop=document.getElementById("damagePop");
+
+ resetAnimation();
+
+ pop.className="damage-pop";
+ pop.style.left="";
+ pop.style.right="";
+
+ const effective=getEffectiveStats();
+
+ let actualDamage=effective.damage;
+ let isCritical=false;
+
+ if(Math.random()<effective.critChance/100){
+  actualDamage=Math.round(effective.damage*effective.critDamage/100);
+  isCritical=true;
  }
- render();save();clearTimeout(attackTimer);attackTimer=setTimeout(()=>{resetAnimation();attackLocked=false},getAttackDelay());
+
+ monsterHP=Math.max(0,monsterHP-actualDamage);
+
+ if(isCritical)playCritical();
+ else playHit();
+
+ pop.textContent=isCritical?"КРИТ! -"+actualDamage:"-"+actualDamage;
+
+ if(isCritical)pop.classList.add("critical");
+
+ arena.classList.add("hit");
+
+ render();
+ save();
+
+ if(monsterHP<=0){
+  isMonsterDying=true;
+
+  clearTimeout(attackTimer);
+  arena.classList.add("dying");
+
+  attackTimer=setTimeout(()=>{
+   playVictory();
+
+   const goldReward=Math.floor((5+level)*(1+upgradeLevels.gold*.1));
+
+   gold+=goldReward;
+   xp+=10;
+
+   while(xp>=level*50){
+    xp-=level*50;
+    level++;
+    statPoints++;
+   }
+
+   dropItem();
+
+   const location=LOCATIONS[currentLocation];
+
+   currentMonsterName=location.monsters[
+    Math.floor(Math.random()*location.monsters.length)
+   ];
+
+   maxMonsterHP=Math.floor(getMonsterMaxHP(level)*location.multiplier);
+   monsterHP=maxMonsterHP;
+
+   isMonsterDying=false;
+   attackLocked=false;
+
+   document.getElementById("enemyName").textContent=currentMonsterName;
+
+   resetAnimation();
+   render();
+   save();
+
+  },750);
+
+  return;
+ }
+
+ clearTimeout(attackTimer);
+
+ attackTimer=setTimeout(()=>{
+  resetAnimation();
+  attackLocked=false;
+ },250);
 }
+
 document.getElementById("monster").addEventListener("click",attack);
-document.getElementById("monster").addEventListener("error",function(){console.error("Не удалось загрузить slime.png");this.alt="Ошибка загрузки slime.png"});
+
+document.getElementById("monster").addEventListener("error",function(){
+ console.error("Не удалось загрузить slime.png");
+ this.alt="Ошибка загрузки slime.png";
+});
 
 /* Автоматические атаки монстра */
-function startMonsterAttacks(){stopMonsterAttacks();monsterAttackInterval=setInterval(monsterAttack,3000)}
-function stopMonsterAttacks(){if(monsterAttackInterval){clearInterval(monsterAttackInterval);monsterAttackInterval=null}}
+function startMonsterAttacks(){
+ stopMonsterAttacks();
+ monsterAttackInterval=setInterval(monsterAttack,3000);
+}
+
+function stopMonsterAttacks(){
+ if(monsterAttackInterval){
+  clearInterval(monsterAttackInterval);
+  monsterAttackInterval=null;
+ }
+}
+
 function monsterAttack(){
  if(!authReady||!currentUser||playerDead||isMonsterDying)return;
- const arena=document.getElementById("arena"),pop=document.getElementById("damagePop");resetAnimation();pop.className="damage-pop";
+
+ const arena=document.getElementById("arena");
+ const pop=document.getElementById("damagePop");
+
+ resetAnimation();
+ pop.className="damage-pop";
+
  const effective=getEffectiveStats();
- if(Math.random()<effective.dodge/100){playDodge();pop.textContent="УКЛОНЕНИЕ!";pop.classList.add("evaded");arena.classList.add("dodge");return}
- const enemyDamage=5+level*2,receivedDamage=Math.max(1,enemyDamage-effective.defense);
- playerHP=Math.max(0,playerHP-receivedDamage);playEnemyHit();pop.textContent="-"+receivedDamage+" HP";pop.style.right="auto";pop.style.left="18%";
- arena.classList.add("enemy-hit","hit");render();save();if(playerHP<=0)playerDeath();
+
+ if(Math.random()<effective.dodge/100){
+  playDodge();
+  pop.textContent="УКЛОНЕНИЕ!";
+  pop.classList.add("evaded");
+  arena.classList.add("dodge");
+  return;
+ }
+
+ const enemyDamage=5+level*2;
+ const receivedDamage=Math.max(1,enemyDamage-effective.defense);
+
+ playerHP=Math.max(0,playerHP-receivedDamage);
+
+ playEnemyHit();
+
+ pop.textContent="-"+receivedDamage+" HP";
+ pop.style.right="auto";
+ pop.style.left="18%";
+
+ arena.classList.add("enemy-hit","hit");
+
+ render();
+ save();
+
+ if(playerHP<=0)playerDeath();
 }
 
 /* Возрождение героя */
 function playerDeath(){
- if(playerDead)return;playerDead=true;attackLocked=true;document.getElementById("deathPanel").classList.remove("hidden");
- let seconds=3;document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
+ if(playerDead)return;
+
+ playerDead=true;
+ attackLocked=true;
+
+ document.getElementById("deathPanel").classList.remove("hidden");
+
+ let seconds=3;
+
+ document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
+
  respawnInterval=setInterval(()=>{
   seconds--;
-  if(seconds>0)document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
-  else{
-   clearInterval(respawnInterval);respawnInterval=null;playerHP=getEffectiveStats().maxPlayerHP;playerDead=false;attackLocked=false;
-   document.getElementById("deathPanel").classList.add("hidden");document.getElementById("damagePop").style.left="";document.getElementById("damagePop").style.right="";
-   resetAnimation();render();save();
+
+  if(seconds>0){
+   document.getElementById("respawnTimer").textContent="Возрождение через "+seconds+"...";
+  }else{
+   clearInterval(respawnInterval);
+   respawnInterval=null;
+
+   playerHP=getEffectiveStats().maxPlayerHP;
+   playerDead=false;
+   attackLocked=false;
+
+   document.getElementById("deathPanel").classList.add("hidden");
+   document.getElementById("damagePop").style.left="";
+   document.getElementById("damagePop").style.right="";
+
+   resetAnimation();
+   render();
+   save();
   }
  },1000);
 }
+
 render();
 </script>
 </body>
