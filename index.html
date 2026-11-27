@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -18,25 +17,20 @@ button{cursor:pointer}
 .arena{position:absolute;inset:0;overflow:hidden;background:#17251e}
 .arena>img.background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;filter:brightness(.76) saturate(.82)}
 .arena:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,#07100b99,transparent 28%),linear-gradient(0deg,#07100be8,transparent 42%)}
-
 header{position:absolute;z-index:10;top:env(safe-area-inset-top,0px);left:0;right:0;padding:13px 60px 8px;text-align:center;pointer-events:none}
 h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;text-shadow:0 2px 8px #000}
 .subtitle{margin-top:4px;color:#bdcbbb;font-size:11px;letter-spacing:2px;text-shadow:0 2px 6px #000}
 .menu-button{position:absolute;top:10px;left:13px;width:42px;height:42px;border:1px solid #d8bd7d88;border-radius:12px;background:#101c18dd;color:#f0d99d;font-size:23px;pointer-events:auto;backdrop-filter:blur(8px);box-shadow:0 3px 12px #0005}
-
 .stats{position:absolute;z-index:10;top:calc(env(safe-area-inset-top,0px) + 72px);left:12px;right:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .stat{text-align:center;padding:7px 4px;border:1px solid #ffffff22;border-radius:9px;background:#101b19b8;color:#a9bcae;font-size:9px;letter-spacing:1px;backdrop-filter:blur(8px);box-shadow:0 4px 12px #0003}
 .stat b{display:block;margin-top:3px;color:#edf3e9;font-size:17px;font-weight:normal}
-
 .player-health{position:absolute;z-index:9;left:5%;bottom:calc(17% + 53% + 8px);width:43%;padding:7px 9px;border:1px solid #ffffff35;border-radius:9px;background:#101b19e8;backdrop-filter:blur(8px);box-shadow:0 4px 12px #0006}
 .health-title{display:flex;justify-content:space-between;gap:4px;color:#e4eadd;font-size:10px}
 .player-bar{height:8px;background:#202e28;border-radius:10px;overflow:hidden;margin-top:5px}
 .player-bar span{display:block;width:100%;height:100%;background:linear-gradient(90deg,#398b55,#6bc77c);transition:width .25s}
-
 .hero{position:absolute;left:5%;bottom:17%;width:43%;height:53%;display:flex;align-items:flex-end;justify-content:center;z-index:3;pointer-events:none}
 .hero-idle{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 8px #000b);transform-origin:bottom center}
 .monster{position:absolute;right:5%;bottom:17%;width:34%;height:35%;object-fit:contain;object-position:center bottom;display:block;z-index:4;cursor:pointer;filter:drop-shadow(0 8px 7px #000b);transform-origin:center bottom}
-
 .arena.hit .hero-idle{animation:heroAttack .45s ease-in-out}
 @keyframes heroAttack{0%{transform:translateX(0)}40%{transform:translateX(35px) rotate(-8deg) scale(1.08)}70%{transform:translateX(25px) rotate(5deg)}100%{transform:translateX(0)}}
 .arena.hit .monster{animation:monsterKnockback .42s ease-out}
@@ -47,7 +41,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 @keyframes heroDodge{0%{transform:translateX(0)}35%{transform:translateX(-35px) rotate(-8deg)}100%{transform:translateX(0)}}
 .arena.dying .monster{animation:monsterDeath .7s ease-in forwards!important}
 @keyframes monsterDeath{0%{opacity:1;transform:translateY(0)}35%{opacity:1;transform:translateY(-55px) rotate(35deg) scale(1.15)}100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}}
-
 .damage-pop{position:absolute;right:15%;bottom:47%;z-index:8;color:#e5e8bd;font:bold 25px Georgia,serif;text-shadow:0 2px 8px #000;opacity:0;pointer-events:none;white-space:nowrap}
 .arena.hit .damage-pop{animation:damagePop .55s ease-out}
 @keyframes damagePop{0%{opacity:0;transform:translateY(15px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.2)}}
@@ -55,55 +48,81 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .damage-pop.evaded{color:#b4d8d4;font-size:20px}
 .arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
 @keyframes dodgePop{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-5px) scale(1.15)}100%{opacity:0;transform:translateY(-45px)}}
-
 .enemy{position:absolute;z-index:7;right:4%;bottom:calc(17% + 35% + 8px);width:38%;max-width:210px;padding:7px 10px 6px;text-align:center;border:1px solid #d8e5d044;border-radius:9px;background:linear-gradient(145deg,rgba(15,29,24,.94),rgba(9,17,15,.88));backdrop-filter:blur(8px);box-shadow:0 4px 12px #0008}
 .enemy b{display:block;color:#e8eee3;font-size:11px;font-weight:normal;letter-spacing:.4px;white-space:nowrap}
 .bar{height:7px;background:#202e28;border:1px solid #ffffff18;border-radius:10px;overflow:hidden;margin-top:6px}
 .bar span{display:block;height:100%;width:100%;border-radius:10px;background:linear-gradient(90deg,#853f38,#c65e4e,#e18c69);transition:width .25s}
 #enemyHP{margin-top:4px;color:#bdcabe;font-size:9px}
-
 .note{position:absolute;z-index:8;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 83px);text-align:center;color:#d0dfd0;font-size:11px;text-shadow:0 2px 6px #000;pointer-events:none;padding:0 10px}
-
-.bottom-nav{position:absolute;z-index:15;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 9px);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;border:1px solid #d5c18a66;border-radius:15px;background:#0b1712eF;backdrop-filter:blur(12px);box-shadow:0 5px 20px #0008}
+.bottom-nav{position:absolute;z-index:15;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 9px);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;border:1px solid #d5c18a66;border-radius:15px;background:#0b1712ef;backdrop-filter:blur(12px);box-shadow:0 5px 20px #0008}
 .nav-button{min-width:0;min-height:49px;padding:7px 3px;border:1px solid #d8bd7d66;border-radius:10px;background:linear-gradient(145deg,#24382c,#14231c);color:#f0d99d;font-size:11px;letter-spacing:.4px}
 .nav-button span{display:block;font-size:19px;margin-bottom:3px}
 .nav-button:active{filter:brightness(1.35);transform:scale(.98)}
-
 .panel{position:absolute;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:#050b09c9;backdrop-filter:blur(7px)}
-.panel-card{width:100%;max-width:390px;max-height:88dvh;overflow-y:auto;padding:20px;border:1px solid #d5c18a66;border-radius:16px;background:linear-gradient(145deg,#14251f,#09130f);box-shadow:0 15px 50px #000a}
+.panel-card{width:100%;max-width:390px;max-height:92dvh;overflow-y:auto;padding:17px;border:1px solid #d5c18a66;border-radius:16px;background:linear-gradient(145deg,#14251f,#09130f);box-shadow:0 15px 50px #000a}
 .panel-title{text-align:center;color:#e8d5a2;font-size:20px;letter-spacing:2px;margin-bottom:8px}
-.panel-subtitle{text-align:center;color:#b7c7b9;font-size:12px;margin-bottom:15px}
+.panel-subtitle{text-align:center;color:#b7c7b9;font-size:12px;margin-bottom:12px}
 .stat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #ffffff18;color:#dce6d9;font-size:13px}
 .stat-row small{display:block;color:#91a595;font-size:10px;margin-top:3px}
 .stat-row button,.close-button{border:1px solid #cbb477;border-radius:8px;background:#a17b42;color:#17130b;padding:8px 12px;font-weight:bold}
 .stat-row button:disabled{opacity:.3;cursor:not-allowed}
-.close-button{display:block;width:100%;margin-top:17px;padding:11px}
+.close-button{display:block;width:100%;margin-top:15px;padding:11px}
 .death-card{text-align:center}
 .death-title{font-size:25px;color:#e6a18c;margin-bottom:10px}
 .death-text{color:#d3ded2;font-size:13px;line-height:1.6}
 .hidden{display:none!important}
 
-.inventory-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0 18px}
-.equipment-slot{min-height:91px;padding:10px;border:1px solid #d5c18a55;border-radius:10px;background:#0b1712;text-align:center;font-size:12px}
+/* Экипировка */
+.equipment-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 17px}
+.equipment-slot{min-height:90px;padding:9px;border:1px solid #d5c18a55;border-radius:10px;background:#0b1712;text-align:center;font-size:11px}
 .equipment-slot b{display:block;color:#e8d5a2;margin-bottom:7px}
-.slot-item{font-size:11px;line-height:1.45;color:#dce6d9}
-.slot-item button{margin-top:7px;padding:6px 9px;border:1px solid #cbb477;border-radius:7px;background:#a17b42;color:#17130b;font-size:10px;font-weight:bold}
-.item-card{padding:11px;margin:8px 0;border:1px solid #ffffff20;border-radius:10px;background:#0b1712}
-.item-name{font-size:13px;margin-bottom:5px}
-.item-info{font-size:11px;color:#aebfae;line-height:1.6}
-.item-actions{display:flex;gap:7px;margin-top:9px}
-.item-actions button{flex:1;padding:8px 5px;border:1px solid #cbb477;border-radius:7px;background:#a17b42;color:#17130b;font-size:10px;font-weight:bold}
-.item-actions button:disabled{opacity:.35}
+.equipment-content{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px}
+.equipment-avatar{width:42px;height:42px;object-fit:contain}
+.slot-item{font-size:10px;line-height:1.4;color:#dce6d9;min-width:0;overflow-wrap:anywhere}
+.slot-item button{margin-top:5px;padding:5px 8px;border:1px solid #cbb477;border-radius:7px;background:#a17b42;color:#17130b;font-size:9px;font-weight:bold}
+
+/* Новая сетка инвентаря: 30 ячеек */
+.inventory-slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:12px 0 5px}
+.inventory-slot{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;min-width:0;padding:4px;border:1px solid #ffffff24;border-radius:9px;background:linear-gradient(145deg,#172820,#0a1510);overflow:hidden}
+.inventory-slot.empty{border:1px dashed #ffffff22;background:#0b1712aa}
+.inventory-slot.filled{border-width:1px;box-shadow:inset 0 0 13px #0005}
+.inventory-slot:active{filter:brightness(1.4);transform:scale(.97)}
+.inventory-slot img{display:block;width:90%;height:90%;object-fit:contain;filter:drop-shadow(0 3px 5px #0009)}
+.inventory-slot .slot-number{position:absolute;right:4px;bottom:3px;color:#ffffff55;font-size:8px}
+.inventory-slot .slot-rarity-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 7px currentColor}
+.inventory-slot.rarity-common{border-color:#b9c1bd77;color:#b9c1bd}
+.inventory-slot.rarity-uncommon{border-color:#75d18a;color:#75d18a;box-shadow:inset 0 0 12px #75d18a18}
+.inventory-slot.rarity-rare{border-color:#6eafff;color:#6eafff;box-shadow:inset 0 0 12px #6eafff20}
+.inventory-slot.rarity-epic{border-color:#c28aff;color:#c28aff;box-shadow:inset 0 0 12px #c28aff22}
+.inventory-slot.rarity-legendary{border-color:#f2ca65;color:#f2ca65;box-shadow:inset 0 0 14px #f2ca6528}
+.inventory-slot.rarity-mythic{border-color:#ff7777;color:#ff7777;box-shadow:inset 0 0 14px #ff77772b}
 .rarity-common{color:#b9c1bd}
 .rarity-uncommon{color:#75d18a}
 .rarity-rare{color:#6eafff}
 .rarity-epic{color:#c28aff}
 .rarity-legendary{color:#f2ca65}
 .rarity-mythic{color:#ff7777}
-.inventory-empty{padding:22px 10px;text-align:center;color:#91a595;font-size:12px;line-height:1.6}
+.inventory-empty{padding:15px 8px;text-align:center;color:#91a595;font-size:11px;line-height:1.6}
+.inventory-hint{text-align:center;color:#8fa393;font-size:10px;margin:7px 0 12px}
+
+/* Карточка выбранного предмета */
+.item-detail-card{width:100%;max-width:350px;padding:19px;border:1px solid #d5c18a88;border-radius:16px;background:linear-gradient(145deg,#1b3025,#09130f);box-shadow:0 15px 50px #000c;text-align:center}
+.item-detail-avatar-wrap{width:150px;height:150px;margin:12px auto 15px;padding:10px;border:1px solid #ffffff24;border-radius:15px;background:radial-gradient(circle,#314735,#0a1510 72%);box-shadow:inset 0 0 25px #0008}
+.item-detail-avatar{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 7px 8px #000b)}
+.item-detail-name{font-size:18px;color:#f0e5c4;margin:8px 0}
+.item-detail-type{font-size:10px;color:#9eb19f;letter-spacing:1px;margin-bottom:8px}
+.item-detail-rarity{font-size:12px;margin-bottom:12px}
+.item-detail-stats{padding:10px;border:1px solid #ffffff18;border-radius:10px;background:#07120e99;text-align:left}
+.item-detail-stat{display:flex;justify-content:space-between;gap:10px;padding:7px 2px;border-bottom:1px solid #ffffff12;font-size:12px;color:#dce6d9}
+.item-detail-stat:last-child{border-bottom:0}
+.item-detail-stat span:last-child{color:#f0d99d;text-align:right}
+.item-detail-price{margin-top:11px;color:#c5d2c2;font-size:11px}
+.item-detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.item-detail-actions button{padding:11px 5px;border:1px solid #cbb477;border-radius:8px;background:linear-gradient(135deg,#9c7138,#d4b36b);color:#17130b;font-size:11px;font-weight:bold}
+.item-detail-actions button.sell{border-color:#9c8060;background:linear-gradient(135deg,#59402d,#98714b);color:#f4e4c8}
+.item-detail-close{width:100%;margin-top:9px;padding:9px;border:1px solid #ffffff25;border-radius:8px;background:#ffffff0b;color:#dce6d9;font-size:11px}
 .drop-message{position:absolute;z-index:80;top:calc(env(safe-area-inset-top,0px) + 190px);left:50%;transform:translateX(-50%);width:max-content;max-width:90%;padding:9px 13px;border:1px solid #d5c18a88;border-radius:9px;background:#101b19ed;color:#f0d99d;font-size:12px;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s}
 .drop-message.show{opacity:1}
-
 .main-menu{position:absolute;z-index:40;inset:0;display:flex;align-items:flex-start;justify-content:flex-start;padding:calc(env(safe-area-inset-top,0px) + 62px) 12px 12px;background:#050b09a8;backdrop-filter:blur(5px)}
 .menu-card{width:100%;max-width:290px;padding:17px;border:1px solid #d5c18a88;border-radius:15px;background:linear-gradient(145deg,#182b22,#09130f);box-shadow:0 12px 40px #000b}
 .menu-heading{text-align:center;color:#e8d5a2;font-size:17px;letter-spacing:2px;margin-bottom:13px}
@@ -112,7 +131,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .menu-option:active{background:#d5bd7b33}
 .menu-divider{height:1px;background:#ffffff20;margin:11px 0}
 .menu-close{width:100%;padding:10px;border:1px solid #cbb477;border-radius:8px;background:#a17b42;color:#17130b;font-weight:bold;margin-top:7px}
-
 .auth-screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:25px 18px;padding-top:max(25px,env(safe-area-inset-top));padding-bottom:max(25px,env(safe-area-inset-bottom));background:#07110f;overflow-y:auto;isolation:isolate}
 .auth-screen:before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(145deg,#10251d,#07110f)}
 .auth-background-video{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center;pointer-events:none;background:#07110f}
@@ -129,7 +147,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .auth-main-button{width:100%;height:47px;margin-top:20px;border:1px solid #e0c17c;border-radius:10px;background:linear-gradient(135deg,#9c7138,#d4b36b,#8d632d);color:#17130b;font-weight:bold;font-size:15px;box-shadow:0 5px 18px #0005}
 .auth-message{min-height:34px;margin-top:13px;text-align:center;font-size:12px;line-height:1.5;color:#e9c98b}
 .auth-footer{text-align:center;color:#aebdae;font-size:10px;line-height:1.5;margin-top:8px}
-
 .world-map-panel{position:fixed;z-index:60;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#050b09ed;backdrop-filter:blur(7px)}
 .world-map-card{position:relative;width:100%;max-width:650px;max-height:95dvh;overflow:auto;border:1px solid #d5c18a;border-radius:14px;background:#101b19;box-shadow:0 15px 50px #000a}
 .world-map-image{display:block;width:100%;height:auto}
@@ -139,7 +156,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .map-dungeon{left:51%;top:29%}
 .map-mountains{left:78%;top:55%}
 .map-close{display:block;width:100%;padding:13px;border:0;background:#17271f;color:#f0d99d;font-size:14px}
-
 @media(max-height:700px){
  header{padding-top:7px}
  h1{font-size:19px}
@@ -150,6 +166,9 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  .enemy{bottom:calc(20% + 31% + 7px)}
  .note{bottom:calc(env(safe-area-inset-bottom,0px) + 77px)}
  .auth-card{padding:19px}
+ .panel-card{max-height:94dvh;padding:13px}
+ .inventory-slots{gap:5px}
+ .inventory-slot{border-radius:7px}
 }
 @media(max-width:380px){
  .enemy{width:40%;right:3%}
@@ -158,6 +177,8 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  .health-title{font-size:9px}
  .nav-button{font-size:10px}
  .map-location{font-size:9px;padding:7px 6px}
+ .inventory-slots{gap:4px}
+ .item-detail-avatar-wrap{width:125px;height:125px}
 }
 @media(min-width:700px){
  .game{max-width:600px;left:50%;transform:translateX(-50%)}
@@ -202,7 +223,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 </div>
 
 <div class="drop-message" id="dropMessage"></div>
-
 <div class="note" id="battleNote">Нажимай на противника, чтобы атаковать</div>
 
 <div class="bottom-nav">
@@ -258,13 +278,30 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <div class="panel-card">
 <div class="panel-title">🎒 ИНВЕНТАРЬ</div>
 <div class="panel-subtitle">Предметы: <b id="inventoryCount">0 / 30</b></div>
-<div class="inventory-grid">
-<div class="equipment-slot"><b>⚔️ ОРУЖИЕ</b><div id="weaponSlot" class="slot-item">Пусто</div></div>
-<div class="equipment-slot"><b>🛡️ БРОНЯ</b><div id="armorSlot" class="slot-item">Пусто</div></div>
+
+<div class="equipment-grid">
+<div class="equipment-slot">
+<b>⚔️ ОРУЖИЕ</b>
+<div id="weaponSlot" class="slot-item">Пусто</div>
 </div>
+<div class="equipment-slot">
+<b>🛡️ БРОНЯ</b>
+<div id="armorSlot" class="slot-item">Пусто</div>
+</div>
+</div>
+
 <div class="panel-subtitle">НАЙДЕННЫЕ ПРЕДМЕТЫ</div>
-<div id="inventoryItems"></div>
+<div class="inventory-slots" id="inventoryItems"></div>
+<div class="inventory-hint">Нажми на предмет, чтобы посмотреть его характеристики</div>
 <button class="close-button" onclick="closeInventory()">ЗАКРЫТЬ</button>
+</div>
+</div>
+
+<div class="panel hidden" id="itemDetailPanel">
+<div class="item-detail-card">
+<div class="panel-title">ПРЕДМЕТ</div>
+<div id="itemDetailContent"></div>
+<button class="item-detail-close" onclick="closeItemDetails()">НАЗАД В ИНВЕНТАРЬ</button>
 </div>
 </div>
 
@@ -309,7 +346,7 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 
 <script>
 const firebaseConfig={
- apiKey:"AIzaSyBfj_yOZnuXJMNI7dpo-XzL_j2SVsc294Y",
+ apiKey:"AIzaSyBfj_yOZnuXJMMI7dpo-XzL_j2SVsc294Y",
  authDomain:"eket-cliker.firebaseapp.com",
  projectId:"eket-cliker",
  storageBucket:"eket-cliker.firebasestorage.app",
@@ -424,7 +461,6 @@ const heroImage=document.getElementById("heroImage");
 let heroImageTimer=null;
 let heroFrameTimers=[];
 
-/* Предварительная загрузка кадров атаки */
 const preloadedAttackFrames=HERO_ATTACK_FRAMES.map(src=>{
  const image=new Image();
  image.src=src;
@@ -466,7 +502,6 @@ function updateMonsterImage(){
  monsterImage.src=image;
 }
 
-/* Трёхкадровая анимация атаки */
 function playHeroAttackImage(){
  cancelHeroAttackAnimation();
 
@@ -613,6 +648,7 @@ const ITEM_NAMES={
 
 let inventory=Array.isArray(saved.inventory)?saved.inventory:[];
 let equipment=saved.equipment&&typeof saved.equipment==="object"?saved.equipment:{weapon:null,armor:null};
+let selectedItemId=null;
 
 equipment.weapon=equipment.weapon||null;
 equipment.armor=equipment.armor||null;
@@ -727,6 +763,64 @@ function getItemRarity(item){
  return RARITIES.find(r=>r.id===item.rarity)||RARITIES[0];
 }
 
+/* Уникальный аватар для каждого предмета.
+   Он создаётся на основе типа, редкости и ID предмета. */
+function getItemAvatar(item){
+ const rarityColors={
+  common:"#b9c1bd",
+  uncommon:"#75d18a",
+  rare:"#6eafff",
+  epic:"#c28aff",
+  legendary:"#f2ca65",
+  mythic:"#ff7777"
+ };
+
+ const color=rarityColors[item.rarity]||rarityColors.common;
+ const seed=String(item.id||item.name).split("").reduce((sum,char)=>sum+char.charCodeAt(0),0);
+ const angle=(seed%19)-9;
+ const accent=seed%2===0?"#f5e5b7":"#d6e5d7";
+ let drawing="";
+
+ if(item.type==="weapon"){
+  const bladeWidth=35+(seed%9);
+  const bladeTip=50+(seed%9)-4;
+  drawing=`
+   <path d="M50 8 L${50+bladeWidth/2} 40 L56 70 L50 83 L44 70 L${50-bladeWidth/2} 40 Z" fill="${color}" stroke="${accent}" stroke-width="2"/>
+   <path d="M50 14 L50 76" stroke="#ffffff99" stroke-width="2"/>
+   <path d="M31 69 L69 69 L66 77 L34 77 Z" fill="#9b713f" stroke="${accent}" stroke-width="2"/>
+   <path d="M46 77 L54 77 L57 101 L43 101 Z" fill="#76502e" stroke="${accent}" stroke-width="2"/>
+   <path d="M42 101 L58 101 L62 108 L38 108 Z" fill="${color}" stroke="${accent}" stroke-width="2"/>
+   <path d="M50 8 L${bladeTip} 39" stroke="#ffffff88" stroke-width="2"/>
+  `;
+ }else{
+  const side=seed%10;
+  drawing=`
+   <path d="M50 9 L85 24 L81 70 Q74 94 50 111 Q26 94 19 70 L15 24 Z" fill="${color}" stroke="${accent}" stroke-width="3"/>
+   <path d="M50 17 L50 101" stroke="#ffffff77" stroke-width="2"/>
+   <path d="M22 30 L50 43 L78 30" fill="none" stroke="${accent}" stroke-width="3"/>
+   <path d="M31 55 L69 55 L64 83 L50 94 L36 83 Z" fill="#17251e" fill-opacity=".7" stroke="${accent}" stroke-width="2"/>
+   <path d="M35 57 L65 57" stroke="${color}" stroke-width="3"/>
+   <circle cx="${35+side}" cy="32" r="3" fill="${accent}"/>
+   <circle cx="${65-side/2}" cy="32" r="3" fill="${accent}"/>
+  `;
+ }
+
+ const svg=`
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">
+  <defs>
+   <radialGradient id="bg"><stop stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="#08130e" stop-opacity="0"/></radialGradient>
+   <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff55"/><stop offset="1" stop-color="#ffffff00"/></linearGradient>
+  </defs>
+  <circle cx="50" cy="58" r="48" fill="url(#bg)"/>
+  <g transform="rotate(${angle} 50 60)">${drawing}</g>
+  <path d="M13 18 Q50 -2 87 18" fill="none" stroke="${color}" stroke-opacity=".6" stroke-width="2"/>
+  <path d="M12 91 Q50 118 88 91" fill="none" stroke="${color}" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M16 20 L35 12 L25 35 Z" fill="url(#shine)"/>
+ </svg>`;
+
+ return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+}
+
 function showDropMessage(message){
  const el=document.getElementById("dropMessage");
 
@@ -742,7 +836,7 @@ function showDropMessage(message){
 
 /* Шанс выпадения предмета — 10% за победу */
 function dropItem(){
- if(Math.random()>.10)return;
+ if(Math.random()>=.10)return;
 
  if(inventory.length>=INVENTORY_LIMIT){
   showDropMessage("Инвентарь заполнен — предмет не выпал");
@@ -759,12 +853,77 @@ function dropItem(){
 function openInventory(){
  if(!authReady)return;
  closeMainMenu();
+ closeItemDetails();
  document.getElementById("inventoryPanel").classList.remove("hidden");
  renderInventory();
 }
 
 function closeInventory(){
  document.getElementById("inventoryPanel").classList.add("hidden");
+ closeItemDetails();
+}
+
+function openItemDetails(id){
+ if(!authReady)return;
+
+ const item=inventory.find(entry=>entry.id===id);
+ if(!item)return;
+
+ selectedItemId=id;
+ renderItemDetails();
+
+ document.getElementById("itemDetailPanel").classList.remove("hidden");
+}
+
+function closeItemDetails(){
+ document.getElementById("itemDetailPanel").classList.add("hidden");
+ selectedItemId=null;
+}
+
+function renderItemDetails(){
+ const item=inventory.find(entry=>entry.id===selectedItemId);
+ const content=document.getElementById("itemDetailContent");
+
+ if(!item){
+  closeItemDetails();
+  return;
+ }
+
+ const typeName=item.type==="weapon"?"ОРУЖИЕ":"БРОНЯ";
+ const b=item.bonuses||{};
+ const rows=[];
+
+ if(item.type==="weapon"){
+  rows.push(["⚔️ Урон",b.damage||0]);
+  if(b.critChance)rows.push(["🎯 Шанс критического удара","+"+b.critChance+"%"]);
+  if(b.critDamage)rows.push(["💥 Критический урон","+"+b.critDamage+"%"]);
+ }else{
+  rows.push(["❤️ Здоровье",b.maxPlayerHP||0]);
+  rows.push(["🛡️ Защита",b.defense||0]);
+  if(b.dodge)rows.push(["💨 Уклонение","+"+b.dodge+"%"]);
+ }
+
+ content.innerHTML=`
+  <div class="item-detail-avatar-wrap">
+   <img class="item-detail-avatar" src="${getItemAvatar(item)}" alt="${item.name}">
+  </div>
+  <div class="item-detail-name ${getRarityClass(item)}">${item.name}</div>
+  <div class="item-detail-type">${typeName}</div>
+  <div class="item-detail-rarity ${getRarityClass(item)}">${item.rarityName||getItemRarity(item).name}</div>
+  <div class="item-detail-stats">
+   ${rows.map(row=>`
+    <div class="item-detail-stat">
+     <span>${row[0]}</span>
+     <span>${typeof row[1]==="number"?"+"+row[1]:row[1]}</span>
+    </div>
+   `).join("")}
+  </div>
+  <div class="item-detail-price">Стоимость продажи: ${item.sellPrice||1} 🪙</div>
+  <div class="item-detail-actions">
+   <button onclick="equipItem('${item.id}')">НАДЕТЬ</button>
+   <button class="sell" onclick="sellItem('${item.id}')">ПРОДАТЬ</button>
+  </div>
+ `;
 }
 
 function equipItem(id){
@@ -777,23 +936,25 @@ function equipItem(id){
  const slot=item.type;
  const previous=equipment[slot];
 
- equipment[slot]=item;
- inventory.splice(index,1);
-
- if(previous&&inventory.length<INVENTORY_LIMIT){
-  inventory.unshift(previous);
- }else if(previous){
-  equipment[slot]=previous;
-  inventory.splice(index,0,item);
+ if(previous&&inventory.length>=INVENTORY_LIMIT){
   showDropMessage("Нет места для снятого предмета");
   return;
  }
+
+ equipment[slot]=item;
+ inventory.splice(index,1);
+
+ if(previous)inventory.unshift(previous);
+
+ closeItemDetails();
 
  playerHP=Math.min(getEffectiveStats().maxPlayerHP,playerHP);
 
  render();
  renderInventory();
  save();
+
+ showDropMessage("Экипировка обновлена");
 }
 
 function unequipItem(slot){
@@ -825,6 +986,8 @@ function sellItem(id){
  gold+=Number(item.sellPrice)||1;
  inventory.splice(index,1);
 
+ closeItemDetails();
+
  render();
  renderInventory();
  save();
@@ -843,30 +1006,59 @@ function renderInventory(){
 
   if(!el)return;
 
-  el.innerHTML=item
-   ?`<span class="${getRarityClass(item)}">${item.name}</span><br><small>${formatBonuses(item)}</small><br><button onclick="unequipItem('${slot}')">СНЯТЬ</button>`
-   :"Пусто";
+  if(item){
+   el.innerHTML=`
+    <div class="equipment-content">
+     <img class="equipment-avatar" src="${getItemAvatar(item)}" alt="${item.name}">
+     <div>
+      <span class="${getRarityClass(item)}">${item.name}</span>
+      <br><small>${formatBonuses(item)}</small>
+      <br><button onclick="unequipItem('${slot}')">СНЯТЬ</button>
+     </div>
+    </div>
+   `;
+  }else{
+   el.innerHTML="Пусто";
+  }
  });
 
  const list=document.getElementById("inventoryItems");
 
  if(!list)return;
 
- if(!inventory.length){
-  list.innerHTML='<div class="inventory-empty">Пока здесь пусто.<br>Побеждай монстров, чтобы находить оружие и броню.</div>';
-  return;
+ let html="";
+
+ for(let i=0;i<INVENTORY_LIMIT;i++){
+  const item=inventory[i];
+
+  if(item){
+   html+=`
+    <button class="inventory-slot filled ${getRarityClass(item)}" onclick="openItemDetails('${item.id}')" aria-label="${item.name}">
+     <img src="${getItemAvatar(item)}" alt="">
+     <span class="slot-rarity-dot"></span>
+     <span class="slot-number">${i+1}</span>
+    </button>
+   `;
+  }else{
+   html+=`
+    <div class="inventory-slot empty" aria-label="Пустая ячейка ${i+1}">
+     <span class="slot-number">${i+1}</span>
+    </div>
+   `;
+  }
  }
 
- list.innerHTML=inventory.map(item=>`
-  <div class="item-card">
-   <div class="item-name ${getRarityClass(item)}">${item.type==="weapon"?"⚔️":"🛡️"} ${item.name}</div>
-   <div class="item-info">${item.rarityName||getItemRarity(item).name} · ${formatBonuses(item)}<br>Продажа: ${item.sellPrice} 🪙</div>
-   <div class="item-actions">
-    <button onclick="equipItem('${item.id}')">НАДЕТЬ</button>
-    <button onclick="sellItem('${item.id}')">ПРОДАТЬ</button>
-   </div>
-  </div>
- `).join("");
+ list.innerHTML=html;
+
+ if(selectedItemId){
+  const stillExists=inventory.some(item=>item.id===selectedItemId);
+
+  if(stillExists&& !document.getElementById("itemDetailPanel").classList.contains("hidden")){
+   renderItemDetails();
+  }else if(!stillExists){
+   closeItemDetails();
+  }
+ }
 }
 
 /* Карта и путешествия */
@@ -988,6 +1180,7 @@ function applyGameSave(data){
  render();
 }
 
+/* Локальное и облачное сохранение */
 function save(){
  const data=getGameSave();
 
@@ -1273,9 +1466,11 @@ function renderStatPanel(){
 
  document.getElementById("statPoints").textContent=statPoints;
 
+ const bonuses=getEquipmentBonuses();
+
  const rows=[
-  ["damage","Урон","+"+effective.damage+" к обычному удару","Базовый урон "+stats.damage+(getEquipmentBonuses().damage?" · экипировка +"+getEquipmentBonuses().damage:""),"Увеличивает урон на 2"],
-  ["maxPlayerHP","Здоровье",effective.maxPlayerHP+" HP","Базовое здоровье "+stats.maxPlayerHP+(getEquipmentBonuses().maxPlayerHP?" · экипировка +"+getEquipmentBonuses().maxPlayerHP:""),"Увеличивает максимум на 10 HP"],
+  ["damage","Урон","+"+effective.damage+" к обычному удару","Базовый урон "+stats.damage+(bonuses.damage?" · экипировка +"+bonuses.damage:""),"Увеличивает урон на 2"],
+  ["maxPlayerHP","Здоровье",effective.maxPlayerHP+" HP","Базовое здоровье "+stats.maxPlayerHP+(bonuses.maxPlayerHP?" · экипировка +"+bonuses.maxPlayerHP:""),"Увеличивает максимум на 10 HP"],
   ["agility","Ловкость",stats.agility,"Ускоряет ручные атаки",""],
   ["critChance","Критический шанс",effective.critChance.toFixed(1)+"%","Базовый шанс "+stats.critChance+"%","Увеличивает шанс крита на 0,5%"],
   ["critDamage","Критический урон",effective.critDamage+"%","Базовый крит. урон "+stats.critDamage+"%","Увеличивает силу крита на 5%"],
@@ -1355,7 +1550,6 @@ function resetAnimation(){
  void arena.offsetWidth;
 }
 
-/* Атака героя: три кадра и надёжное снятие блокировки */
 function attack(){
  if(!currentUser||!authReady||isMonsterDying||attackLocked||playerDead)return;
 
