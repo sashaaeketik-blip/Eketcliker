@@ -33,8 +33,42 @@
   <div id="buttons"><button id="reset">Вернуть камеру</button><button id="back">Назад в игру</button></div>
   <div id="status">Исследуй деревню</div>
 </div>
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+<script>
+const loading=document.getElementById('loading');
+loading.innerHTML='Загружаем 3D-движок…';
+function showError(message){
+  loading.style.display='grid';
+  loading.innerHTML='<div style="max-width:340px;line-height:1.5"><div style="font-size:22px;margin-bottom:12px">Не удалось запустить 3D</div><div style="font-weight:400;font-size:14px;margin-bottom:16px">'+message+'</div><button id="retry" style="font-size:14px">Попробовать ещё раз</button></div>';
+  document.getElementById('retry').onclick=()=>location.reload();
+}
+async function loadThree(){
+  const sources=[
+    'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
+    'https://unpkg.com/three@0.160.0/build/three.module.js'
+  ];
+  let lastError;
+  for(const url of sources){
+    try{
+      const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('Тайм-аут загрузки')),12000));
+      return await Promise.race([import(url),timeout]);
+    }catch(error){lastError=error;}
+  }
+  throw lastError||new Error('Библиотека 3D недоступна');
+}
+(async()=>{
+  try{
+    const THREE=await loadThree();
+    loading.innerHTML='Создаём деревню…';
+    if(!('WebGLRenderingContext' in window)) throw new Error('Браузер не поддерживает WebGL. Открой страницу в Safari или обнови iOS.');
+    initVillage(THREE);
+  }catch(error){
+    console.error(error);
+    showError('Проверь подключение к интернету и открой страницу в Safari. Если не поможет, нажми «Попробовать ещё раз».');
+  }
+})();
+function initVillage(THREE){
+
+
 
 const mount=document.getElementById('game');
 const scene=new THREE.Scene();
@@ -42,10 +76,10 @@ scene.background=new THREE.Color(0x9db8c0);
 scene.fog=new THREE.Fog(0x9db8c0,42,115);
 const camera=new THREE.PerspectiveCamera( sixty(),innerWidth/innerHeight,.1,220);
 function sixty(){return 62}
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;mount.appendChild(renderer.domElement);
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power', failIfMajorPerformanceCaveat:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;mount.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdcecff,0x596044,2.0));
-const sun=new THREE.DirectionalLight(0xffe2b2,2.6);sun.position.set(-28,42,22);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;sun.shadow.bias=-.00025;scene.add(sun);
+const sun=new THREE.DirectionalLight(0xffe2b2,2.6);sun.position.set(-28,42,22);sun.castShadow=false;scene.add(sun);
 const mat=(color,rough=.9)=>new THREE.MeshStandardMaterial({color,roughness:rough});
 const grass=mat(0x536d3d),darkGrass=mat(0x3f5934),dirt=mat(0x92734c),stone=mat(0x777a72),stone2=mat(0x96958a),wood=mat(0x65452e),woodLight=mat(0x8b633d),roof=mat(0x554039),roofRed=mat(0x70483b),plaster=mat(0xc5b18a),plaster2=mat(0x9eaa8b),metal=mat(0x454b4b,.55),water=mat(0x477f91,.3),leaf=mat(0x3f6338),leaf2=mat(0x557641);
 function box(parent,x,y,z,sx,sy,sz,material,cast=true){const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),material);m.position.set(x,y,z);m.castShadow=cast;m.receiveShadow=true;parent.add(m);return m}
@@ -117,7 +151,9 @@ const backAngle=yaw+camYaw;const desired=new THREE.Vector3(hero.position.x-Math.
 }
 function animate(now){requestAnimationFrame(animate);const dt=Math.min(.04,(now-lastTime)/1000);lastTime=now;update(dt);fire.intensity=2.0+Math.sin(now*.009)*.22;renderer.render(scene,camera)}
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7))});
-requestAnimationFrame(()=>{document.getElementById('loading').style.display='none';animate(performance.now())});
+document.getElementById('loading').style.display='none';animate(performance.now());
+
+}
 </script>
 </body>
 </html>
