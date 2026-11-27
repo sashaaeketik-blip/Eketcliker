@@ -1,148 +1,194 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#101b19">
-<title>Деревня — Eket Clicker</title>
-<style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101b19;font-family:Arial,sans-serif;touch-action:none}
-#scene{display:block;width:100vw;height:100dvh;touch-action:none}
-#topbar{position:fixed;top:calc(10px + env(safe-area-inset-top));left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
-button{pointer-events:auto;border:1px solid #ffffff35;background:#172b25eF;color:#fff;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;box-shadow:0 3px 12px #0005}
-#hint{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#14251fe8;color:#fff;border:1px solid #ffffff25;border-radius:12px;padding:9px 13px;font-size:13px;white-space:nowrap;pointer-events:none}
-#status{position:fixed;top:62px;left:50%;transform:translateX(-50%);color:#fff;background:#14251fe8;border-radius:10px;padding:7px 11px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .25s}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#10151b">
+  <title>Eket Clicker — Деревня</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #10151b; font-family: Arial, sans-serif; touch-action: none; }
+    #game { display: block; width: 100vw; height: 100dvh; }
+    .topbar { position: fixed; z-index: 5; top: max(12px, env(safe-area-inset-top)); left: 12px; right: 12px; display: flex; justify-content: space-between; gap: 10px; pointer-events: none; }
+    .topbar a, .topbar button { pointer-events: auto; color: #fff; text-decoration: none; border: 1px solid #ffffff35; background: #111923c9; padding: 11px 14px; border-radius: 12px; font-size: 14px; backdrop-filter: blur(8px); }
+    .hint { position: fixed; z-index: 4; top: max(60px, calc(env(safe-area-inset-top) + 52px)); left: 50%; transform: translateX(-50%); color: #fff; background: #111923a8; border: 1px solid #ffffff22; border-radius: 10px; padding: 8px 12px; font-size: 12px; white-space: nowrap; pointer-events: none; }
+    #joyBase { position: fixed; z-index: 6; left: max(22px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 142px; height: 142px; border-radius: 50%; border: 2px solid #d8c49b88; background: radial-gradient(circle, #d8c49b25, #151b2499); box-shadow: inset 0 0 22px #0008, 0 5px 20px #0008; touch-action: none; }
+    #joyKnob { position: absolute; width: 58px; height: 58px; left: 40px; top: 40px; border-radius: 50%; border: 2px solid #f4dfb6cc; background: radial-gradient(circle at 35% 30%, #f5e4c4dd, #98774dcc 75%); box-shadow: 0 3px 12px #0009, inset 0 1px 5px #fff8; }
+    .smallnote { position: fixed; z-index: 3; right: 14px; bottom: max(20px, env(safe-area-inset-bottom)); color: #ffffffa0; font-size: 11px; text-align: right; pointer-events: none; }
+    @media (pointer:fine) { #joyBase { opacity: .48; } }
+  </style>
 </head>
 <body>
-<canvas id="scene"></canvas>
-<div id="topbar">
-  <button id="back">← Назад в игру</button>
-  <button id="center">К герою</button>
-</div>
-<div id="status"></div>
-<div id="hint">Нажми на землю, чтобы пройти туда</div>
-<script>
-(() => {
-  const canvas = document.getElementById('scene');
-  const ctx = canvas.getContext('2d');
-  const map = new Image();
-  const hero = new Image();
-  map.src = './village-map.png';
-  hero.src = './eket-hero.png';
+  <canvas id="game"></canvas>
+  <div class="topbar">
+    <a href="index.html">← Назад в игру</a>
+    <button id="resetCamera" type="button">Вернуть камеру</button>
+  </div>
+  <div class="hint">Двигайся джойстиком · На ПК: WASD или стрелки</div>
+  <div id="joyBase" aria-label="Виртуальный джойстик"><div id="joyKnob"></div></div>
+  <div class="smallnote">Камера следует за героем</div>
 
-  const WORLD_W = 1536, WORLD_H = 1024;
-  let dpr=1, viewW=0, viewH=0, scale=1, camX=768, camY=512;
-  const player={x:768,y:520,tx:768,ty:520,speed:190};
-  let mapReady=false, heroReady=false, last=0;
-  let facing=1, moving=false;
-  const obstacles=[
-    {x:210,y:180,w:250,h:145},{x:590,y:130,w:250,h:150},
-    {x:1080,y:190,w:250,h:145},{x:100,y:590,w:250,h:150},
-    {x:1180,y:620,w:250,h:150},{x:580,y:790,w:300,h:130}
-  ];
+  <script>
+  (() => {
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const joyBase = document.getElementById('joyBase');
+    const joyKnob = document.getElementById('joyKnob');
+    const map = new Image();
+    const hero = new Image();
+    map.src = 'village-map.png';
+    hero.src = 'eket-hero.png';
 
-  function resize(){
-    dpr=Math.min(devicePixelRatio||1,2);
-    viewW=innerWidth; viewH=innerHeight;
-    canvas.width=Math.round(viewW*dpr); canvas.height=Math.round(viewH*dpr);
-    canvas.style.width=viewW+'px'; canvas.style.height=viewH+'px';
-    scale=Math.min(viewW/WORLD_W,viewH/WORLD_H)*1.12;
-  }
-  addEventListener('resize',resize); resize();
+    const world = { w: 1536, h: 1024 };
+    const player = { x: world.w / 2, y: world.h / 2, yaw: 0 };
+    let cameraYaw = 0;
+    let targetYaw = 0;
+    let inputX = 0, inputY = 0;
+    let keys = Object.create(null);
+    let joyPointer = null;
+    let lastTime = 0;
+    let dpr = 1;
+    let viewW = innerWidth, viewH = innerHeight;
 
-  function say(message){
-    const el=document.getElementById('status');
-    el.textContent=message; el.style.opacity=1;
-    clearTimeout(say.timer); say.timer=setTimeout(()=>el.style.opacity=0,1800);
-  }
-  map.onload=()=>{mapReady=true;say('Карта деревни загружена')};
-  map.onerror=()=>say('Не удалось загрузить village-map.png');
-  hero.onload=()=>{heroReady=true;say('Модель героя загружена')};
-  hero.onerror=()=>say('Не удалось загрузить eket-hero.png');
-
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-  function blocked(x,y){
-    return obstacles.some(o=>x>o.x-24&&x<o.x+o.w+24&&y>o.y-18&&y<o.y+o.h+18);
-  }
-  function worldPoint(clientX,clientY){
-    const sx=(clientX-viewW/2)/scale+camX;
-    const sy=(clientY-viewH/2)/scale+camY;
-    return {x:sx,y:sy};
-  }
-  canvas.addEventListener('pointerdown',e=>{
-    const p=worldPoint(e.clientX,e.clientY);
-    const x=clamp(p.x,45,WORLD_W-45), y=clamp(p.y,55,WORLD_H-55);
-    if(!blocked(x,y)){player.tx=x;player.ty=y;}
-    else say('Туда пройти нельзя');
-  });
-
-  document.getElementById('center').onclick=()=>{player.tx=player.x;player.ty=player.y;camX=player.x;camY=player.y};
-  document.getElementById('back').onclick=()=>{
-    if(history.length>1) history.back(); else location.href='./index.html';
-  };
-
-  function drawFallback(){
-    const g=ctx.createLinearGradient(0,0,viewW,viewH);
-    g.addColorStop(0,'#527c50');g.addColorStop(1,'#294c39');
-    ctx.fillStyle=g;ctx.fillRect(0,0,viewW,viewH);
-    ctx.fillStyle='#f4e7c2';ctx.font='bold 25px Arial';ctx.textAlign='center';
-    ctx.fillText('EKET VILLAGE',viewW/2,viewH/2);
-    ctx.font='14px Arial';ctx.fillText('Загрузи village-map.png в корень репозитория',viewW/2,viewH/2+30);
-  }
-  function draw(){
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.clearRect(0,0,viewW,viewH);
-    if(!mapReady){drawFallback();return}
-    ctx.save();
-    ctx.translate(viewW/2,viewH/2);
-    ctx.scale(scale,scale);
-    ctx.translate(-camX,-camY);
-    ctx.drawImage(map,0,0,WORLD_W,WORLD_H);
-
-    // Маркер цели
-    if(Math.hypot(player.tx-player.x,player.ty-player.y)>12){
-      ctx.beginPath();ctx.ellipse(player.tx,player.ty+8,13,6,0,0,Math.PI*2);
-      ctx.fillStyle='#ffe58a99';ctx.fill();
-      ctx.beginPath();ctx.arc(player.tx,player.ty-3,5,0,Math.PI*2);
-      ctx.fillStyle='#fff1a8';ctx.fill();
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      viewW = innerWidth; viewH = innerHeight;
+      canvas.width = Math.round(viewW * dpr);
+      canvas.height = Math.round(viewH * dpr);
+      canvas.style.width = viewW + 'px';
+      canvas.style.height = viewH + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
+    window.addEventListener('resize', resize);
+    resize();
 
-    // Тень героя
-    ctx.beginPath();ctx.ellipse(player.x,player.y+22,19,8,0,0,Math.PI*2);
-    ctx.fillStyle='#0007';ctx.fill();
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function angleDiff(a, b) { return Math.atan2(Math.sin(b - a), Math.cos(b - a)); }
 
-    if(heroReady){
-      const w=58,h=76;
+    function drawBackground() {
+      ctx.fillStyle = '#17221d';
+      ctx.fillRect(0, 0, viewW, viewH);
+      if (!map.complete || !map.naturalWidth) {
+        ctx.fillStyle = '#fff'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('Загрузка карты деревни…', viewW / 2, viewH / 2);
+        return;
+      }
+      const scale = Math.max(viewW / 900, viewH / 650) * 0.9;
+      const anchorX = viewW / 2;
+      const anchorY = viewH * 0.62;
       ctx.save();
-      if(facing<0){ctx.translate(player.x*2,0);ctx.scale(-1,1)}
-      ctx.drawImage(hero,player.x-w/2,player.y-h+23,w,h);
+      ctx.translate(anchorX, anchorY);
+      ctx.rotate(-cameraYaw);
+      ctx.scale(scale, scale);
+      ctx.translate(-player.x, -player.y);
+      ctx.drawImage(map, 0, 0, world.w, world.h);
       ctx.restore();
-    }else{
-      ctx.fillStyle='#f0c28a';ctx.beginPath();ctx.arc(player.x,player.y-15,11,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#355b9a';ctx.fillRect(player.x-10,player.y-5,20,25);
     }
-    ctx.restore();
-  }
 
-  function tick(t){
-    const dt=Math.min((t-last)/1000||0,0.04);last=t;
-    const dx=player.tx-player.x,dy=player.ty-player.y,dist=Math.hypot(dx,dy);
-    moving=dist>3;
-    if(moving){
-      facing=dx<0?-1:1;
-      const step=Math.min(dist,player.speed*dt);
-      const nx=player.x+dx/dist*step,ny=player.y+dy/dist*step;
-      if(!blocked(nx,ny)){player.x=nx;player.y=ny}
-      else {player.tx=player.x;player.ty=player.y}
+    function drawHero() {
+      const anchorX = viewW / 2;
+      const anchorY = viewH * 0.62;
+      if (hero.complete && hero.naturalWidth) {
+        const h = Math.min(viewH * 0.30, 190);
+        const ratio = hero.naturalWidth / hero.naturalHeight;
+        const w = h * ratio;
+        ctx.save();
+        ctx.translate(anchorX, anchorY);
+        // Спрайт остаётся обращённым к камере; для бокового движения слегка меняем направление.
+        if (Math.abs(inputX) > 0.18) ctx.scale(inputX < 0 ? -1 : 1, 1);
+        ctx.drawImage(hero, -w / 2, -h * 0.82, w, h);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#e8c78d';
+        ctx.beginPath(); ctx.ellipse(anchorX, anchorY - 28, 19, 28, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      // Небольшая тень под персонажем.
+      ctx.fillStyle = '#0008';
+      ctx.beginPath(); ctx.ellipse(anchorX, anchorY + 2, 27, 8, 0, 0, Math.PI * 2); ctx.fill();
     }
-    camX+=(player.x-camX)*Math.min(1,dt*4);
-    camY+=(player.y-camY)*Math.min(1,dt*4);
-    draw();requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-})();
-</script>
+
+    function getInput() {
+      let x = inputX, y = inputY;
+      if (keys['a'] || keys['arrowleft']) x -= 1;
+      if (keys['d'] || keys['arrowright']) x += 1;
+      if (keys['w'] || keys['arrowup']) y -= 1;
+      if (keys['s'] || keys['arrowdown']) y += 1;
+      const len = Math.hypot(x, y);
+      if (len > 1) { x /= len; y /= len; }
+      return { x, y, len: Math.min(len, 1) };
+    }
+
+    function update(dt) {
+      const input = getInput();
+      if (input.len > 0.05) {
+        // Сначала считаем движение относительно прежнего направления камеры,
+        // затем плавно разворачиваем камеру вслед за выбранным направлением.
+        const oldYaw = cameraYaw;
+        const localAngle = Math.atan2(input.x, -input.y);
+        targetYaw = oldYaw + localAngle;
+        const speed = 230;
+        const forwardX = Math.sin(oldYaw);
+        const forwardY = -Math.cos(oldYaw);
+        const rightX = Math.cos(oldYaw);
+        const rightY = Math.sin(oldYaw);
+        const moveX = (rightX * input.x + forwardX * (-input.y)) * speed * dt;
+        const moveY = (rightY * input.x + forwardY * (-input.y)) * speed * dt;
+        player.x = clamp(player.x + moveX, 20, world.w - 20);
+        player.y = clamp(player.y + moveY, 20, world.h - 20);
+        const diff = angleDiff(cameraYaw, targetYaw);
+        cameraYaw += diff * Math.min(1, dt * 5.5);
+      }
+    }
+
+    function frame(time) {
+      const dt = Math.min((time - lastTime) / 1000 || 0, 0.04);
+      lastTime = time;
+      update(dt);
+      drawBackground();
+      drawHero();
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    function setJoystick(clientX, clientY) {
+      const rect = joyBase.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      let dx = clientX - cx, dy = clientY - cy;
+      const max = 43;
+      const len = Math.hypot(dx, dy);
+      if (len > max) { dx = dx / len * max; dy = dy / len * max; }
+      joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+      inputX = dx / max;
+      inputY = dy / max;
+    }
+    function releaseJoystick() {
+      joyPointer = null; inputX = 0; inputY = 0;
+      joyKnob.style.transform = 'translate(0px, 0px)';
+    }
+    joyBase.addEventListener('pointerdown', e => {
+      e.preventDefault(); joyPointer = e.pointerId;
+      joyBase.setPointerCapture(e.pointerId); setJoystick(e.clientX, e.clientY);
+    });
+    joyBase.addEventListener('pointermove', e => {
+      if (e.pointerId === joyPointer) { e.preventDefault(); setJoystick(e.clientX, e.clientY); }
+    });
+    joyBase.addEventListener('pointerup', e => { if (e.pointerId === joyPointer) releaseJoystick(); });
+    joyBase.addEventListener('pointercancel', releaseJoystick);
+    joyBase.addEventListener('lostpointercapture', releaseJoystick);
+
+    window.addEventListener('keydown', e => {
+      const key = e.key.toLowerCase();
+      if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)) e.preventDefault();
+      keys[key] = true;
+    });
+    window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+    window.addEventListener('blur', () => { keys = Object.create(null); releaseJoystick(); });
+
+    document.getElementById('resetCamera').addEventListener('click', () => {
+      cameraYaw = 0; targetYaw = 0;
+    });
+  })();
+  </script>
 </body>
 </html>
