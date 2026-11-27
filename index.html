@@ -145,7 +145,23 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  white-space:nowrap;
 }
 
-.nav-button span{display:block;font-size:19px;margin-bottom:3px}
+/* Новые фэнтези-иконки нижней панели */
+.nav-button .nav-icon{
+ display:block;
+ width:29px;
+ height:27px;
+ margin:0 auto 4px;
+ overflow:visible;
+ filter:drop-shadow(0 2px 3px #000b);
+}
+.nav-icon .gold{stroke:#e5c77d}
+.nav-icon .dark-gold{stroke:#98713e}
+.nav-icon .silver{stroke:#d9e3d8}
+.nav-icon .dark{stroke:#26372e}
+.nav-icon .leather{fill:#80552f}
+.nav-icon .leather-light{fill:#b17b42}
+.nav-icon .metal{fill:#aebbb0}
+.nav-icon .metal-light{fill:#e2e8d9}
 .nav-button:active{filter:brightness(1.35);transform:scale(.98)}
 
 .panel{position:absolute;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:#050b09c9;backdrop-filter:blur(7px)}
@@ -261,7 +277,7 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
  .player-health{padding:6px}
  .health-title{font-size:9px}
  .nav-button{font-size:9px;letter-spacing:0}
- .nav-button span{font-size:17px}
+ .nav-button .nav-icon{width:26px;height:25px}
  .bottom-nav{left:7px;right:7px;gap:5px;padding:6px}
  .map-location{font-size:9px;padding:7px 6px}
  .inventory-slots{gap:4px}
@@ -316,10 +332,63 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <div class="note" id="battleNote">Нажимай на противника, чтобы атаковать</div>
 
 <div class="bottom-nav">
-<button class="nav-button" onclick="openWorldMap()"><span>🗺️</span>КАРТА</button>
-<button class="nav-button" onclick="openInventory()"><span>🎒</span>ИНВЕНТАРЬ</button>
-<button class="nav-button" onclick="openStats()"><span>🧙</span>ГЕРОЙ</button>
-<button class="nav-button" onclick="openShop()"><span>⚒️</span>МАГАЗИН</button>
+
+<button class="nav-button" onclick="openWorldMap()" aria-label="Карта">
+<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M5 10L17 5L31 10L43 5V34L31 39L17 34L5 39V10Z" fill="#9B713F" stroke="#E5C77D" stroke-width="2" stroke-linejoin="round"/>
+<path d="M17 5V34M31 10V39" stroke="#E5C77D" stroke-width="1.8"/>
+<path d="M9 14L14 12M9 20L14 18M35 14L40 12M35 20L40 18" stroke="#F0D99D" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M21 25C21 20 25 16 30 16C35 16 38 20 38 25C38 31 30 36 30 36C30 36 21 31 21 25Z" fill="#D9B66E" stroke="#6B4A2C" stroke-width="1.5"/>
+<circle cx="30" cy="24" r="3.2" fill="#6B8C65" stroke="#F2D99A" stroke-width="1.3"/>
+<path d="M7 11L17 7L17 33L7 37V11Z" fill="#D4AE69" fill-opacity=".2"/>
+<path d="M5 10L17 5L31 10L43 5" stroke="#F3DEA7" stroke-width="1" opacity=".8"/>
+</svg>
+КАРТА
+</button>
+
+<button class="nav-button" onclick="openInventory()" aria-label="Инвентарь">
+<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M13 13C13 8 17 5 24 5C31 5 35 8 35 13L40 18L37 39H11L8 18L13 13Z" fill="#80552F" stroke="#D8B777" stroke-width="2" stroke-linejoin="round"/>
+<path d="M13 13C16 16 19 17 24 17C29 17 32 16 35 13" stroke="#E5C77D" stroke-width="2"/>
+<path d="M17 7C17 12 19 15 24 15C29 15 31 12 31 7" stroke="#B98A4E" stroke-width="2.5"/>
+<path d="M12 19L36 19L34 36H14L12 19Z" fill="#A8733E" stroke="#5C3B25" stroke-width="1.5"/>
+<path d="M19 18V25C19 28 21 30 24 30C27 30 29 28 29 25V18" stroke="#E3C17B" stroke-width="2"/>
+<rect x="20" y="23" width="8" height="8" rx="2" fill="#D8B777" stroke="#5D4029" stroke-width="1.5"/>
+<path d="M22 27H26" stroke="#76502E" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M9 19L13 17M39 19L35 17" stroke="#F0D99D" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M15 34H33" stroke="#D8B777" stroke-width="1.3" opacity=".8"/>
+</svg>
+ИНВЕНТАРЬ
+</button>
+
+<button class="nav-button" onclick="openStats()" aria-label="Герой">
+<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M8 11L13 5H35L40 11L37 30L24 40L11 30L8 11Z" fill="#AEBBB0" stroke="#E5C77D" stroke-width="2" stroke-linejoin="round"/>
+<path d="M13 8L24 12L35 8L37 16L32 20H16L11 16L13 8Z" fill="#DCE5D8" stroke="#64776A" stroke-width="1.5"/>
+<path d="M12 17L18 21L18 29L24 34L30 29L30 21L36 17" fill="#7E9285" stroke="#394E42" stroke-width="1.5"/>
+<path d="M18 22H30L28 27H20L18 22Z" fill="#17251E" stroke="#D8C58E" stroke-width="1.5"/>
+<path d="M21 26L24 29L27 26" stroke="#E5C77D" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M18 5L24 2L30 5" stroke="#E5C77D" stroke-width="2" stroke-linecap="round"/>
+<path d="M7 12L12 10M41 12L36 10" stroke="#F2D99A" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M24 12V19" stroke="#F0D99D" stroke-width="1.5"/>
+</svg>
+ГЕРОЙ
+</button>
+
+<button class="nav-button" onclick="openShop()" aria-label="Магазин">
+<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M6 31H42L39 37H9L6 31Z" fill="#77887C" stroke="#D8C58E" stroke-width="1.8" stroke-linejoin="round"/>
+<path d="M12 29L16 25H32L37 29V32H12V29Z" fill="#AEBBB0" stroke="#52675A" stroke-width="1.5"/>
+<path d="M20 6L25 8L18 27L13 25L20 6Z" fill="#80552F" stroke="#D8B777" stroke-width="1.5"/>
+<path d="M16 4L28 7L26 14L14 11L16 4Z" fill="#B7C3B5" stroke="#E5C77D" stroke-width="1.8" stroke-linejoin="round"/>
+<path d="M18 8L25 10" stroke="#F4E4BD" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M9 31H39" stroke="#F0D99D" stroke-width="1.2"/>
+<path d="M13 37V40M35 37V40" stroke="#D8B777" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M20 27L24 23L28 27" stroke="#E5C77D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+МАГАЗИН
+</button>
+
 </div>
 </div>
 </div>
