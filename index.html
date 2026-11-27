@@ -129,7 +129,7 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 
 <div class="game">
 <div class="arena" id="arena">
-<img class="background" src="./forest.png" alt="Лес">
+<img class="background" id="arenaBackground" src="./forest-background.png" alt="Зелёный лес">
 
 <header>
 <h1>EKET CLICKER</h1>
@@ -151,8 +151,10 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <div class="player-bar"><span id="playerBar"></span></div>
 </div>
 
-<div class="hero"><img class="hero-idle" src="./eket-hero.png" alt="Герой Eket"></div>
-<img class="monster" id="monster" src="./slime.png?v=2" alt="Монстр">
+<div class="hero">
+<img class="hero-idle" id="heroImage" src="./eket-hero.png" alt="Герой Eket">
+</div>
+<img class="monster" id="monster" src="./forest-slime.png" alt="Лесной слизень">
 <div class="damage-pop" id="damagePop">-10</div>
 
 <div class="enemy">
@@ -343,21 +345,86 @@ const LOCATIONS={
   name:"Зелёный лес",
   subtitle:"Лесные земли",
   multiplier:1,
+  background:"./forest-background.png",
   monsters:["Лесной слизень","Лесной гоблин","Дикий волк","Лесной паук"]
  },
  dungeon:{
   name:"Старое подземелье",
   subtitle:"Подземные глубины",
   multiplier:2,
+  background:"./dungeon-background.png",
   monsters:["Подземный слизень","Скелет-воин","Пещерный гоблин","Страж подземелья"]
  },
  mountains:{
   name:"Морозные горы",
   subtitle:"Земли вечного холода",
   multiplier:3,
+  background:"./wide_scenic_fantasy_winter_landscape_a_crisp_col.png",
   monsters:["Ледяной волк","Снежный голем","Горный тролль"]
  }
 };
+
+/* Изображения монстров */
+const MONSTER_IMAGES={
+ "Лесной слизень":"./forest-slime.png",
+ "Лесной гоблин":"./forest-goblin.png",
+ "Дикий волк":"./wild-wolf.png",
+ "Лесной паук":"./forest-spider.png"
+};
+
+const DEFAULT_MONSTER_IMAGE="./forest-slime.png";
+const HERO_IDLE_IMAGE="./eket-hero.png";
+const HERO_ATTACK_IMAGE="./eket-hero-attack.png";
+
+const arenaBackground=document.getElementById("arenaBackground");
+const monsterImage=document.getElementById("monster");
+const heroImage=document.getElementById("heroImage");
+let heroImageTimer=null;
+
+function updateLocationVisuals(){
+ const location=LOCATIONS[currentLocation]||LOCATIONS.forest;
+
+ arenaBackground.onerror=function(){
+  console.error("Не удалось загрузить фон локации:",location.background);
+  this.alt="Не удалось загрузить фон локации";
+ };
+
+ arenaBackground.src=location.background;
+ arenaBackground.alt=location.name;
+
+ updateMonsterImage();
+}
+
+function updateMonsterImage(){
+ const image=MONSTER_IMAGES[currentMonsterName]||DEFAULT_MONSTER_IMAGE;
+
+ monsterImage.onerror=function(){
+  console.error("Не удалось загрузить изображение монстра:",image);
+  this.alt="Не удалось загрузить изображение монстра";
+ };
+
+ monsterImage.alt=currentMonsterName;
+ monsterImage.src=image;
+}
+
+function playHeroAttackImage(){
+ clearTimeout(heroImageTimer);
+
+ heroImage.src=HERO_ATTACK_IMAGE;
+ heroImage.onerror=function(){
+  console.error("Не удалось загрузить eket-hero-attack.png");
+  this.onerror=null;
+  this.src=HERO_IDLE_IMAGE;
+ };
+
+ heroImageTimer=setTimeout(()=>{
+  heroImage.onerror=function(){
+   console.error("Не удалось загрузить eket-hero.png");
+   this.alt="Не удалось загрузить изображение героя";
+  };
+  heroImage.src=HERO_IDLE_IMAGE;
+ },450);
+}
 
 /* Игровые данные */
 let saved={};
@@ -689,6 +756,11 @@ function closeWorldMap(){
 function travelToLocation(locationId){
  if(!authReady||!LOCATIONS[locationId])return;
 
+ if(locationId!=="forest"){
+  showDropMessage("В скором обновлении!");
+  return;
+ }
+
  if(isMonsterDying||attackLocked){
   showDropMessage("Подожди окончания боя");
   return;
@@ -706,6 +778,8 @@ function travelToLocation(locationId){
 
  document.getElementById("locationSubtitle").textContent=location.subtitle;
  document.getElementById("enemyName").textContent=currentMonsterName;
+
+ updateLocationVisuals();
 
  closeWorldMap();
  resetAnimation();
@@ -729,8 +803,16 @@ function applyGameSave(data){
  currentLocation=LOCATIONS[data.currentLocation]?
   data.currentLocation:"forest";
 
+ /* Пока доступен только лес */
+ if(currentLocation!=="forest")currentLocation="forest";
+
  currentMonsterName=data.currentMonsterName||
   LOCATIONS[currentLocation].monsters[0];
+
+ /* Если в старом сохранении записан неизвестный монстр, выбираем лесного */
+ if(!LOCATIONS[currentLocation].monsters.includes(currentMonsterName)){
+  currentMonsterName=LOCATIONS[currentLocation].monsters[0];
+ }
 
  document.getElementById("locationSubtitle").textContent=
   LOCATIONS[currentLocation].subtitle;
@@ -769,6 +851,7 @@ function applyGameSave(data){
  playerHP=data.playerHP??stats.maxPlayerHP;
  playerHP=Math.min(playerHP,getEffectiveStats().maxPlayerHP);
 
+ updateLocationVisuals();
  render();
 }
 
@@ -1132,7 +1215,7 @@ function resetAnimation(){
  void arena.offsetWidth;
 }
 
-/* ИСПРАВЛЕННАЯ АТАКА */
+/* ИСПРАВЛЕННАЯ АТАКА + ИЗОБРАЖЕНИЕ УДАРА */
 function attack(){
  if(!currentUser||!authReady||isMonsterDying||attackLocked||playerDead)return;
 
@@ -1142,6 +1225,7 @@ function attack(){
  const pop=document.getElementById("damagePop");
 
  resetAnimation();
+ playHeroAttackImage();
 
  pop.className="damage-pop";
  pop.style.left="";
@@ -1207,6 +1291,8 @@ function attack(){
 
    document.getElementById("enemyName").textContent=currentMonsterName;
 
+   updateMonsterImage();
+
    resetAnimation();
    render();
    save();
@@ -1227,8 +1313,8 @@ function attack(){
 document.getElementById("monster").addEventListener("click",attack);
 
 document.getElementById("monster").addEventListener("error",function(){
- console.error("Не удалось загрузить slime.png");
- this.alt="Ошибка загрузки slime.png";
+ console.error("Не удалось загрузить изображение монстра:",this.src);
+ this.alt="Ошибка загрузки изображения монстра";
 });
 
 /* Автоматические атаки монстра */
@@ -1319,6 +1405,8 @@ function playerDeath(){
  },1000);
 }
 
+/* Первоначальная загрузка изображений */
+updateLocationVisuals();
 render();
 </script>
 </body>
