@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -18,27 +19,26 @@ button{cursor:pointer}
 .arena>img.background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;filter:brightness(.76) saturate(.82)}
 .arena:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,#07100b99,transparent 28%),linear-gradient(0deg,#07100be8,transparent 42%)}
 
-/* Скрытый верхний интерфейс */
+/* Скрываем старую шапку и карточки статистики */
 header{display:none!important}
 .stats{display:none!important}
-.bottom-nav{display:none!important}
 .note{display:none!important}
 
 h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;text-shadow:0 2px 8px #000}
 .subtitle{margin-top:4px;color:#bdcbbb;font-size:11px;letter-spacing:2px;text-shadow:0 2px 6px #000}
 .menu-button{position:absolute;top:10px;left:13px;width:42px;height:42px;border:1px solid #d8bd7d88;border-radius:12px;background:#101c18dd;color:#f0d99d;font-size:23px;pointer-events:auto;backdrop-filter:blur(8px);box-shadow:0 3px 12px #0005}
-.stats{position:absolute;z-index:10;top:calc(env(safe-area-inset-top,0px) + 72px);left:12px;right:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.stat{text-align:center;padding:7px 4px;border:1px solid #ffffff22;border-radius:9px;background:#101b19b8;color:#a9bcae;font-size:9px;letter-spacing:1px;backdrop-filter:blur(8px);box-shadow:0 4px 12px #0003}
-.stat b{display:block;margin-top:3px;color:#edf3e9;font-size:17px;font-weight:normal}
 
+/* Верхняя панель здоровья героя */
 .player-health{
  position:absolute;
  z-index:9;
- left:5%;
- bottom:calc(17% + 53% + 8px);
- top:auto;
+ left:4%;
+ right:auto;
+ top:calc(env(safe-area-inset-top,0px) + 12px);
+ bottom:auto;
  width:43%;
- padding:7px 9px;
+ max-width:245px;
+ padding:8px 10px;
  border:1px solid #ffffff35;
  border-radius:9px;
  background:#101b19e8;
@@ -63,9 +63,13 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .player-bar{height:8px;background:#202e28;border-radius:10px;overflow:hidden;margin-top:5px}
 .player-bar span{display:block;width:100%;height:100%;background:linear-gradient(90deg,#398b55,#6bc77c);transition:width .25s}
 
+/* Герой */
 .hero{position:absolute;left:5%;bottom:17%;width:43%;height:53%;display:flex;align-items:flex-end;justify-content:center;z-index:3;pointer-events:none}
 .hero-idle{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 8px #000b);transform-origin:bottom center}
+
+/* Монстр */
 .monster{position:absolute;right:5%;bottom:17%;width:34%;height:35%;object-fit:contain;object-position:center bottom;display:block;z-index:4;cursor:pointer;filter:drop-shadow(0 8px 7px #000b);transform-origin:center bottom}
+
 .arena.hit .hero-idle{animation:heroAttack .45s ease-in-out}
 @keyframes heroAttack{0%{transform:translateX(0)}40%{transform:translateX(35px) rotate(-8deg) scale(1.08)}70%{transform:translateX(25px) rotate(5deg)}100%{transform:translateX(0)}}
 .arena.hit .monster{animation:monsterKnockback .42s ease-out}
@@ -76,6 +80,7 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 @keyframes heroDodge{0%{transform:translateX(0)}35%{transform:translateX(-35px) rotate(-8deg)}100%{transform:translateX(0)}}
 .arena.dying .monster{animation:monsterDeath .7s ease-in forwards!important}
 @keyframes monsterDeath{0%{opacity:1;transform:translateY(0)}35%{opacity:1;transform:translateY(-55px) rotate(35deg) scale(1.15)}100%{opacity:0;transform:translateY(35px) rotate(180deg) scale(.05)}}
+
 .damage-pop{position:absolute;right:15%;bottom:47%;z-index:8;color:#e5e8bd;font:bold 25px Georgia,serif;text-shadow:0 2px 8px #000;opacity:0;pointer-events:none;white-space:nowrap}
 .arena.hit .damage-pop{animation:damagePop .55s ease-out}
 @keyframes damagePop{0%{opacity:0;transform:translateY(15px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.2)}}
@@ -84,16 +89,65 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
 @keyframes dodgePop{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-5px) scale(1.15)}100%{opacity:0;transform:translateY(-45px)}}
 
-.enemy{position:absolute;z-index:7;right:4%;bottom:calc(17% + 35% + 8px);width:38%;max-width:210px;padding:7px 10px 6px;text-align:center;border:1px solid #d8e5d044;border-radius:9px;background:linear-gradient(145deg,rgba(15,29,24,.94),rgba(9,17,15,.88));backdrop-filter:blur(8px);box-shadow:0 4px 12px #0008}
-.enemy b{display:block;color:#e8eee3;font-size:11px;font-weight:normal;letter-spacing:.4px;white-space:nowrap}
+/* Верхняя панель монстра */
+.enemy{
+ position:absolute;
+ z-index:9;
+ right:4%;
+ left:auto;
+ top:calc(env(safe-area-inset-top,0px) + 12px);
+ bottom:auto;
+ width:38%;
+ max-width:210px;
+ padding:8px 10px 7px;
+ text-align:center;
+ border:1px solid #d8e5d044;
+ border-radius:9px;
+ background:linear-gradient(145deg,rgba(15,29,24,.94),rgba(9,17,15,.88));
+ backdrop-filter:blur(8px);
+ box-shadow:0 4px 12px #0008;
+}
+.enemy b{display:block;color:#e8eee3;font-size:11px;font-weight:normal;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar{height:7px;background:#202e28;border:1px solid #ffffff18;border-radius:10px;overflow:hidden;margin-top:6px}
 .bar span{display:block;height:100%;width:100%;border-radius:10px;background:linear-gradient(90deg,#853f38,#c65e4e,#e18c69);transition:width .25s}
 #enemyHP{margin-top:4px;color:#bdcabe;font-size:9px}
+
+/* Нижняя панель: четыре кнопки */
 .note{position:absolute;z-index:8;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 83px);text-align:center;color:#d0dfd0;font-size:11px;text-shadow:0 2px 6px #000;pointer-events:none;padding:0 10px}
-.bottom-nav{position:absolute;z-index:15;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 9px);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;border:1px solid #d5c18a66;border-radius:15px;background:#0b1712ef;backdrop-filter:blur(12px);box-shadow:0 5px 20px #0008}
-.nav-button{min-width:0;min-height:49px;padding:7px 3px;border:1px solid #d8bd7d66;border-radius:10px;background:linear-gradient(145deg,#24382c,#14231c);color:#f0d99d;font-size:11px;letter-spacing:.4px}
+
+.bottom-nav{
+ position:absolute;
+ z-index:15;
+ left:10px;
+ right:10px;
+ bottom:calc(env(safe-area-inset-bottom,0px) + 9px);
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:7px;
+ padding:8px;
+ border:1px solid #d5c18a66;
+ border-radius:15px;
+ background:#0b1712ef;
+ backdrop-filter:blur(12px);
+ box-shadow:0 5px 20px #0008;
+}
+
+.nav-button{
+ min-width:0;
+ min-height:53px;
+ padding:6px 2px;
+ border:1px solid #d8bd7d66;
+ border-radius:10px;
+ background:linear-gradient(145deg,#24382c,#14231c);
+ color:#f0d99d;
+ font-size:10px;
+ letter-spacing:.2px;
+ white-space:nowrap;
+}
+
 .nav-button span{display:block;font-size:19px;margin-bottom:3px}
 .nav-button:active{filter:brightness(1.35);transform:scale(.98)}
+
 .panel{position:absolute;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:#050b09c9;backdrop-filter:blur(7px)}
 .panel-card{width:100%;max-width:390px;max-height:92dvh;overflow-y:auto;padding:17px;border:1px solid #d5c18a66;border-radius:16px;background:linear-gradient(145deg,#14251f,#09130f);box-shadow:0 15px 50px #000a}
 .panel-title{text-align:center;color:#e8d5a2;font-size:20px;letter-spacing:2px;margin-bottom:8px}
@@ -188,39 +242,33 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .map-close{display:block;width:100%;padding:13px;border:0;background:#17271f;color:#f0d99d;font-size:14px}
 
 @media(max-height:700px){
- header{padding-top:7px}
  h1{font-size:19px}
- .stats{top:calc(env(safe-area-inset-top,0px) + 58px)}
- .player-health{bottom:calc(20% + 47% + 6px)}
+ .player-health{top:calc(env(safe-area-inset-top,0px) + 8px);bottom:auto}
+ .enemy{top:calc(env(safe-area-inset-top,0px) + 8px);bottom:auto}
  .hero{height:47%;bottom:20%}
  .monster{height:31%;bottom:20%}
- .enemy{bottom:calc(20% + 31% + 7px)}
  .note{bottom:calc(env(safe-area-inset-bottom,0px) + 77px)}
  .auth-card{padding:19px}
  .panel-card{max-height:94dvh;padding:13px}
  .inventory-slots{gap:5px}
  .inventory-slot{border-radius:7px}
+ .bottom-nav{bottom:calc(env(safe-area-inset-bottom,0px) + 6px);padding:6px}
+ .nav-button{min-height:48px}
 }
 @media(max-width:380px){
  .enemy{width:40%;right:3%}
  .enemy b{font-size:10px}
  .player-health{padding:6px}
  .health-title{font-size:9px}
- .nav-button{font-size:10px}
+ .nav-button{font-size:9px;letter-spacing:0}
+ .nav-button span{font-size:17px}
+ .bottom-nav{left:7px;right:7px;gap:5px;padding:6px}
  .map-location{font-size:9px;padding:7px 6px}
  .inventory-slots{gap:4px}
  .item-detail-avatar-wrap{width:125px;height:125px}
 }
 @media(min-width:700px){
  .game{max-width:600px;left:50%;transform:translateX(-50%)}
-}
-
-/* Сохраняем положение блока здоровья над героем и на небольших экранах */
-@media(max-height:700px){
- .player-health{
-  bottom:calc(20% + 47% + 8px);
-  top:auto;
- }
 }
 </style>
 </head>
@@ -268,9 +316,10 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <div class="note" id="battleNote">Нажимай на противника, чтобы атаковать</div>
 
 <div class="bottom-nav">
-<button class="nav-button" onclick="openShop()"><span>⚒️</span>МАГАЗИН</button>
-<button class="nav-button" onclick="openStats()"><span>🧙</span>ГЕРОЙ</button>
+<button class="nav-button" onclick="openWorldMap()"><span>🗺️</span>КАРТА</button>
 <button class="nav-button" onclick="openInventory()"><span>🎒</span>ИНВЕНТАРЬ</button>
+<button class="nav-button" onclick="openStats()"><span>🧙</span>ГЕРОЙ</button>
+<button class="nav-button" onclick="openShop()"><span>⚒️</span>МАГАЗИН</button>
 </div>
 </div>
 </div>
