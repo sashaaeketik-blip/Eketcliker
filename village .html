@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#10151b">
+  <title>Eket Clicker — Деревня</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #10151b; font-family: Arial, sans-serif; touch-action: none; }
+    #game { display: block; width: 100vw; height: 100dvh; }
+    .topbar { position: fixed; z-index: 5; top: max(12px, env(safe-area-inset-top)); left: 12px; right: 12px; display: flex; justify-content: space-between; gap: 10px; pointer-events: none; }
+    .topbar a, .topbar button { pointer-events: auto; color: #fff; text-decoration: none; border: 1px solid #ffffff35; background: #111923c9; padding: 11px 14px; border-radius: 12px; font-size: 14px; backdrop-filter: blur(8px); }
+    .hint { position: fixed; z-index: 4; top: max(60px, calc(env(safe-area-inset-top) + 52px)); left: 50%; transform: translateX(-50%); color: #fff; background: #111923a8; border: 1px solid #ffffff22; border-radius: 10px; padding: 8px 12px; font-size: 12px; white-space: nowrap; pointer-events: none; }
+    #joyBase { position: fixed; z-index: 6; left: max(22px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 142px; height: 142px; border-radius: 50%; border: 2px solid #d8c49b88; background: radial-gradient(circle, #d8c49b25, #151b2499); box-shadow: inset 0 0 22px #0008, 0 5px 20px #0008; touch-action: none; }
+    #joyKnob { position: absolute; width: 58px; height: 58px; left: 40px; top: 40px; border-radius: 50%; border: 2px solid #f4dfb6cc; background: radial-gradient(circle at 35% 30%, #f5e4c4dd, #98774dcc 75%); box-shadow: 0 3px 12px #0009, inset 0 1px 5px #fff8; }
+    .smallnote { position: fixed; z-index: 3; right: 14px; bottom: max(20px, env(safe-area-inset-bottom)); color: #ffffffa0; font-size: 11px; text-align: right; pointer-events: none; }
+    @media (pointer:fine) { #joyBase { opacity: .48; } }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div class="topbar">
+    <a href="index.html">← Назад в игру</a>
+    <button id="resetCamera" type="button">Вернуть камеру</button>
+  </div>
+  <div class="hint">Двигайся джойстиком · На ПК: WASD или стрелки</div>
+  <div id="joyBase" aria-label="Виртуальный джойстик"><div id="joyKnob"></div></div>
+  <div class="smallnote">Камера следует за героем · 2.5D</div>
+
+  <script>
+  (() => {
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const joyBase = document.getElementById('joyBase');
+    const joyKnob = document.getElementById('joyKnob');
+    const map = new Image();
+    const hero = new Image();
+    map.src = 'village-map.png';
+    hero.src = 'eket-hero.png';
+
+    const world = { w: 1536, h: 1024 };
+    const player = { x: world.w / 2, y: world.h / 2 };
+    const camera = { x: player.x, y: player.y };
+    let inputX = 0, inputY = 0;
+    let facing = 1;
+    let keys = Object.create(null);
+    let joyPointer = null;
+    let lastTime = 0;
+    let dpr = 1;
+    let viewW = innerWidth, viewH = innerHeight;
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      viewW = innerWidth; viewH = innerHeight;
+      canvas.width = Math.round(viewW * dpr);
+      canvas.height = Math.round(viewH * dpr);
+      canvas.style.width = viewW + 'px';
+      canvas.style.height = viewH + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function getScale() {
+      if (!map.naturalWidth) return Math.max(viewW / world.w, viewH / world.h);
+      return Math.max(viewW / world.w, viewH / world.h) * 1.04;
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = '#17221d';
+      ctx.fillRect(0, 0, viewW, viewH);
+      if (!map.complete || !map.naturalWidth) {
+        ctx.fillStyle = '#fff'; ctx.font = '16px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('Загрузка карты деревни…', viewW / 2, viewH / 2);
+        return;
+      }
+      const scale = getScale();
+      const anchorX = viewW / 2;
+      const anchorY = viewH * 0.66;
+      // Карта всегда рисуется без вращения. Камера только перемещает её вслед за героем.
+      const offsetX = anchorX - camera.x * scale;
+      const offsetY = anchorY - camera.y * scale;
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(scale, scale);
+      ctx.drawImage(map, 0, 0, world.w, world.h);
+      ctx.restore();
+    }
+
+    function drawHero() {
+      const anchorX = viewW / 2;
+      const anchorY = viewH * 0.66;
+      // Псевдо-3D: мягкая контактная тень и объёмный свет под спрайтом.
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.42)';
+      ctx.beginPath();
+      ctx.ellipse(anchorX, anchorY + 3, 29, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      if (hero.complete && hero.naturalWidth) {
+        const h = Math.min(viewH * 0.34, 210);
+        const ratio = hero.naturalWidth / hero.naturalHeight;
+        const w = h * ratio;
+        ctx.save();
+        ctx.translate(anchorX, anchorY);
+        // У исходного PNG один ракурс: отражаем его только при движении влево/вправо.
+        ctx.scale(facing, 1);
+        ctx.shadowColor = 'rgba(0,0,0,0.35)';
+        ctx.shadowBlur = 12;
+        ctx.drawImage(hero, -w / 2, -h * 0.88, w, h);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#e8c78d';
+        ctx.beginPath(); ctx.ellipse(anchorX, anchorY - 30, 19, 28, 0, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    function getInput() {
+      let x = inputX, y = inputY;
+      if (keys['a'] || keys['arrowleft']) x -= 1;
+      if (keys['d'] || keys['arrowright']) x += 1;
+      if (keys['w'] || keys['arrowup']) y -= 1;
+      if (keys['s'] || keys['arrowdown']) y += 1;
+      const len = Math.hypot(x, y);
+      if (len > 1) { x /= len; y /= len; }
+      return { x, y, len: Math.min(len, 1) };
+    }
+
+    function update(dt) {
+      const input = getInput();
+      if (input.len > 0.05) {
+        const speed = 250;
+        player.x = clamp(player.x + input.x * speed * dt, 24, world.w - 24);
+        player.y = clamp(player.y + input.y * speed * dt, 24, world.h - 24);
+        if (Math.abs(input.x) > 0.12) facing = input.x < 0 ? -1 : 1;
+      }
+      // Плавное следование камеры без поворота карты.
+      const follow = 1 - Math.exp(-dt * 7);
+      camera.x += (player.x - camera.x) * follow;
+      camera.y += (player.y - camera.y) * follow;
+    }
+
+    function frame(time) {
+      const dt = Math.min((time - lastTime) / 1000 || 0, 0.04);
+      lastTime = time;
+      update(dt);
+      drawBackground();
+      drawHero();
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    function setJoystick(clientX, clientY) {
+      const rect = joyBase.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      let dx = clientX - cx, dy = clientY - cy;
+      const max = 43;
+      const len = Math.hypot(dx, dy);
+      if (len > max) { dx = dx / len * max; dy = dy / len * max; }
+      joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+      inputX = dx / max;
+      inputY = dy / max;
+    }
+    function releaseJoystick() {
+      joyPointer = null; inputX = 0; inputY = 0;
+      joyKnob.style.transform = 'translate(0px, 0px)';
+    }
+    joyBase.addEventListener('pointerdown', e => {
+      e.preventDefault(); joyPointer = e.pointerId;
+      joyBase.setPointerCapture(e.pointerId); setJoystick(e.clientX, e.clientY);
+    });
+    joyBase.addEventListener('pointermove', e => {
+      if (e.pointerId === joyPointer) { e.preventDefault(); setJoystick(e.clientX, e.clientY); }
+    });
+    joyBase.addEventListener('pointerup', e => { if (e.pointerId === joyPointer) releaseJoystick(); });
+    joyBase.addEventListener('pointercancel', releaseJoystick);
+    joyBase.addEventListener('lostpointercapture', releaseJoystick);
+
+    window.addEventListener('keydown', e => {
+      const key = e.key.toLowerCase();
+      if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)) e.preventDefault();
+      keys[key] = true;
+    });
+    window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+    window.addEventListener('blur', () => { keys = Object.create(null); releaseJoystick(); });
+
+    document.getElementById('resetCamera').addEventListener('click', () => {
+      camera.x = player.x;
+      camera.y = player.y;
+    });
+  })();
+  </script>
+</body>
+</html>
