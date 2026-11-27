@@ -19,7 +19,6 @@ button{cursor:pointer}
 .arena>img.background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;filter:brightness(.76) saturate(.82)}
 .arena:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,#07100b99,transparent 28%),linear-gradient(0deg,#07100be8,transparent 42%)}
 
-/* Скрываем старую шапку и карточки статистики */
 header{display:none!important}
 .stats{display:none!important}
 .note{display:none!important}
@@ -28,46 +27,20 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .subtitle{margin-top:4px;color:#bdcbbb;font-size:11px;letter-spacing:2px;text-shadow:0 2px 6px #000}
 .menu-button{position:absolute;top:10px;left:13px;width:42px;height:42px;border:1px solid #d8bd7d88;border-radius:12px;background:#101c18dd;color:#f0d99d;font-size:23px;pointer-events:auto;backdrop-filter:blur(8px);box-shadow:0 3px 12px #0005}
 
-/* Верхняя панель здоровья героя */
 .player-health{
- position:absolute;
- z-index:9;
- left:4%;
- right:auto;
+ position:absolute;z-index:9;left:4%;right:auto;
  top:calc(env(safe-area-inset-top,0px) + 12px);
- bottom:auto;
- width:43%;
- max-width:245px;
- padding:8px 10px;
- border:1px solid #ffffff35;
- border-radius:9px;
- background:#101b19e8;
- backdrop-filter:blur(8px);
- box-shadow:0 4px 12px #0006;
+ bottom:auto;width:43%;max-width:245px;padding:8px 10px;
+ border:1px solid #ffffff35;border-radius:9px;
+ background:#101b19e8;backdrop-filter:blur(8px);box-shadow:0 4px 12px #0006;
 }
-
-.health-title{
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:4px;
- color:#e4eadd;
- font-size:10px;
-}
-
-.health-title b{
- color:#f0d99d;
- font-weight:bold;
-}
-
+.health-title{display:flex;justify-content:space-between;align-items:center;gap:4px;color:#e4eadd;font-size:10px}
+.health-title b{color:#f0d99d;font-weight:bold}
 .player-bar{height:8px;background:#202e28;border-radius:10px;overflow:hidden;margin-top:5px}
 .player-bar span{display:block;width:100%;height:100%;background:linear-gradient(90deg,#398b55,#6bc77c);transition:width .25s}
 
-/* Герой */
 .hero{position:absolute;left:5%;bottom:17%;width:43%;height:53%;display:flex;align-items:flex-end;justify-content:center;z-index:3;pointer-events:none}
 .hero-idle{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 8px #000b);transform-origin:bottom center}
-
-/* Монстр */
 .monster{position:absolute;right:5%;bottom:17%;width:34%;height:35%;object-fit:contain;object-position:center bottom;display:block;z-index:4;cursor:pointer;filter:drop-shadow(0 8px 7px #000b);transform-origin:center bottom}
 
 .arena.hit .hero-idle{animation:heroAttack .45s ease-in-out}
@@ -89,80 +62,50 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .arena.dodge .damage-pop{animation:dodgePop .65s ease-out}
 @keyframes dodgePop{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-5px) scale(1.15)}100%{opacity:0;transform:translateY(-45px)}}
 
-/* Верхняя панель монстра */
 .enemy{
- position:absolute;
- z-index:9;
- right:4%;
- left:auto;
+ position:absolute;z-index:9;right:4%;left:auto;
  top:calc(env(safe-area-inset-top,0px) + 12px);
- bottom:auto;
- width:38%;
- max-width:210px;
- padding:8px 10px 7px;
- text-align:center;
- border:1px solid #d8e5d044;
- border-radius:9px;
+ bottom:auto;width:38%;max-width:210px;padding:8px 10px 7px;
+ text-align:center;border:1px solid #d8e5d044;border-radius:9px;
  background:linear-gradient(145deg,rgba(15,29,24,.94),rgba(9,17,15,.88));
- backdrop-filter:blur(8px);
- box-shadow:0 4px 12px #0008;
+ backdrop-filter:blur(8px);box-shadow:0 4px 12px #0008;
 }
 .enemy b{display:block;color:#e8eee3;font-size:11px;font-weight:normal;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar{height:7px;background:#202e28;border:1px solid #ffffff18;border-radius:10px;overflow:hidden;margin-top:6px}
 .bar span{display:block;height:100%;width:100%;border-radius:10px;background:linear-gradient(90deg,#853f38,#c65e4e,#e18c69);transition:width .25s}
 #enemyHP{margin-top:4px;color:#bdcabe;font-size:9px}
 
-/* Нижняя панель: четыре кнопки */
 .note{position:absolute;z-index:8;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 83px);text-align:center;color:#d0dfd0;font-size:11px;text-shadow:0 2px 6px #000;pointer-events:none;padding:0 10px}
 
 .bottom-nav{
- position:absolute;
- z-index:15;
- left:10px;
- right:10px;
+ position:absolute;z-index:15;left:10px;right:10px;
  bottom:calc(env(safe-area-inset-bottom,0px) + 9px);
- display:grid;
- grid-template-columns:repeat(4,minmax(0,1fr));
- gap:7px;
- padding:8px;
- border:1px solid #d5c18a66;
- border-radius:15px;
- background:#0b1712ef;
- backdrop-filter:blur(12px);
- box-shadow:0 5px 20px #0008;
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:8px;
+ border:1px solid #d5c18a66;border-radius:15px;
+ background:#0b1712ef;backdrop-filter:blur(12px);box-shadow:0 5px 20px #0008;
 }
-
 .nav-button{
- min-width:0;
- min-height:53px;
- padding:6px 2px;
- border:1px solid #d8bd7d66;
- border-radius:10px;
+ min-width:0;min-height:53px;padding:6px 2px;
+ border:1px solid #d8bd7d66;border-radius:10px;
  background:linear-gradient(145deg,#24382c,#14231c);
- color:#f0d99d;
- font-size:10px;
- letter-spacing:.2px;
- white-space:nowrap;
+ color:#f0d99d;font-size:10px;letter-spacing:.2px;white-space:nowrap;
 }
-
-/* Новые фэнтези-иконки нижней панели */
-.nav-button .nav-icon{
- display:block;
- width:29px;
- height:27px;
- margin:0 auto 4px;
- overflow:visible;
- filter:drop-shadow(0 2px 3px #000b);
-}
-.nav-icon .gold{stroke:#e5c77d}
-.nav-icon .dark-gold{stroke:#98713e}
-.nav-icon .silver{stroke:#d9e3d8}
-.nav-icon .dark{stroke:#26372e}
-.nav-icon .leather{fill:#80552f}
-.nav-icon .leather-light{fill:#b17b42}
-.nav-icon .metal{fill:#aebbb0}
-.nav-icon .metal-light{fill:#e2e8d9}
+.nav-button .nav-icon{display:block;width:29px;height:27px;margin:0 auto 4px;overflow:visible;filter:drop-shadow(0 2px 3px #000b)}
 .nav-button:active{filter:brightness(1.35);transform:scale(.98)}
+
+/* Общие фэнтези-иконки */
+.rpg-icon{display:inline-block;width:22px;height:22px;flex:0 0 auto;vertical-align:middle;overflow:visible;filter:drop-shadow(0 2px 3px #0008)}
+.rpg-icon.small{width:17px;height:17px}
+.rpg-icon.large{width:30px;height:30px}
+.rpg-icon.gold{color:#e5c77d}
+.rpg-icon.silver{color:#d9e3d8}
+.rpg-icon.leather{color:#b17b42}
+.menu-option .rpg-icon{width:25px;height:25px}
+.panel-title .rpg-icon{width:27px;height:27px;margin-right:5px;vertical-align:-6px}
+.stat-row .rpg-icon{width:21px;height:21px;margin-right:5px;vertical-align:-5px}
+.equipment-slot b .rpg-icon{width:19px;height:19px;margin-right:3px;vertical-align:-5px}
+.map-location .rpg-icon{width:17px;height:17px;margin-right:4px;vertical-align:-4px}
+.currency-icon{width:16px;height:16px;vertical-align:-3px;margin:0 2px}
 
 .panel{position:absolute;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:#050b09c9;backdrop-filter:blur(7px)}
 .panel-card{width:100%;max-width:390px;max-height:92dvh;overflow-y:auto;padding:17px;border:1px solid #d5c18a66;border-radius:16px;background:linear-gradient(145deg,#14251f,#09130f);box-shadow:0 15px 50px #000a}
@@ -227,7 +170,6 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 .menu-card{width:100%;max-width:290px;padding:17px;border:1px solid #d5c18a88;border-radius:15px;background:linear-gradient(145deg,#182b22,#09130f);box-shadow:0 12px 40px #000b}
 .menu-heading{text-align:center;color:#e8d5a2;font-size:17px;letter-spacing:2px;margin-bottom:13px}
 .menu-option{display:flex;align-items:center;gap:11px;width:100%;padding:12px 10px;margin:6px 0;border:1px solid #ffffff20;border-radius:9px;background:#ffffff09;color:#e5eee9;text-align:left;font-size:13px}
-.menu-option span{width:23px;text-align:center;font-size:17px}
 .menu-option:active{background:#d5bd7b33}
 .menu-divider{height:1px;background:#ffffff20;margin:11px 0}
 .menu-close{width:100%;padding:10px;border:1px solid #cbb477;border-radius:8px;background:#a17b42;color:#17130b;font-weight:bold;margin-top:7px}
@@ -290,6 +232,95 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 </head>
 <body>
 
+<!-- Набор единых SVG-иконок -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+<defs>
+ <linearGradient id="goldMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0b5"/><stop offset=".45" stop-color="#d8ae5e"/><stop offset="1" stop-color="#80572c"/></linearGradient>
+ <linearGradient id="silverMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4f6e8"/><stop offset=".5" stop-color="#aab9ae"/><stop offset="1" stop-color="#53675b"/></linearGradient>
+ <linearGradient id="leatherMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c99450"/><stop offset=".55" stop-color="#80502d"/><stop offset="1" stop-color="#402819"/></linearGradient>
+</defs>
+<symbol id="icon-map" viewBox="0 0 48 48">
+ <path d="M4 10L17 5L31 10L44 5V38L31 43L17 38L4 43Z" fill="url(#leatherMetal)" stroke="#e5c77d" stroke-width="2" stroke-linejoin="round"/>
+ <path d="M17 5V38M31 10V43" stroke="#f0d99d" stroke-width="1.8"/>
+ <path d="M8 15L13 13M8 22L13 20M35 15L40 13M35 22L40 20" stroke="#f0d99d" stroke-width="1.5" stroke-linecap="round"/>
+ <path d="M23 27C23 21 27 17 32 17C37 17 40 21 40 27C40 33 32 39 32 39C32 39 23 33 23 27Z" fill="url(#goldMetal)" stroke="#684522" stroke-width="1.5"/>
+ <circle cx="32" cy="26" r="3" fill="#66865d" stroke="#f5dfa4" stroke-width="1.4"/>
+</symbol>
+<symbol id="icon-bag" viewBox="0 0 48 48">
+ <path d="M13 14C13 8 17 5 24 5C31 5 35 8 35 14L41 19L37 43H11L7 19Z" fill="url(#leatherMetal)" stroke="#e1c17d" stroke-width="2"/>
+ <path d="M14 14C17 17 20 18 24 18C28 18 31 17 34 14" fill="none" stroke="#f0d99d" stroke-width="2"/>
+ <path d="M17 8C17 14 19 16 24 16C29 16 31 14 31 8" fill="none" stroke="#d7a85f" stroke-width="2.5"/>
+ <path d="M13 21H35L33 39H15Z" fill="#9c6939" stroke="#593a25" stroke-width="1.5"/>
+ <path d="M19 19V26C19 30 21 32 24 32C27 32 29 30 29 26V19" fill="none" stroke="#e6c77e" stroke-width="2"/>
+ <rect x="20" y="24" width="8" height="9" rx="2" fill="url(#goldMetal)" stroke="#674522" stroke-width="1.5"/>
+</symbol>
+<symbol id="icon-helmet" viewBox="0 0 48 48">
+ <path d="M7 25C7 12 14 5 24 5C34 5 41 12 41 25L37 34H11Z" fill="url(#silverMetal)" stroke="#e5c77d" stroke-width="2"/>
+ <path d="M10 19L24 23L38 19L37 28H11Z" fill="#819487" stroke="#3d5145" stroke-width="1.5"/>
+ <path d="M18 25H30L28 32H20Z" fill="#17251e" stroke="#e5c77d" stroke-width="1.5"/>
+ <path d="M24 23V35M14 10L24 14L34 10" fill="none" stroke="#f4e4b7" stroke-width="2"/>
+ <path d="M18 5L24 2L30 5" fill="none" stroke="#e5c77d" stroke-width="2" stroke-linecap="round"/>
+ <path d="M8 34H40L36 41H12Z" fill="#697d70" stroke="#d8bd7d" stroke-width="1.5"/>
+</symbol>
+<symbol id="icon-anvil" viewBox="0 0 48 48">
+ <path d="M8 29H40L36 36H12Z" fill="url(#silverMetal)" stroke="#e5c77d" stroke-width="1.8"/>
+ <path d="M15 25L19 20H32L39 26L37 30H11Z" fill="#aebbb0" stroke="#53675b" stroke-width="1.5"/>
+ <path d="M17 7L28 10L22 27L14 25Z" fill="url(#leatherMetal)" stroke="#e5c77d" stroke-width="1.5"/>
+ <path d="M15 5L30 8L28 15L13 12Z" fill="url(#silverMetal)" stroke="#e5c77d" stroke-width="1.8"/>
+ <path d="M19 9L26 11" stroke="#fff4d1" stroke-width="1.4" stroke-linecap="round"/>
+ <path d="M14 36V42M34 36V42" stroke="#d8b777" stroke-width="2" stroke-linecap="round"/>
+</symbol>
+<symbol id="icon-sword" viewBox="0 0 48 48">
+ <path d="M24 3L33 26L26 35L22 35L15 26Z" fill="url(#silverMetal)" stroke="#e5c77d" stroke-width="1.8"/>
+ <path d="M24 6V33" stroke="#fff" stroke-opacity=".7" stroke-width="1.5"/>
+ <path d="M12 28L36 28L34 34H14Z" fill="url(#goldMetal)" stroke="#684522" stroke-width="1.5"/>
+ <path d="M21 34H27L29 43H19Z" fill="url(#leatherMetal)" stroke="#d8b777" stroke-width="1.5"/>
+ <path d="M17 43H31L29 46H19Z" fill="url(#goldMetal)" stroke="#684522" stroke-width="1"/>
+</symbol>
+<symbol id="icon-shield" viewBox="0 0 48 48">
+ <path d="M24 4L42 11V23C42 34 33 41 24 45C15 41 6 34 6 23V11Z" fill="url(#silverMetal)" stroke="#e5c77d" stroke-width="2"/>
+ <path d="M24 9V40M10 15L24 21L38 15" stroke="#64776a" stroke-width="2"/>
+ <path d="M15 22H33L30 32L24 37L18 32Z" fill="#263d31" stroke="#f0d99d" stroke-width="1.5"/>
+ <path d="M20 26L24 30L28 26" fill="none" stroke="#e5c77d" stroke-width="2"/>
+</symbol>
+<symbol id="icon-heart" viewBox="0 0 48 48">
+ <path d="M24 42S5 30 5 17C5 5 20 3 24 14C28 3 43 5 43 17C43 30 24 42 24 42Z" fill="#a94343" stroke="#e5c77d" stroke-width="2"/>
+ <path d="M12 16C13 10 19 9 22 14" fill="none" stroke="#ffd0b6" stroke-width="2" stroke-linecap="round"/>
+</symbol>
+<symbol id="icon-target" viewBox="0 0 48 48">
+ <circle cx="24" cy="24" r="18" fill="#6d382f" stroke="#e5c77d" stroke-width="2"/>
+ <circle cx="24" cy="24" r="12" fill="none" stroke="#e9d39b" stroke-width="2"/>
+ <circle cx="24" cy="24" r="5" fill="#d6b36c" stroke="#fff0bd" stroke-width="1.5"/>
+ <path d="M26 22L42 6M34 6H42V14" fill="none" stroke="#e8e4d3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</symbol>
+<symbol id="icon-impact" viewBox="0 0 48 48">
+ <path d="M26 3L11 25H22L18 45L38 19H27L31 3Z" fill="url(#goldMetal)" stroke="#f5e1a6" stroke-width="2" stroke-linejoin="round"/>
+</symbol>
+<symbol id="icon-wind" viewBox="0 0 48 48">
+ <path d="M5 15H31C39 15 39 6 33 6C30 6 28 8 28 10M5 24H40C46 24 46 33 40 33C37 33 35 31 35 29M5 33H23" fill="none" stroke="#c4d9d2" stroke-width="3" stroke-linecap="round"/>
+</symbol>
+<symbol id="icon-coin" viewBox="0 0 48 48">
+ <circle cx="24" cy="24" r="19" fill="url(#goldMetal)" stroke="#f7e6ac" stroke-width="2"/>
+ <circle cx="24" cy="24" r="14" fill="none" stroke="#8a602d" stroke-width="1.5"/>
+ <path d="M28 15C20 11 15 17 20 22L28 26C34 31 27 38 19 33M24 12V36" fill="none" stroke="#80572c" stroke-width="2.5" stroke-linecap="round"/>
+</symbol>
+<symbol id="icon-scroll" viewBox="0 0 48 48">
+ <path d="M12 7H37V37H12C5 37 5 29 12 29Z" fill="#d7c18b" stroke="#8a6336" stroke-width="2"/>
+ <path d="M12 7C5 7 5 15 12 15H37M12 29C5 29 5 37 12 37" fill="none" stroke="#8a6336" stroke-width="2"/>
+ <path d="M17 19H32M17 24H32M17 29H28" stroke="#79562f" stroke-width="1.8" stroke-linecap="round"/>
+</symbol>
+<symbol id="icon-trophy" viewBox="0 0 48 48">
+ <path d="M14 6H34V18C34 27 29 31 24 31C19 31 14 27 14 18Z" fill="url(#goldMetal)" stroke="#f0d99d" stroke-width="2"/>
+ <path d="M14 11H7V17C7 23 12 25 17 25M34 11H41V17C41 23 36 25 31 25" fill="none" stroke="#d8b777" stroke-width="3"/>
+ <path d="M21 31H27V38H21Z" fill="#b17b42" stroke="#e5c77d" stroke-width="1.5"/>
+ <path d="M15 40H33V44H15Z" fill="url(#goldMetal)" stroke="#e5c77d" stroke-width="1.5"/>
+</symbol>
+<symbol id="icon-exit" viewBox="0 0 48 48">
+ <path d="M24 7H39V41H24" fill="none" stroke="#d8c58e" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M5 24H30M21 15L30 24L21 33" fill="none" stroke="#e5c77d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</symbol>
+</svg>
+
 <div class="game">
 <div class="arena" id="arena">
 <img class="background" id="arenaBackground" src="./forest-background.png" alt="Зелёный лес">
@@ -332,63 +363,22 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <div class="note" id="battleNote">Нажимай на противника, чтобы атаковать</div>
 
 <div class="bottom-nav">
-
 <button class="nav-button" onclick="openWorldMap()" aria-label="Карта">
-<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M5 10L17 5L31 10L43 5V34L31 39L17 34L5 39V10Z" fill="#9B713F" stroke="#E5C77D" stroke-width="2" stroke-linejoin="round"/>
-<path d="M17 5V34M31 10V39" stroke="#E5C77D" stroke-width="1.8"/>
-<path d="M9 14L14 12M9 20L14 18M35 14L40 12M35 20L40 18" stroke="#F0D99D" stroke-width="1.4" stroke-linecap="round"/>
-<path d="M21 25C21 20 25 16 30 16C35 16 38 20 38 25C38 31 30 36 30 36C30 36 21 31 21 25Z" fill="#D9B66E" stroke="#6B4A2C" stroke-width="1.5"/>
-<circle cx="30" cy="24" r="3.2" fill="#6B8C65" stroke="#F2D99A" stroke-width="1.3"/>
-<path d="M7 11L17 7L17 33L7 37V11Z" fill="#D4AE69" fill-opacity=".2"/>
-<path d="M5 10L17 5L31 10L43 5" stroke="#F3DEA7" stroke-width="1" opacity=".8"/>
-</svg>
+<svg class="nav-icon"><use href="#icon-map"/></svg>
 КАРТА
 </button>
-
 <button class="nav-button" onclick="openInventory()" aria-label="Инвентарь">
-<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M13 13C13 8 17 5 24 5C31 5 35 8 35 13L40 18L37 39H11L8 18L13 13Z" fill="#80552F" stroke="#D8B777" stroke-width="2" stroke-linejoin="round"/>
-<path d="M13 13C16 16 19 17 24 17C29 17 32 16 35 13" stroke="#E5C77D" stroke-width="2"/>
-<path d="M17 7C17 12 19 15 24 15C29 15 31 12 31 7" stroke="#B98A4E" stroke-width="2.5"/>
-<path d="M12 19L36 19L34 36H14L12 19Z" fill="#A8733E" stroke="#5C3B25" stroke-width="1.5"/>
-<path d="M19 18V25C19 28 21 30 24 30C27 30 29 28 29 25V18" stroke="#E3C17B" stroke-width="2"/>
-<rect x="20" y="23" width="8" height="8" rx="2" fill="#D8B777" stroke="#5D4029" stroke-width="1.5"/>
-<path d="M22 27H26" stroke="#76502E" stroke-width="1.5" stroke-linecap="round"/>
-<path d="M9 19L13 17M39 19L35 17" stroke="#F0D99D" stroke-width="1.5" stroke-linecap="round"/>
-<path d="M15 34H33" stroke="#D8B777" stroke-width="1.3" opacity=".8"/>
-</svg>
+<svg class="nav-icon"><use href="#icon-bag"/></svg>
 ИНВЕНТАРЬ
 </button>
-
 <button class="nav-button" onclick="openStats()" aria-label="Герой">
-<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M8 11L13 5H35L40 11L37 30L24 40L11 30L8 11Z" fill="#AEBBB0" stroke="#E5C77D" stroke-width="2" stroke-linejoin="round"/>
-<path d="M13 8L24 12L35 8L37 16L32 20H16L11 16L13 8Z" fill="#DCE5D8" stroke="#64776A" stroke-width="1.5"/>
-<path d="M12 17L18 21L18 29L24 34L30 29L30 21L36 17" fill="#7E9285" stroke="#394E42" stroke-width="1.5"/>
-<path d="M18 22H30L28 27H20L18 22Z" fill="#17251E" stroke="#D8C58E" stroke-width="1.5"/>
-<path d="M21 26L24 29L27 26" stroke="#E5C77D" stroke-width="1.5" stroke-linecap="round"/>
-<path d="M18 5L24 2L30 5" stroke="#E5C77D" stroke-width="2" stroke-linecap="round"/>
-<path d="M7 12L12 10M41 12L36 10" stroke="#F2D99A" stroke-width="1.5" stroke-linecap="round"/>
-<path d="M24 12V19" stroke="#F0D99D" stroke-width="1.5"/>
-</svg>
+<svg class="nav-icon"><use href="#icon-helmet"/></svg>
 ГЕРОЙ
 </button>
-
 <button class="nav-button" onclick="openShop()" aria-label="Магазин">
-<svg class="nav-icon" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M6 31H42L39 37H9L6 31Z" fill="#77887C" stroke="#D8C58E" stroke-width="1.8" stroke-linejoin="round"/>
-<path d="M12 29L16 25H32L37 29V32H12V29Z" fill="#AEBBB0" stroke="#52675A" stroke-width="1.5"/>
-<path d="M20 6L25 8L18 27L13 25L20 6Z" fill="#80552F" stroke="#D8B777" stroke-width="1.5"/>
-<path d="M16 4L28 7L26 14L14 11L16 4Z" fill="#B7C3B5" stroke="#E5C77D" stroke-width="1.8" stroke-linejoin="round"/>
-<path d="M18 8L25 10" stroke="#F4E4BD" stroke-width="1.4" stroke-linecap="round"/>
-<path d="M9 31H39" stroke="#F0D99D" stroke-width="1.2"/>
-<path d="M13 37V40M35 37V40" stroke="#D8B777" stroke-width="1.5" stroke-linecap="round"/>
-<path d="M20 27L24 23L28 27" stroke="#E5C77D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg class="nav-icon"><use href="#icon-anvil"/></svg>
 МАГАЗИН
 </button>
-
 </div>
 </div>
 </div>
@@ -396,12 +386,12 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <div class="main-menu hidden" id="mainMenu">
 <div class="menu-card">
 <div class="menu-heading">EKETORIA</div>
-<button class="menu-option" onclick="menuOpenMap()"><span>🗺️</span>Карта мира</button>
-<button class="menu-option" onclick="menuOpenStats()"><span>🧙</span>Герой и характеристики</button>
-<button class="menu-option" onclick="showComingSoon('Задания')"><span>📜</span>Задания</button>
-<button class="menu-option" onclick="showComingSoon('Достижения')"><span>🏆</span>Достижения</button>
+<button class="menu-option" onclick="menuOpenMap()"><svg class="rpg-icon"><use href="#icon-map"/></svg>Карта мира</button>
+<button class="menu-option" onclick="menuOpenStats()"><svg class="rpg-icon"><use href="#icon-helmet"/></svg>Герой и характеристики</button>
+<button class="menu-option" onclick="showComingSoon('Задания')"><svg class="rpg-icon"><use href="#icon-scroll"/></svg>Задания</button>
+<button class="menu-option" onclick="showComingSoon('Достижения')"><svg class="rpg-icon"><use href="#icon-trophy"/></svg>Достижения</button>
 <div class="menu-divider"></div>
-<button class="menu-option" onclick="logout()"><span>↪</span>Выйти из аккаунта</button>
+<button class="menu-option" onclick="logout()"><svg class="rpg-icon"><use href="#icon-exit"/></svg>Выйти из аккаунта</button>
 <button class="menu-close" onclick="closeMainMenu()">ЗАКРЫТЬ</button>
 </div>
 </div>
@@ -409,16 +399,16 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 <div class="world-map-panel hidden" id="worldMapPanel">
 <div class="world-map-card">
 <img class="world-map-image" src="https://raw.githubusercontent.com/sashaaeketik-blip/Eketcliker/main/a_vibrant_fantasy_rpg_world_map_illustrated_in_a_h.png" alt="Карта мира Eket Clicker">
-<button class="map-location map-forest" onclick="travelToLocation('forest')">🌲 Зелёный лес</button>
-<button class="map-location map-dungeon" onclick="travelToLocation('dungeon')">🏚 Подземелье</button>
-<button class="map-location map-mountains" onclick="travelToLocation('mountains')">❄️ Морозные горы</button>
+<button class="map-location map-forest" onclick="travelToLocation('forest')"><svg class="rpg-icon"><use href="#icon-map"/></svg>Зелёный лес</button>
+<button class="map-location map-dungeon" onclick="travelToLocation('dungeon')"><svg class="rpg-icon"><use href="#icon-scroll"/></svg>Подземелье</button>
+<button class="map-location map-mountains" onclick="travelToLocation('mountains')"><svg class="rpg-icon"><use href="#icon-shield"/></svg>Морозные горы</button>
 <button class="map-close" onclick="closeWorldMap()">ЗАКРЫТЬ КАРТУ</button>
 </div>
 </div>
 
 <div class="panel hidden" id="statsPanel">
 <div class="panel-card">
-<div class="panel-title">🧙 ГЕРОЙ</div>
+<div class="panel-title"><svg class="rpg-icon"><use href="#icon-helmet"/></svg>ГЕРОЙ</div>
 <div class="panel-subtitle">Свободных очков: <b id="statPoints">0</b></div>
 <div id="statRows"></div>
 <button class="close-button" onclick="closeStats()">ЗАКРЫТЬ</button>
@@ -427,8 +417,8 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 
 <div class="panel hidden" id="shopPanel">
 <div class="panel-card">
-<div class="panel-title">⚒ МАГАЗИН УЛУЧШЕНИЙ</div>
-<div class="panel-subtitle">Твоё золото: <b id="shopGold">0</b> 🪙</div>
+<div class="panel-title"><svg class="rpg-icon"><use href="#icon-anvil"/></svg>МАГАЗИН УЛУЧШЕНИЙ</div>
+<div class="panel-subtitle">Твоё золото: <b id="shopGold">0</b> <svg class="currency-icon"><use href="#icon-coin"/></svg></div>
 <div id="shopRows"></div>
 <button class="close-button" onclick="closeShop()">ЗАКРЫТЬ</button>
 </div>
@@ -436,20 +426,18 @@ h1{margin:0;color:#e0eadf;font-size:22px;letter-spacing:4px;font-weight:normal;t
 
 <div class="panel hidden" id="inventoryPanel">
 <div class="panel-card">
-<div class="panel-title">🎒 ИНВЕНТАРЬ</div>
+<div class="panel-title"><svg class="rpg-icon"><use href="#icon-bag"/></svg>ИНВЕНТАРЬ</div>
 <div class="panel-subtitle">Предметы: <b id="inventoryCount">0 / 30</b></div>
-
 <div class="equipment-grid">
 <div class="equipment-slot">
-<b>⚔️ ОРУЖИЕ</b>
+<b><svg class="rpg-icon"><use href="#icon-sword"/></svg>ОРУЖИЕ</b>
 <div id="weaponSlot" class="slot-item">Пусто</div>
 </div>
 <div class="equipment-slot">
-<b>🛡️ БРОНЯ</b>
+<b><svg class="rpg-icon"><use href="#icon-shield"/></svg>БРОНЯ</b>
 <div id="armorSlot" class="slot-item">Пусто</div>
 </div>
 </div>
-
 <div class="panel-subtitle">НАЙДЕННЫЕ ПРЕДМЕТЫ</div>
 <div class="inventory-slots" id="inventoryItems"></div>
 <div class="inventory-hint">Нажми на предмет, чтобы посмотреть его характеристики</div>
@@ -518,6 +506,11 @@ const firebaseConfig={
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
+
+/* Вспомогательная функция для RPG-иконок */
+function iconSVG(name,extraClass=""){
+ return `<svg class="rpg-icon ${extraClass}" aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
+}
 
 /* Видео авторизации */
 const authBackgroundVideo=document.getElementById("authBackgroundVideo");
@@ -735,12 +728,12 @@ const defaultUpgradeLevels={
 let upgradeLevels={...defaultUpgradeLevels,...(saved.upgradeLevels||{})};
 
 const shopUpgrades=[
- {key:"damage",name:"Мастерство клинка",icon:"⚔️",description:"+2 к урону за покупку",base:50,growth:1.55,max:Infinity},
- {key:"hp",name:"Крепкое тело",icon:"❤️",description:"+10 к максимальному здоровью",base:45,growth:1.5,max:Infinity},
- {key:"agility",name:"Быстрые руки",icon:"💨",description:"+1 к ловкости и скорости атаки",base:60,growth:1.6,max:20},
- {key:"critChance",name:"Меткий удар",icon:"🎯",description:"+0,5% к шансу критического удара",base:100,growth:1.65,max:60},
- {key:"critDamage",name:"Смертельный удар",icon:"💥",description:"+5% к критическому урону",base:120,growth:1.65,max:Infinity},
- {key:"gold",name:"Золотая добыча",icon:"🪙",description:"+10% золота за убийство",base:150,growth:1.75,max:20}
+ {key:"damage",name:"Мастерство клинка",icon:"sword",description:"+2 к урону за покупку",base:50,growth:1.55,max:Infinity},
+ {key:"hp",name:"Крепкое тело",icon:"heart",description:"+10 к максимальному здоровью",base:45,growth:1.5,max:Infinity},
+ {key:"agility",name:"Быстрые руки",icon:"wind",description:"+1 к ловкости и скорости атаки",base:60,growth:1.6,max:20},
+ {key:"critChance",name:"Меткий удар",icon:"target",description:"+0,5% к шансу критического удара",base:100,growth:1.65,max:60},
+ {key:"critDamage",name:"Смертельный удар",icon:"impact",description:"+5% к критическому урону",base:120,growth:1.65,max:Infinity},
+ {key:"gold",name:"Золотая добыча",icon:"coin",description:"+10% золота за убийство",base:150,growth:1.75,max:20}
 ];
 
 function getUpgradeCost(upgrade){
@@ -1051,13 +1044,13 @@ function renderItemDetails(){
  const rows=[];
 
  if(item.type==="weapon"){
-  rows.push(["⚔️ Урон",b.damage||0]);
-  if(b.critChance)rows.push(["🎯 Шанс критического удара","+"+b.critChance+"%"]);
-  if(b.critDamage)rows.push(["💥 Критический урон","+"+b.critDamage+"%"]);
+  rows.push([iconSVG("sword")+" Урон",b.damage||0]);
+  if(b.critChance)rows.push([iconSVG("target")+" Шанс критического удара","+"+b.critChance+"%"]);
+  if(b.critDamage)rows.push([iconSVG("impact")+" Критический урон","+"+b.critDamage+"%"]);
  }else{
-  rows.push(["❤️ Здоровье",b.maxPlayerHP||0]);
-  rows.push(["🛡️ Защита",b.defense||0]);
-  if(b.dodge)rows.push(["💨 Уклонение","+"+b.dodge+"%"]);
+  rows.push([iconSVG("heart")+" Здоровье",b.maxPlayerHP||0]);
+  rows.push([iconSVG("shield")+" Защита",b.defense||0]);
+  if(b.dodge)rows.push([iconSVG("wind")+" Уклонение","+"+b.dodge+"%"]);
  }
 
  content.innerHTML=`
@@ -1075,7 +1068,7 @@ function renderItemDetails(){
     </div>
    `).join("")}
   </div>
-  <div class="item-detail-price">Стоимость продажи: ${item.sellPrice||1} 🪙</div>
+  <div class="item-detail-price">Стоимость продажи: ${item.sellPrice||1} ${iconSVG("coin","small")}</div>
   <div class="item-detail-actions">
    <button onclick="equipItem('${item.id}')">НАДЕТЬ</button>
    <button class="sell" onclick="sellItem('${item.id}')">ПРОДАТЬ</button>
@@ -1536,7 +1529,7 @@ function renderShop(){
   return `
    <div class="stat-row">
     <div style="flex:1">
-     <div>${upgrade.icon} ${upgrade.name}</div>
+     <div>${iconSVG(upgrade.icon)} ${upgrade.name}</div>
      <small>${upgrade.description}</small>
      <small>Уровень: ${lvl}${upgrade.max===Infinity?"":" / "+upgrade.max}</small>
      <small>${maxed?"МАКСИМАЛЬНЫЙ УРОВЕНЬ":"Цена: "+cost+" золота"}</small>
@@ -1636,6 +1629,16 @@ function renderStatPanel(){
   ["dodge","Уклонение",effective.dodge+"%","Базовое уклонение "+stats.dodge+"%","Увеличивает шанс уклониться на 1%"]
  ];
 
+ const statIcons={
+  damage:"sword",
+  maxPlayerHP:"heart",
+  agility:"wind",
+  critChance:"target",
+  critDamage:"impact",
+  defense:"shield",
+  dodge:"wind"
+ };
+
  document.getElementById("statRows").innerHTML=rows.map(([key,name,value,detail,description])=>{
   let disabled=statPoints<=0;
 
@@ -1645,7 +1648,7 @@ function renderStatPanel(){
   return `
    <div class="stat-row">
     <div>
-     ${name}
+     ${iconSVG(statIcons[key])} ${name}
      <small>${value} · ${detail}${description?" · "+description:""}</small>
     </div>
     <button ${disabled?"disabled":""} onclick="allocateStat('${key}')">+1</button>
