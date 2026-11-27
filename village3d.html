@@ -15,8 +15,8 @@
 const canvas=document.getElementById('game'),status=document.getElementById('status'),error=document.getElementById('error');
 let gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'})||canvas.getContext('experimental-webgl');
 if(!gl){status.textContent='Не удалось создать WebGL';error.style.display='flex';return;}
-const vs=`attribute vec3 p; attribute vec3 n; uniform mat4 mvp; uniform mat4 model; varying float light; void main(){vec3 nn=normalize(mat3(model)*n); light=0.48+0.52*max(dot(nn,normalize(vec3(-0.4,0.9,0.35))),0.0); gl_Position=mvp*vec4(p,1.0);}`;
-const fs=`precision mediump float; uniform vec3 color; varying float light; void main(){gl_FragColor=vec4(color*light,1.0);}`;
+const vs=`attribute vec3 p; attribute vec3 n; uniform mat4 mvp; uniform mat4 model; varying float light; varying vec3 worldPos; void main(){vec3 nn=normalize(mat3(model)*n); light=0.48+0.52*max(dot(nn,normalize(vec3(-0.4,0.9,0.35))),0.0); worldPos=(model*vec4(p,1.0)).xyz; gl_Position=mvp*vec4(p,1.0);}`;
+const fs=`precision mediump float; uniform vec3 color; varying float light; varying vec3 worldPos; float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){float n=hash(floor(worldPos.xz*3.0)); float grain=0.94+n*0.10; gl_FragColor=vec4(color*light*grain,1.0);}`;
 function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
 let prog;try{prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(prog));}catch(e){status.textContent='Ошибка 3D: '+e.message;error.style.display='flex';return;}
 gl.useProgram(prog);const P=gl.getAttribLocation(prog,'p'),N=gl.getAttribLocation(prog,'n'),MVP=gl.getUniformLocation(prog,'mvp'),MODEL=gl.getUniformLocation(prog,'model'),COLOR=gl.getUniformLocation(prog,'color');
@@ -31,27 +31,94 @@ function lookAt(eye,center,up){let z=norm(sub(eye,center)),x=norm(cross(up,z)),y
 const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{let l=Math.hypot(...a)||1;return a.map(v=>v/l)};
 function model(x,y,z,sx,sy,sz,ry=0){let c=Math.cos(ry),s=Math.sin(ry);return new Float32Array([c*sx,0,-s*sx,0,0,sy,0,0,s*sz,0,c*sz,0,x,y,z,1]);}
 function draw(x,y,z,sx,sy,sz,col,ry=0){let m=model(x,y,z,sx,sy,sz,ry);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.drawArrays(gl.TRIANGLES,0,36)}
-const C={grass:[.24,.39,.22],grass2:[.31,.47,.25],road:[.42,.34,.25],stone:[.48,.48,.43],wood:[.34,.19,.10],wood2:[.48,.29,.15],roof:[.25,.12,.10],roof2:[.38,.19,.12],cream:[.69,.58,.40],dark:[.12,.10,.08],leaf:[.13,.31,.16],leaf2:[.22,.39,.19],water:[.17,.39,.53],metal:[.29,.31,.31],skin:[.76,.55,.37],cloth:[.16,.27,.42],gold:[.72,.52,.2]};
+const C={grass:[.19,.34,.17],grass2:[.27,.43,.21],grass3:[.34,.48,.23],road:[.36,.29,.21],stone:[.48,.47,.40],stone2:[.57,.55,.47],wood:[.27,.14,.075],wood2:[.43,.25,.12],wood3:[.57,.35,.18],roof:[.22,.085,.065],roof2:[.34,.13,.09],cream:[.66,.53,.35],dark:[.075,.065,.05],leaf:[.10,.27,.12],leaf2:[.18,.36,.16],leaf3:[.27,.42,.18],water:[.12,.34,.48],metal:[.25,.27,.27],skin:[.76,.55,.37],cloth:[.12,.22,.35],gold:[.72,.52,.2],warm:[.95,.62,.22]};
 let px=0,pz=4,heading=0,vp;const houses=[[-8,-7,4.2,3.3,4],[-2,-10,4.4,3.4,4.2],[7,-7,4.6,3.4,4.4],[10,1,4,3.2,3.8],[-10,3,4.3,3.3,4.1],[-7,11,4.5,3.4,4],[5,11,4.3,3.2,4]];
-function house(x,z,w,h,d,variant=0){draw(x,h/2,z,w,h,d,variant?C.cream:C.wood2);draw(x,h+.65,z,w*1.12,1.3,d*1.12,variant?C.wood2:C.wood);draw(x,h+1.35,z,w*1.2,.22,d*1.2,C.roof);draw(x,h+1.9,z,w*1.05,.95,d*.68,C.roof2,.55);draw(x,h+1.9,z,w*1.05,.95,d*.68,C.roof2,-.55);draw(x,h*.48,z+d/2+.03,.8,1.5,.12,C.dark);draw(x-w*.27,h*.67,z+d/2+.04,.65,.6,.1,C.water);draw(x+w*.27,h*.67,z+d/2+.04,.65,.6,.1,C.water);}
-function tree(x,z,k=1){draw(x,.7*k,z,.42*k,1.4*k,.42*k,C.wood);draw(x,2*k,z,2.1*k,2.2*k,2.1*k,C.leaf);draw(x-.35*k,2.8*k,z+.15*k,1.45*k,1.5*k,1.45*k,C.leaf2);}
-function world(){draw(0,-.35,0,70,.5,70,C.grass);draw(0,-.08,0,5,.12,48,C.road);draw(0,-.07,0,42,.12,4.2,C.road);draw(0,-.005,0,9,.08,9,C.stone);
-// well
- draw(0,.35,0,1.8,.7,1.8,C.stone);draw(0,.8,0,1.25,.2,1.25,C.dark);draw(0,1.8,0,.18,2,.18,C.wood);draw(0,2.5,0,2.5,.18,.18,C.wood);draw(0,2.15,0,1.5,.12,1.5,C.roof);
+function house(x,z,w,h,d,variant=0){
+ const wall=variant?C.cream:C.wood2, front=z+d/2;
+ draw(x,h/2,z,w,h,d,wall);
+ // dark timber frame and corner posts
+ for(const sx of [-1,1]){draw(x+sx*w*.46,h/2,front+.035,.16,h+.08,.13,C.wood);draw(x+sx*w*.46,h+.12,z-d*.46,.14,.2,.14,C.wood)}
+ draw(x,h*.18,front+.045,w*.92,.16,.12,C.wood);
+ draw(x,h*.83,front+.045,w*.92,.14,.12,C.wood);
+ // steep roof, ridge and eaves
+ draw(x,h+.68,z,w*1.22,.22,d*1.22,C.wood);
+ draw(x,h+1.25,z,w*1.16,.95,d*.72,C.roof2,.58);
+ draw(x,h+1.25,z,w*1.16,.95,d*.72,C.roof2,-.58);
+ draw(x,h+1.77,z,w*1.2,.12,.16,C.wood);
+ draw(x,h+1.18,z-d*.54,w*1.18,.14,.18,C.wood3);
+ // door, lintel and windows with frames
+ draw(x,h*.43,front+.11,.82,1.55,.14,C.dark);
+ draw(x,h*.42,front+.19,.62,1.36,.07,C.wood3);
+ draw(x+.19,h*.42,front+.24,.035,1.25,.025,C.gold);
+ draw(x-.29,h*.42,front+.25,.055,.07,.035,C.gold);
+ for(const wx of [-w*.28,w*.28]){
+  draw(x+wx,h*.68,front+.09,.78,.7,.13,C.wood);
+  draw(x+wx,h*.68,front+.17,.58,.5,.06,C.water);
+  draw(x+wx,h*.68,front+.21,.07,.56,.035,C.wood3);
+  draw(x+wx,h*.68,front+.22,.6,.07,.035,C.wood3);
+ }
+ // side wall braces
+ draw(x+w*.51,h*.55,z,.13,.18,d*.78,C.wood);
+}
+function tree(x,z,k=1){
+ draw(x,.72*k,z,.42*k,1.45*k,.42*k,C.wood);
+ draw(x,1.8*k,z,1.8*k,1.7*k,1.8*k,C.leaf);
+ draw(x-.42*k,2.45*k,z+.12*k,1.45*k,1.45*k,1.45*k,C.leaf2);
+ draw(x+.42*k,2.65*k,z-.12*k,1.35*k,1.4*k,1.35*k,C.leaf3);
+ draw(x,3.05*k,z,1.05*k,1.2*k,1.05*k,C.leaf2);
+}
+function world(){
+ // broad grassy terrain and layered dirt tracks
+ draw(0,-.38,0,76,.55,76,C.grass);
+ draw(0,-.17,0,5.4,.16,52,C.road);draw(0,-.16,0,48,.16,4.6,C.road);
+ // cobblestone road: irregular pavers
+ for(let i=-12;i<=12;i++){
+  for(let lane=-1;lane<=1;lane++){
+   let x=lane*.0 + ((i%2)*.22), z=i*1.65;
+   draw(x,-.045,z,1.45,.12,1.35,(i+lane)%3===0?C.stone2:C.stone,((i*lane)%4)*.06);
+  }
+ }
+ for(let i=-11;i<=11;i++){
+  for(let lane=-1;lane<=1;lane++){
+   let x=i*1.7,z=lane*1.42+((i%2)*.2);
+   draw(x,-.035,z,1.35,.1,1.15,(i+lane)%3===0?C.stone2:C.stone,.04);
+  }
+ }
+ // central square and circular well base
+ draw(0,-.015,0,10,.12,10,C.stone2);
+ for(let i=0;i<12;i++){let a=i*Math.PI/6;draw(Math.cos(a)*2.1,-.005,Math.sin(a)*2.1,.95,.12,.85,C.stone,.18)}
+ // well masonry, dark water, timber roof supports
+ draw(0,.35,0,1.9,.7,1.9,C.stone);draw(0,.77,0,1.35,.18,1.35,C.dark);draw(0,.81,0,1.05,.05,1.05,C.water);
+ draw(-.82,1.65,0,.16,2.0,.16,C.wood);draw(.82,1.65,0,.16,2.0,.16,C.wood);
+ draw(0,2.55,0,2.25,.18,.2,C.wood3);draw(0,2.95,0,2.5,.12,1.5,C.roof2,.08);
+ // houses around square
  houses.forEach((h,i)=>house(...h,i%2));
- // blacksmith forge chimney and anvil
- draw(-3,1.3,6,2.8,2.6,2.5,C.wood);draw(-3,3,6,1.2,1.2,1.2,C.roof);draw(-4.2,3.2,5.3,.55,2.4,.55,C.stone);draw(-1.9,.45,4.5,1.1,.5,.7,C.metal);
- // trees and shrubs
- [[-16,-14],[-12,-17],[-5,-18],[4,-17],[13,-14],[17,-7],[17,7],[14,17],[-15,15],[-18,7],[-18,-3],[3,17]].forEach((p,i)=>tree(p[0],p[1],.8+(i%3)*.14));
- // fence fragments
- for(let i=0;i<8;i++){draw(-14+i*.7,.55,5,.12,1.1,.12,C.wood);draw(-14+i*.7,.85,5,.16,.12,.16,C.wood)}
+ // blacksmith building and forge chimney
+ draw(-3,1.35,6,3.0,2.7,2.7,C.wood2);draw(-3,2.95,6,3.35,.18,3.0,C.wood3);
+ draw(-3,3.55,6,1.35,1.0,1.35,C.roof2,.58);draw(-3,3.55,6,1.35,1.0,1.35,C.roof2,-.58);
+ draw(-4.25,3.3,5.25,.62,2.55,.62,C.stone);draw(-4.25,4.65,5.25,.82,.22,.82,C.dark);
+ draw(-1.9,.48,4.48,1.2,.55,.8,C.metal);draw(-1.9,.82,4.48,.8,.18,.5,C.metal);
+ // warm forge glow and sign
+ draw(-3,1.1,7.38,.72,.75,.08,C.warm);draw(-3,2.65,7.45,1.1,.32,.12,C.wood3);
+ // fences around gardens
+ for(let i=0;i<10;i++){let x=-15+i*.7;draw(x,.48,5.8,.12,.95,.12,C.wood);if(i<9)draw(x+.35,.72,5.8,.78,.12,.12,C.wood3)}
+ for(let i=0;i<7;i++){let z=7+i*.7;draw(-15,.48,z,.12,.95,.12,C.wood);draw(-15,.72,z+.35,.12,.12,.78,C.wood3)}
+ // scattered stones, grass clumps and flower dots along lawn edges
+ for(let i=0;i<34;i++){
+  let x=((i*37)%43)-21,z=((i*19)%39)-19;
+  if(Math.abs(x)<4.2||Math.abs(z)<3.8)continue;
+  draw(x,-.02,z,.22+(i%3)*.08,.12,.2,i%2?C.stone:C.stone2,(i%5)*.2);
+  if(i%2===0){draw(x+.32,.16,z+.12,.07,.34,.07,C.grass3,.2);draw(x+.48,.12,z-.08,.06,.25,.06,C.grass2,-.25)}
+ }
+ // trees form a soft forest border
+ [[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]].forEach((p,i)=>tree(p[0],p[1],.82+(i%4)*.1));
 }
 function player(){// stylized placeholder adventurer
  draw(px,.65,pz,.72,1.25,.48,C.cloth,heading);draw(px,1.52,pz,.55,.55,.55,C.skin);draw(px,1.83,pz,.62,.22,.62,C.gold);draw(px+.48*Math.sin(heading),.72,pz+.48*Math.cos(heading),.16,.9,.16,C.metal,heading+.3);}
 function resize(){let d=Math.min(devicePixelRatio||1,1.5),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
 let keys={},joyX=0,joyY=0;addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 const stick=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;function joy(e){let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=43,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}joyX=dx/max;joyY=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId);joy(e)});stick.addEventListener('pointermove',e=>{if(active)joy(e)});function endJoy(){active=false;joyX=joyY=0;knob.style.transform='translate(0,0)'}stick.addEventListener('pointerup',endJoy);stick.addEventListener('pointercancel',endJoy);
-let last=0;function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);px+=x*5*dt;pz+=y*5*dt;heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,9,pz+13],target=[px,0.7,pz-1.5];vp=matMul(proj,lookAt(eye,target,[0,1,0]));world();player();status.textContent='Мир загружен · WebGL работает';requestAnimationFrame(frame)}
+let last=0;function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);px+=x*5*dt;pz+=y*5*dt;heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,9,pz+13],target=[px,0.7,pz-1.5];vp=matMul(proj,lookAt(eye,target,[0,1,0]));world();player();status.textContent='Деревня обновлена · WebGL работает';requestAnimationFrame(frame)}
 status.textContent='3D-мир запущен';requestAnimationFrame(frame);
 })();
 </script></body></html>
