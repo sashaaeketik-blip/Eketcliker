@@ -24,13 +24,23 @@ gl.useProgram(prog);const P=gl.getAttribLocation(prog,'p'),N=gl.getAttribLocatio
 const verts=[];function face(a,b,c,d,n){for(const v of [a,b,c,a,c,d])verts.push(...v,...n)}
 face([-0.5,-0.5,0.5],[0.5,-0.5,0.5],[0.5,0.5,0.5],[-0.5,0.5,0.5],[0,0,1]);face([0.5,-0.5,-0.5],[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[0.5,0.5,-0.5],[0,0,-1]);face([-0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[-0.5,0.5,-0.5],[-1,0,0]);face([0.5,-0.5,0.5],[0.5,-0.5,-0.5],[0.5,0.5,-0.5],[0.5,0.5,0.5],[1,0,0]);face([-0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,-0.5],[-0.5,0.5,-0.5],[0,1,0]);face([-0.5,-0.5,-0.5],[0.5,-0.5,-0.5],[0.5,-0.5,0.5],[-0.5,-0.5,0.5],[0,-1,0]);
 const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.STATIC_DRAW);gl.enableVertexAttribArray(P);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(N);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);
-gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.clearColor(.48,.68,.77,1);
+// Extra low-poly meshes: sphere, cylinder and tapered cone.
+function makeMesh(data){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);return {buffer:b,count:data.length/6};}
+function meshQuad(out,a,b,c,d,na,nb,nc,nd){for(const v of [a,b,c,a,c,d]){const n=v===a?na:v===b?nb:v===c?nc:nd;out.push(...v,...n)}}
+function sphereMesh(lat=9,lon=12){const out=[];for(let y=0;y<lat;y++){const t0=Math.PI*y/lat,t1=Math.PI*(y+1)/lat;for(let x=0;x<lon;x++){const p0=2*Math.PI*x/lon,p1=2*Math.PI*(x+1)/lon;const point=(t,p)=>[Math.sin(t)*Math.cos(p),Math.cos(t),Math.sin(t)*Math.sin(p)];const a=point(t0,p0),b=point(t1,p0),c=point(t1,p1),d=point(t0,p1);for(const v of [a,b,c,a,c,d])out.push(...v,...v)}}return makeMesh(out)}
+function cylinderMesh(segments=12,topRadius=1){const out=[];for(let i=0;i<segments;i++){const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments;const p=(r,y,t)=>[Math.cos(t)*r,y,Math.sin(t)*r],na=[Math.cos(a),0,Math.sin(a)],nb=[Math.cos(b),0,Math.sin(b)];const v0=p(1,-.5,a),v1=p(1,-.5,b),v2=p(topRadius,.5,b),v3=p(topRadius,.5,a);for(const [v,n] of [[v0,na],[v1,nb],[v2,nb],[v0,na],[v2,nb],[v3,na]])out.push(...v,...n);const bottom=[0,-.5,0],top=[0,.5,0];for(const v of [bottom,p(1,-.5,b),p(1,-.5,a)])out.push(...v,0,-1,0);for(const v of [top,p(topRadius,.5,a),p(topRadius,.5,b)])out.push(...v,0,1,0)}return makeMesh(out)}
+const sphereGeo=sphereMesh(),cylinderGeo=cylinderMesh(),coneGeo=cylinderMesh(12,.04);
+gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.clearColor(.48,.68,.77,1);
 function matMul(a,b){let o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return o}
 function perspective(fovy,aspect,near,far){let f=1/Math.tan(fovy/2),nf=1/(near-far),o=new Float32Array(16);o[0]=f/aspect;o[5]=f;o[10]=(far+near)*nf;o[11]=-1;o[14]=2*far*near*nf;return o}
 function lookAt(eye,center,up){let z=norm(sub(eye,center)),x=norm(cross(up,z)),y=cross(z,x),o=new Float32Array(16);o[0]=x[0];o[1]=y[0];o[2]=z[0];o[4]=x[1];o[5]=y[1];o[6]=z[1];o[8]=x[2];o[9]=y[2];o[10]=z[2];o[12]=-dot(x,eye);o[13]=-dot(y,eye);o[14]=-dot(z,eye);o[15]=1;return o}
 const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{let l=Math.hypot(...a)||1;return a.map(v=>v/l)};
 function model(x,y,z,sx,sy,sz,ry=0,rz=0){let c=Math.cos(ry),s=Math.sin(ry),cz=Math.cos(rz),szn=Math.sin(rz);return new Float32Array([c*cz*sx,szn*sx,-s*cz*sx,0,-c*szn*sy,cz*sy,s*szn*sy,0,s*sz,0,c*sz,0,x,y,z,1]);}
 function draw(x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.drawArrays(gl.TRIANGLES,0,36)}
+function drawGeo(geo,x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.bindBuffer(gl.ARRAY_BUFFER,geo.buffer);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.drawArrays(gl.TRIANGLES,0,geo.count)}
+function ball(x,y,z,sx,sy,sz,col,ry=0,rz=0){drawGeo(sphereGeo,x,y,z,sx,sy,sz,col,ry,rz)}
+function post(x,y,z,sx,sy,sz,col,ry=0){drawGeo(cylinderGeo,x,y,z,sx,sy,sz,col,ry)}
+function peak(x,y,z,sx,sy,sz,col,ry=0){drawGeo(coneGeo,x,y,z,sx,sy,sz,col,ry)}
 const C={grass:[.19,.34,.17],grass2:[.27,.43,.21],grass3:[.34,.48,.23],road:[.36,.29,.21],stone:[.48,.47,.40],stone2:[.57,.55,.47],wood:[.27,.14,.075],wood2:[.43,.25,.12],wood3:[.57,.35,.18],roof:[.22,.085,.065],roof2:[.34,.13,.09],cream:[.66,.53,.35],dark:[.075,.065,.05],leaf:[.10,.27,.12],leaf2:[.18,.36,.16],leaf3:[.27,.42,.18],water:[.12,.34,.48],metal:[.25,.27,.27],skin:[.76,.55,.37],cloth:[.12,.22,.35],gold:[.72,.52,.2],warm:[.95,.62,.22]};
 let px=0,pz=4,heading=0,vp;const houses=[[-8,-7,4.2,3.3,4],[-2,-10,4.4,3.4,4.2],[7,-7,4.6,3.4,4.4],[10,1,4,3.2,3.8],[-10,3,4.3,3.3,4.1],[-7,11,4.5,3.4,4],[5,11,4.3,3.2,4]];
 function house(x,z,w,h,d,variant=0){
@@ -84,11 +94,14 @@ function house(x,z,w,h,d,variant=0){
  draw(x+w*.51,h*.55,z,.13,.18,d*.78,C.wood);
 }
 function tree(x,z,k=1){
- draw(x,.72*k,z,.42*k,1.45*k,.42*k,C.wood);
- draw(x,1.8*k,z,1.8*k,1.7*k,1.8*k,C.leaf);
- draw(x-.42*k,2.45*k,z+.12*k,1.45*k,1.45*k,1.45*k,C.leaf2);
- draw(x+.42*k,2.65*k,z-.12*k,1.35*k,1.4*k,1.35*k,C.leaf3);
- draw(x,3.05*k,z,1.05*k,1.2*k,1.05*k,C.leaf2);
+ // Rounded trunks, exposed roots and layered faceted crowns.
+ post(x,.86*k,z,.30*k,1.75*k,.30*k,C.wood);
+ for(let a=0;a<4;a++){let ang=a*Math.PI/2;post(x+Math.cos(ang)*.28*k,.16*k,z+Math.sin(ang)*.28*k,.12*k,.52*k,.12*k,C.wood2,ang)}
+ ball(x,1.95*k,z,1.72*k,1.65*k,1.72*k,C.leaf);
+ ball(x-.48*k,2.45*k,z+.16*k,1.28*k,1.25*k,1.30*k,C.leaf2);
+ ball(x+.50*k,2.48*k,z-.18*k,1.30*k,1.32*k,1.28*k,C.leaf3);
+ ball(x,2.95*k,z,1.12*k,1.30*k,1.12*k,C.leaf2);
+ ball(x-.18*k,1.78*k,z+.82*k,.72*k,.78*k,.65*k,C.leaf2);
 }
 function world(){
  // broad grassy terrain and layered dirt tracks
@@ -111,7 +124,8 @@ function world(){
  draw(0,-.015,0,10,.12,10,C.stone2);
  for(let i=0;i<12;i++){let a=i*Math.PI/6;draw(Math.cos(a)*2.1,-.005,Math.sin(a)*2.1,.95,.12,.85,C.stone,.18)}
  // well masonry, dark water, timber roof supports
- draw(0,.35,0,1.9,.7,1.9,C.stone);draw(0,.77,0,1.35,.18,1.35,C.dark);draw(0,.81,0,1.05,.05,1.05,C.water);
+ post(0,.35,0,1.02,.72,1.02,C.stone);post(0,.77,0,.76,.16,.76,C.dark);post(0,.81,0,.60,.045,.60,C.water);
+ for(let i=0;i<10;i++){let a=i*Math.PI/5;ball(Math.cos(a)*.89,.38,Math.sin(a)*.89,.24,.22,.24,i%2?C.stone2:C.stone);}
  draw(-.82,1.65,0,.16,2.0,.16,C.wood);draw(.82,1.65,0,.16,2.0,.16,C.wood);
  draw(0,2.55,0,2.25,.18,.2,C.wood3);draw(0,2.95,0,2.5,.12,1.5,C.roof2,.08);
  // houses around square
@@ -124,15 +138,18 @@ function world(){
  // warm forge glow and sign
  draw(-3,1.1,7.38,.72,.75,.08,C.warm);draw(-3,2.65,7.45,1.1,.32,.12,C.wood3);
  // blacksmith work area: stacked firewood, barrels and supply crates
- for(let i=0;i<3;i++)draw(-5.1+i*.38,.35,8.2,.30,.68,.30,C.wood3,(i-1)*.18);
+ for(let i=0;i<3;i++){post(-5.1+i*.38,.35,8.2,.16,.68,.16,C.wood3,(i-1)*.18);draw(-5.1+i*.38,.18,8.2,.32,.08,.32,C.wood,(i-1)*.18);} 
+ // Two detailed supply barrels
+ for(let i=0;i<2;i++){let bx=-5.4+i*.72;post(bx,.48,6.95,.34,.88,.34,C.wood2);post(bx,.25,6.95,.36,.10,.36,C.metal);post(bx,.72,6.95,.36,.10,.36,C.metal);post(bx,.91,6.95,.30,.08,.30,C.wood3);}
  draw(-1.25,.42,7.65,.78,.82,.72,C.wood2);draw(-1.25,.86,7.65,.84,.12,.78,C.wood3);
  draw(-1.25,.42,8.04,.08,.72,.05,C.gold);draw(-1.25,.42,7.26,.08,.72,.05,C.gold);
  // warm street lanterns on wooden posts
  for(const [lx,lz] of [[-5,-2],[5,-2],[-5,4],[5,4]]){
-  draw(lx,1.15,lz,.13,2.25,.13,C.wood);
+  post(lx,1.15,lz,.075,2.25,.075,C.wood);
   draw(lx,2.35,lz,.42,.42,.42,C.dark);
-  draw(lx,2.35,lz+.23,.24,.25,.08,C.warm);
+  ball(lx,2.35,lz+.23,.13,.15,.13,C.warm);
   draw(lx,2.62,lz,.32,.08,.32,C.wood3);
+  draw(lx,2.12,lz,.34,.07,.34,C.metal);
  }
  // fenced garden beds with visible rows of crops
  for(let bed=0;bed<3;bed++){
@@ -186,27 +203,49 @@ function moveWithCollision(dx,dz){
  if(!collides(px,nz))pz=nz;
 }
 function player(){
- // more readable low-poly adventurer: boots, legs, tunic, arms, belt and helmet
+ // A more character-like low-poly adventurer: layered armour, shaped helmet,
+ // separate joints, gloves, belt, face details and a proper sword silhouette.
  const fx=Math.sin(heading),fz=Math.cos(heading),sideX=Math.cos(heading),sideZ=-Math.sin(heading);
- draw(px-.20,.19,pz,.27,.38,.34,C.dark,heading);draw(px+.20,.19,pz,.27,.38,.34,C.dark,heading);
- draw(px-.20,.53,pz,.25,.48,.28,C.cloth,heading);draw(px+.20,.53,pz,.25,.48,.28,C.cloth,heading);
- draw(px,.91,pz,.66,.72,.42,C.cloth,heading);
- draw(px,.98,pz+fz*.23,.48,.13,.07,C.gold,heading);
- draw(px-sideX*.43,.91,pz-sideZ*.43,.22,.68,.25,C.wood2,heading);
- draw(px+sideX*.43,.91,pz+sideZ*.43,.22,.68,.25,C.cloth,heading);
- draw(px+sideX*.43,.54,pz+sideZ*.43,.20,.22,.22,C.skin,heading);
- draw(px,1.48,pz,.43,.48,.40,C.skin);
- draw(px,1.73,pz,.52,.24,.48,C.gold,heading);
- draw(px,1.86,pz,.40,.12,.40,C.metal,heading);
- // sword held at the right side
- draw(px+sideX*.58,.78,pz+sideZ*.58,.13,.78,.13,C.metal,heading+.35);
- draw(px+sideX*.58,.39,pz+sideZ*.58,.34,.10,.18,C.gold,heading);
- draw(px+sideX*.58,1.18,pz+sideZ*.58,.18,.22,.18,C.gold,heading);
+ // boots and greaves
+ ball(px-.20,.18,pz,.19,.20,.27,C.dark,heading);
+ ball(px+.20,.18,pz,.19,.20,.27,C.dark,heading);
+ draw(px-.20,.48,pz,.22,.42,.25,C.cloth,heading);
+ draw(px+.20,.48,pz,.22,.42,.25,C.cloth,heading);
+ // tunic and chest armour
+ ball(px,.91,pz,.34,.48,.25,C.cloth,heading);
+ draw(px,.94,pz+fz*.22,.48,.38,.12,C.wood2,heading);
+ draw(px,.96,pz+fz*.29,.38,.30,.07,C.metal,heading);
+ draw(px,.69,pz+fz*.27,.58,.13,.10,C.gold,heading);
+ // belt, buckle and shoulder guards
+ draw(px,.66,pz+fz*.27,.58,.12,.12,C.wood,heading);
+ ball(px,.68,pz+fz*.34,.13,.13,.08,C.gold,heading);
+ ball(px-sideX*.39,.1+1.12,pz-sideZ*.39,.20,.19,.22,C.gold,heading);
+ ball(px+sideX*.39,1.24,pz+sideZ*.39,.20,.19,.22,C.gold,heading);
+ // arms and gloves
+ draw(px-sideX*.43,1.02,pz-sideZ*.43,.18,.52,.20,C.cloth,heading,-.16);
+ draw(px+sideX*.43,1.02,pz+sideZ*.43,.18,.52,.20,C.cloth,heading,.16);
+ ball(px-sideX*.46,.72,pz-sideZ*.46,.14,.15,.15,C.skin);
+ ball(px+sideX*.46,.72,pz+sideZ*.46,.14,.15,.15,C.skin);
+ // head, nose, eyes and helmet
+ ball(px,1.48,pz,.27,.31,.25,C.skin);
+ ball(px,1.50,pz+fz*.225,.055,.07,.045,C.skin,heading);
+ ball(px-sideX*.105,1.55,pz+fz*.22-sideZ*.105,.035,.04,.025,C.dark);
+ ball(px+sideX*.105,1.55,pz+fz*.22+sideZ*.105,.035,.04,.025,C.dark);
+ ball(px,1.76,pz,.34,.20,.31,C.gold,heading);
+ draw(px,1.65,pz+fz*.23,.42,.10,.13,C.metal,heading);
+ peak(px,1.99,pz,.15,.28,.15,C.gold,heading);
+ // sword in the right hand: grip, crossguard and tapered blade
+ const sx=px+sideX*.63,sz=pz+sideZ*.63;
+ draw(sx,.78,sz,.10,.30,.10,C.wood,heading,.12);
+ draw(sx,.98,sz,.34,.08,.12,C.gold,heading);
+ draw(sx,1.34,sz,.13,.68,.09,C.metal,heading,.12);
+ peak(sx,1.72,sz,.07,.20,.07,C.metal,heading);
+ ball(sx,.59,sz,.13,.13,.13,C.gold);
 }
 function resize(){let d=Math.min(devicePixelRatio||1,1.5),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
 let keys={},joyX=0,joyY=0;addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 const stick=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;function joy(e){let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=43,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}joyX=dx/max;joyY=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId);joy(e)});stick.addEventListener('pointermove',e=>{if(active)joy(e)});function endJoy(){active=false;joyX=joyY=0;knob.style.transform='translate(0,0)'}stick.addEventListener('pointerup',endJoy);stick.addEventListener('pointercancel',endJoy);
-let last=0;function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,9,pz+13],target=[px,0.7,pz-1.5];vp=matMul(proj,lookAt(eye,target,[0,1,0]));world();player();status.textContent='Деревня обновлена · WebGL работает';requestAnimationFrame(frame)}
+let last=0;function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,9,pz+13],target=[px,0.7,pz-1.5];vp=matMul(proj,lookAt(eye,target,[0,1,0]));world();player();status.textContent='RPG-модели обновлены · WebGL работает';requestAnimationFrame(frame)}
 status.textContent='3D-мир запущен';requestAnimationFrame(frame);
 })();
 </script></body></html>
