@@ -16,10 +16,10 @@ const canvas=document.getElementById('game'),status=document.getElementById('sta
 let gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'})||canvas.getContext('experimental-webgl');
 if(!gl){status.textContent='Не удалось создать WebGL';error.style.display='flex';return;}
 const vs=`attribute vec3 p; attribute vec3 n; uniform mat4 mvp; uniform mat4 model; uniform vec3 lightDir; uniform float ambient; varying float light; varying vec3 worldPos; varying vec3 normalV; void main(){vec3 nn=normalize(mat3(model)*n); normalV=nn; light=ambient+(1.0-ambient)*max(dot(nn,normalize(lightDir)),0.0); worldPos=(model*vec4(p,1.0)).xyz; gl_Position=mvp*vec4(p,1.0);}`;
-const fs=`precision mediump float; uniform vec3 color; uniform vec3 fogColor; uniform float fogAmount; uniform vec3 cameraPos; varying float light; varying vec3 worldPos; varying vec3 normalV; float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){float n=hash(floor(worldPos.xz*3.0)); float grain=0.965+n*0.07; float faceShade=0.94+0.06*max(normalV.y,0.0); vec3 base=color*light*grain*faceShade; float fog=smoothstep(22.0, 55.0, distance(worldPos,cameraPos)); gl_FragColor=vec4(mix(base,fogColor,clamp(fog*fogAmount,0.0,0.72)),1.0);}`.replace('fiftyFive','55');
+const fs=`precision mediump float; uniform vec3 color; uniform vec3 fogColor; uniform float fogAmount; uniform float emissive; uniform vec3 cameraPos; varying float light; varying vec3 worldPos; varying vec3 normalV; float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){float n=hash(floor(worldPos.xz*3.0)); float grain=0.965+n*0.07; float faceShade=0.94+0.06*max(normalV.y,0.0); vec3 base=mix(color*light*grain*faceShade,color,clamp(emissive,0.0,1.0)); float fog=smoothstep(22.0, 55.0, distance(worldPos,cameraPos)); gl_FragColor=vec4(mix(base,fogColor,clamp(fog*fogAmount,0.0,0.72)),1.0);}`.replace('fiftyFive','55');
 function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
 let prog;try{prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(prog));}catch(e){status.textContent='Ошибка 3D: '+e.message;error.style.display='flex';return;}
-gl.useProgram(prog);const P=gl.getAttribLocation(prog,'p'),N=gl.getAttribLocation(prog,'n'),MVP=gl.getUniformLocation(prog,'mvp'),MODEL=gl.getUniformLocation(prog,'model'),COLOR=gl.getUniformLocation(prog,'color'),LIGHTDIR=gl.getUniformLocation(prog,'lightDir'),AMBIENT=gl.getUniformLocation(prog,'ambient'),FOGCOLOR=gl.getUniformLocation(prog,'fogColor'),FOGAMOUNT=gl.getUniformLocation(prog,'fogAmount'),CAMERAPOS=gl.getUniformLocation(prog,'cameraPos');
+gl.useProgram(prog);const P=gl.getAttribLocation(prog,'p'),N=gl.getAttribLocation(prog,'n'),MVP=gl.getUniformLocation(prog,'mvp'),MODEL=gl.getUniformLocation(prog,'model'),COLOR=gl.getUniformLocation(prog,'color'),LIGHTDIR=gl.getUniformLocation(prog,'lightDir'),AMBIENT=gl.getUniformLocation(prog,'ambient'),FOGCOLOR=gl.getUniformLocation(prog,'fogColor'),FOGAMOUNT=gl.getUniformLocation(prog,'fogAmount'),CAMERAPOS=gl.getUniformLocation(prog,'cameraPos'),EMISSIVE=gl.getUniformLocation(prog,'emissive');let materialEmission=0;
 // Unit cube, with face normals
 const verts=[];function face(a,b,c,d,n){for(const v of [a,b,c,a,c,d])verts.push(...v,...n)}
 face([-0.5,-0.5,0.5],[0.5,-0.5,0.5],[0.5,0.5,0.5],[-0.5,0.5,0.5],[0,0,1]);face([0.5,-0.5,-0.5],[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[0.5,0.5,-0.5],[0,0,-1]);face([-0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[-0.5,0.5,-0.5],[-1,0,0]);face([0.5,-0.5,0.5],[0.5,-0.5,-0.5],[0.5,0.5,-0.5],[0.5,0.5,0.5],[1,0,0]);face([-0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,-0.5],[-0.5,0.5,-0.5],[0,1,0]);face([-0.5,-0.5,-0.5],[0.5,-0.5,-0.5],[0.5,-0.5,0.5],[-0.5,-0.5,0.5],[0,-1,0]);
@@ -36,8 +36,8 @@ function perspective(fovy,aspect,near,far){let f=1/Math.tan(fovy/2),nf=1/(near-f
 function lookAt(eye,center,up){let z=norm(sub(eye,center)),x=norm(cross(up,z)),y=cross(z,x),o=new Float32Array(16);o[0]=x[0];o[1]=y[0];o[2]=z[0];o[4]=x[1];o[5]=y[1];o[6]=z[1];o[8]=x[2];o[9]=y[2];o[10]=z[2];o[12]=-dot(x,eye);o[13]=-dot(y,eye);o[14]=-dot(z,eye);o[15]=1;return o}
 const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{let l=Math.hypot(...a)||1;return a.map(v=>v/l)};
 function model(x,y,z,sx,sy,sz,ry=0,rz=0){let c=Math.cos(ry),s=Math.sin(ry),cz=Math.cos(rz),szn=Math.sin(rz);return new Float32Array([c*cz*sx,szn*sx,-s*cz*sx,0,-c*szn*sy,cz*sy,s*szn*sy,0,s*sz,0,c*sz,0,x,y,z,1]);}
-function draw(x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.drawArrays(gl.TRIANGLES,0,36)}
-function drawGeo(geo,x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.bindBuffer(gl.ARRAY_BUFFER,geo.buffer);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.drawArrays(gl.TRIANGLES,0,geo.count)}
+function draw(x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.uniform1f(EMISSIVE,materialEmission);gl.drawArrays(gl.TRIANGLES,0,36)}
+function drawGeo(geo,x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.bindBuffer(gl.ARRAY_BUFFER,geo.buffer);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.uniform1f(EMISSIVE,materialEmission);gl.drawArrays(gl.TRIANGLES,0,geo.count)}
 function ball(x,y,z,sx,sy,sz,col,ry=0,rz=0){drawGeo(sphereGeo,x,y,z,sx,sy,sz,col,ry,rz)}
 function post(x,y,z,sx,sy,sz,col,ry=0){drawGeo(cylinderGeo,x,y,z,sx,sy,sz,col,ry)}
 function peak(x,y,z,sx,sy,sz,col,ry=0){drawGeo(coneGeo,x,y,z,sx,sy,sz,col,ry)}
@@ -235,7 +235,7 @@ addRect(0,0,1.9,1.9,.42);
 addRect(-11.85,5.8,6.3,.16,.28);
 addRect(-15,9.1,.16,4.2,.28);
 // Lantern posts.
-const solidCircles=[[-5,-2,.34],[5,-2,.34],[-5,4,.34],[5,4,.34],[-7,-2.8,.24]];
+const solidCircles=[[-5,-2,.34],[5,-2,.34],[-5,4,.34],[5,4,.34],[-7,-2.8,.24],[8.7,2.55,.36],[-5.65,8.85,.36],[2.8,-5,.36],[-1.7,-5.3,.36]];
 // Forest border: collide with trunks, not the leafy crowns.
 const treePositions=[[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]];
 treePositions.forEach((p,i)=>solidCircles.push([p[0],p[1],.38*(.82+(i%4)*.1)+.30]));
@@ -293,7 +293,122 @@ function player(){
  peak(sx,1.72,sz,.07,.20,.07,C.metal,heading);
  ball(sx,.59,sz,.13,.13,.13,C.gold);
 }
-function resize(){let d=Math.min(devicePixelRatio||1,1.35),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
+
+// ---------------------------------------------------------------------------
+// LIVING VILLAGE PASS — villagers, livestock, animated details and night glow.
+// Geometry is intentionally low-poly; all characters are built from reusable
+// primitives so the scene stays self-contained and works without external assets.
+// ---------------------------------------------------------------------------
+function withEmission(value,fn){materialEmission=value;fn();materialEmission=0;}
+function villager(x,z,t,kind=0){
+ const palettes=[
+  {coat:C.roof2,trim:C.gold,skin:[.78,.57,.39],hat:C.wood3,legs:C.dark},
+  {coat:[.16,.31,.25],trim:[.78,.63,.34],skin:[.68,.46,.30],hat:[.25,.18,.12],legs:[.12,.15,.18]},
+  {coat:[.25,.27,.43],trim:[.70,.57,.30],skin:[.84,.64,.48],hat:[.18,.12,.10],legs:[.18,.16,.15]},
+  {coat:[.42,.22,.12],trim:[.80,.67,.40],skin:[.72,.50,.34],hat:[.15,.22,.18],legs:[.16,.13,.10]}
+ ];
+ const p=palettes[kind%palettes.length],phase=t*.0014+kind*1.7;
+ const sway=Math.sin(phase)*.035,step=Math.sin(phase*1.7)*.07;
+ // Feet, trousers and a long readable coat silhouette.
+ ball(x-.13,.13,z,.13,.14,.19,p.legs);
+ ball(x+.13,.13,z,.13,.14,.19,p.legs);
+ draw(x-.13,.43,z,.16,.42,.18,p.legs);
+ draw(x+.13,.43,z,.16,.42,.18,p.legs);
+ ball(x,.91+sway,z,.29,.43,.22,p.coat);
+ draw(x,.83,z+.19,.42,.43,.08,p.trim);
+ draw(x,.63,z+.22,.47,.10,.08,C.wood);
+ ball(x,.67,z+.27,.075,.075,.055,C.gold);
+ // Arms with cuffs and hands.
+ draw(x-.36,.91+step,z,.15,.47,.16,p.coat,0,-.12);
+ draw(x+.36,.91-step,z,.15,.47,.16,p.coat,0,.12);
+ ball(x-.37,.65+step,z+.02,.11,.12,.11,p.skin);
+ ball(x+.37,.65-step,z+.02,.11,.12,.11,p.skin);
+ // Neck, head, ears, hair and hat.
+ post(x,1.25,z,.10,.20,.10,p.skin);
+ ball(x,1.51+sway,z,.23,.27,.22,p.skin);
+ ball(x-.22,1.50+sway,z,.055,.10,.07,p.skin);
+ ball(x+.22,1.50+sway,z,.055,.10,.07,p.skin);
+ ball(x,1.69+sway,z,.24,.12,.23,p.hat);
+ draw(x,1.75+sway,z,.36,.07,.30,p.trim);
+ // Eyes and nose face toward the camera-facing side.
+ ball(x-.075,1.53+sway,z+.205,.025,.03,.02,C.dark);
+ ball(x+.075,1.53+sway,z+.205,.025,.03,.02,C.dark);
+ ball(x,1.47+sway,z+.225,.045,.045,.04,p.skin);
+ // Small shoulder clasp and belt pouch.
+ ball(x-.24,1.16+sway,z+.13,.07,.08,.05,p.trim);
+ draw(x+.25,.65,z+.10,.12,.19,.12,C.wood2);
+}
+function chicken(x,z,t,scale=1){
+ const bob=Math.sin(t*.004+x)*.035;
+ ball(x,.27+bob,z,.28*scale,.22*scale,.38*scale,[.88,.82,.67]);
+ ball(x,.43+bob,z+.23*scale,.17*scale,.17*scale,.17*scale,[.91,.86,.72]);
+ ball(x,.42+bob,z+.38*scale,.07*scale,.06*scale,.10*scale,[.92,.35,.12]);
+ peak(x,.31+bob,z+.46*scale,.07*scale,.14*scale,.07*scale,[.92,.35,.10],0);
+ ball(x-.07*scale,.47+bob,z+.35*scale,.025*scale,.03*scale,.025*scale,C.dark);
+ ball(x+.07*scale,.47+bob,z+.35*scale,.025*scale,.03*scale,.025*scale,C.dark);
+ post(x-.10*scale,.10,z,.025*scale,.20*scale,.025*scale,[.75,.48,.16]);
+ post(x+.10*scale,.10,z+.08*scale,.025*scale,.20*scale,.025*scale,[.75,.48,.16]);
+}
+function villageLife(t){
+ const phase=gameClock/1440*Math.PI*2-Math.PI/2;
+ const daylight=Math.max(0,Math.min(1,(Math.sin(phase)+.18)/.42));
+ const night=1-daylight;
+ // Three residents give the market, forge and square a lived-in scale.
+ villager(8.7,2.55,t,0);       // market keeper
+ villager(-5.65,8.85,t,1);    // blacksmith
+ villager(2.8,-5.0,t,2);       // travelling mage
+ villager(-1.7,-5.3,t,3);      // town guard
+ // Chickens wander in a small animated loop by the fenced vegetable patch.
+ chicken(12.1,8.3+Math.sin(t*.0008)*.35,t,.85);
+ chicken(14.2,9.0+Math.cos(t*.0007)*.28,t,.72);
+ // Distant soft-edged cloud clusters drift slowly across the bright sky.
+ if(daylight>.12){
+  for(let i=0;i<3;i++){
+   const x=px-16+i*15+Math.sin(t*.00008+i)*2.5;
+   const z=pz-28-i*1.4,y=14+(i%2)*2;
+   const col=[.78,.84,.86];
+   ball(x,y,z,2.7,.48,1.05,col);
+   ball(x-1.6,y+.12,z+.2,1.65,.58,.90,col);
+   ball(x+1.55,y+.06,z-.15,1.85,.52,1.0,col);
+  }
+ }
+ // Warm emissive window glass and lantern flames at night.
+ const lanterns=[[-5,-2],[5,-2],[-5,4],[5,4]];
+ for(const [x,z] of lanterns){
+  withEmission(.20+night*.78,()=>ball(x,2.35,z+.23,.15,.17,.15,[1,.53,.16]));
+  if(night>.2){
+   // A subtle halo made from a translucent-looking warm low-poly orb.
+   ball(x,2.35,z+.23,.29,.31,.29,[.88,.36,.08]);
+  }
+ }
+ if(night>.10){
+  for(const h of houses){
+   const x=h[0],z=h[1],w=h[2],hh=h[3],d=h[4],front=z+d/2;
+   for(const wx of [-w*.28,w*.28]){
+    withEmission(.18+night*.76,()=>draw(x+wx,hh*.68,front+.195,.43,.35,.035,[1,.65,.28]));
+   }
+  }
+  withEmission(.45+night*.5,()=>draw(-3,1.1,7.40,.48,.48,.04,[1,.27,.035]));
+ }
+ // Small animated sparks rise from the blacksmith forge.
+ for(let i=0;i<5;i++){
+  const rise=(t*.001+i*.23)%1;
+  const sx=-3+Math.sin(t*.002+i*3)*.28;
+  withEmission(.8,()=>ball(sx,1.15+rise*1.65,7.55,.035,.045,.035,[1,.55,.12]));
+ }
+ // Moving highlights ripple on the stream below the wooden bridge.
+ for(let i=0;i<5;i++){
+  const x=-2+i*.95+Math.sin(t*.001+i)*.15;
+  draw(x,.055,15.8+Math.sin(t*.0015+i)*.35,.42,.025,.045,[.38,.65,.72]);
+ }
+ // Grass blades gently sway near the path, a tiny amount of motion adds life.
+ for(let i=0;i<12;i++){
+  const x=-13+(i%6)*1.15,z=11+Math.floor(i/6)*1.1;
+  draw(x,.19,z,.065,.34,.065,C.grass3,Math.sin(t*.001+i)*.18);
+ }
+}
+
+function resize(){let d=Math.min(devicePixelRatio||1,1.5),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
 let keys={},joyX=0,joyY=0;addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 const stick=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;function joy(e){let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=43,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}joyX=dx/max;joyY=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId);joy(e)});stick.addEventListener('pointermove',e=>{if(active)joy(e)});function endJoy(){active=false;joyX=joyY=0;knob.style.transform='translate(0,0)'}stick.addEventListener('pointerup',endJoy);stick.addEventListener('pointercancel',endJoy);
 let last=0,gameClock=9*60; // Starts at 09:00; one full in-game day lasts 180 real seconds.
@@ -309,7 +424,7 @@ function skyDecor(t){
   for(let i=0;i<18;i++){let sx=px+Math.sin(i*12.989)*18,sy=9+Math.cos(i*7.31)*5,sz=pz-30-(i%4)*.3;ball(sx,sy,sz,.045,.045,.045,[.78,.84,1]);}}
 }
 
-function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;updateDayNight(dt,t);let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,10.5,pz+15],target=[px,0.85,pz-1.8];vp=matMul(proj,lookAt(eye,target,[0,1,0]));gl.uniform3f(CAMERAPOS,eye[0],eye[1],eye[2]);world();skyDecor(t);player();status.textContent='Живой мир · смена дня и ночи';requestAnimationFrame(frame)}
+function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;updateDayNight(dt,t);let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,10.5,pz+15],target=[px,0.85,pz-1.8];vp=matMul(proj,lookAt(eye,target,[0,1,0]));gl.uniform3f(CAMERAPOS,eye[0],eye[1],eye[2]);world();skyDecor(t);villageLife(t);player();status.textContent='Живая Экетория · жители, животные и динамическое освещение';requestAnimationFrame(frame)}
 status.textContent='Создание мира Экетории…';requestAnimationFrame(frame);
 })();
 </script></body></html>
