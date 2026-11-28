@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Eketoria — Living Fantasy Village</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101a18;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#fff}#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}#hud{position:fixed;inset:0;pointer-events:none}.top{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;padding:9px 13px;border:1px solid #ffffff30;border-radius:12px;background:#14251dcc;font-size:13px;backdrop-filter:blur(8px)}#status{opacity:.8;font-size:11px;margin-top:3px}.hint{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;padding:8px 11px;background:#14251dcc;border:1px solid #ffffff30;border-radius:10px;font-size:11px}.stick{pointer-events:auto;position:absolute;left:22px;bottom:calc(24px + env(safe-area-inset-bottom));width:132px;height:132px;border-radius:50%;background:#dce9df22;border:2px solid #ffffff55;box-shadow:inset 0 0 24px #0005;touch-action:none}.knob{position:absolute;width:55px;height:55px;left:36px;top:36px;border-radius:50%;background:linear-gradient(145deg,#d9c18c,#8b7047);border:2px solid #fff9;box-shadow:0 4px 12px #0008}.help{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom));right:14px;max-width:145px;text-align:right;font-size:11px;line-height:1.5;color:#fffC;text-shadow:0 2px 4px #000}.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#08110fe8;padding:24px;text-align:center}.panel{max-width:420px;padding:22px;border:1px solid #ffffff30;border-radius:18px;background:#1a2c27}.panel h2{margin:0 0 8px}.panel p{font-size:14px;line-height:1.5;color:#d4dfd8}.panel button{padding:11px 18px;border:0;border-radius:10px;background:#c9a66b;color:#1b1b16;font-weight:700}
+</style></head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud"><div class="top"><b>EKETORIA · ЖИВАЯ ДЕРЕВНЯ</b><div id="status">Лесные земли · Мир оживает</div></div><div class="hint"><span id="clock">☀ День · 09:00</span><br>FANTASY RPG · 3D</div><div class="stick" id="stick"><div class="knob" id="knob"></div></div><div class="help">Исследуй деревню<br>Джойстик · WASD · стрелки</div></div>
+<div class="overlay" id="error"><div class="panel"><h2>3D-графика недоступна</h2><p id="errtext">Браузер не смог создать WebGL-контекст. Попробуй открыть страницу в Safari и проверить, включено ли аппаратное ускорение.</p><button onclick="location.reload()">Повторить запуск</button></div></div>
+<script>
+(()=>{'use strict';
+const canvas=document.getElementById('game'),status=document.getElementById('status'),error=document.getElementById('error'),clockLabel=document.getElementById('clock');
+let gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'})||canvas.getContext('experimental-webgl');
+if(!gl){status.textContent='Не удалось создать WebGL';error.style.display='flex';return;}
+const vs=`attribute vec3 p; attribute vec3 n; uniform mat4 mvp; uniform mat4 model; uniform vec3 lightDir; uniform float ambient; varying float light; varying vec3 worldPos; varying vec3 normalV; void main(){vec3 nn=normalize(mat3(model)*n); normalV=nn; light=ambient+(1.0-ambient)*max(dot(nn,normalize(lightDir)),0.0); worldPos=(model*vec4(p,1.0)).xyz; gl_Position=mvp*vec4(p,1.0);}`;
+const fs=`precision mediump float; uniform vec3 color; uniform vec3 fogColor; uniform float fogAmount; uniform float emissive; uniform vec3 cameraPos; varying float light; varying vec3 worldPos; varying vec3 normalV; float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){float n=hash(floor(worldPos.xz*3.0)); float grain=0.965+n*0.07; float faceShade=0.94+0.06*max(normalV.y,0.0); vec3 base=mix(color*light*grain*faceShade,color,clamp(emissive,0.0,1.0)); float fog=smoothstep(22.0, 55.0, distance(worldPos,cameraPos)); gl_FragColor=vec4(mix(base,fogColor,clamp(fog*fogAmount,0.0,0.72)),1.0);}`.replace('fiftyFive','55');
+function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
+let prog;try{prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(prog));}catch(e){status.textContent='Ошибка 3D: '+e.message;error.style.display='flex';return;}
+gl.useProgram(prog);const P=gl.getAttribLocation(prog,'p'),N=gl.getAttribLocation(prog,'n'),MVP=gl.getUniformLocation(prog,'mvp'),MODEL=gl.getUniformLocation(prog,'model'),COLOR=gl.getUniformLocation(prog,'color'),LIGHTDIR=gl.getUniformLocation(prog,'lightDir'),AMBIENT=gl.getUniformLocation(prog,'ambient'),FOGCOLOR=gl.getUniformLocation(prog,'fogColor'),FOGAMOUNT=gl.getUniformLocation(prog,'fogAmount'),CAMERAPOS=gl.getUniformLocation(prog,'cameraPos'),EMISSIVE=gl.getUniformLocation(prog,'emissive');let materialEmission=0;
+// Unit cube, with face normals
+const verts=[];function face(a,b,c,d,n){for(const v of [a,b,c,a,c,d])verts.push(...v,...n)}
+face([-0.5,-0.5,0.5],[0.5,-0.5,0.5],[0.5,0.5,0.5],[-0.5,0.5,0.5],[0,0,1]);face([0.5,-0.5,-0.5],[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[0.5,0.5,-0.5],[0,0,-1]);face([-0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[-0.5,0.5,-0.5],[-1,0,0]);face([0.5,-0.5,0.5],[0.5,-0.5,-0.5],[0.5,0.5,-0.5],[0.5,0.5,0.5],[1,0,0]);face([-0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,-0.5],[-0.5,0.5,-0.5],[0,1,0]);face([-0.5,-0.5,-0.5],[0.5,-0.5,-0.5],[0.5,-0.5,0.5],[-0.5,-0.5,0.5],[0,-1,0]);
+const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.STATIC_DRAW);gl.enableVertexAttribArray(P);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(N);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);
+// Extra low-poly meshes: sphere, cylinder and tapered cone.
+function makeMesh(data){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);return {buffer:b,count:data.length/6};}
+function meshQuad(out,a,b,c,d,na,nb,nc,nd){for(const v of [a,b,c,a,c,d]){const n=v===a?na:v===b?nb:v===c?nc:nd;out.push(...v,...n)}}
+function sphereMesh(lat=9,lon=12){const out=[];for(let y=0;y<lat;y++){const t0=Math.PI*y/lat,t1=Math.PI*(y+1)/lat;for(let x=0;x<lon;x++){const p0=2*Math.PI*x/lon,p1=2*Math.PI*(x+1)/lon;const point=(t,p)=>[Math.sin(t)*Math.cos(p),Math.cos(t),Math.sin(t)*Math.sin(p)];const a=point(t0,p0),b=point(t1,p0),c=point(t1,p1),d=point(t0,p1);for(const v of [a,b,c,a,c,d])out.push(...v,...v)}}return makeMesh(out)}
+function cylinderMesh(segments=12,topRadius=1){const out=[];for(let i=0;i<segments;i++){const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments;const p=(r,y,t)=>[Math.cos(t)*r,y,Math.sin(t)*r],na=[Math.cos(a),0,Math.sin(a)],nb=[Math.cos(b),0,Math.sin(b)];const v0=p(1,-.5,a),v1=p(1,-.5,b),v2=p(topRadius,.5,b),v3=p(topRadius,.5,a);for(const [v,n] of [[v0,na],[v1,nb],[v2,nb],[v0,na],[v2,nb],[v3,na]])out.push(...v,...n);const bottom=[0,-.5,0],top=[0,.5,0];for(const v of [bottom,p(1,-.5,b),p(1,-.5,a)])out.push(...v,0,-1,0);for(const v of [top,p(topRadius,.5,a),p(topRadius,.5,b)])out.push(...v,0,1,0)}return makeMesh(out)}
+const sphereGeo=sphereMesh(),cylinderGeo=cylinderMesh(),coneGeo=cylinderMesh(12,.04);
+gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.clearColor(.48,.68,.77,1);
+function matMul(a,b){let o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return o}
+function perspective(fovy,aspect,near,far){let f=1/Math.tan(fovy/2),nf=1/(near-far),o=new Float32Array(16);o[0]=f/aspect;o[5]=f;o[10]=(far+near)*nf;o[11]=-1;o[14]=2*far*near*nf;return o}
+function lookAt(eye,center,up){let z=norm(sub(eye,center)),x=norm(cross(up,z)),y=cross(z,x),o=new Float32Array(16);o[0]=x[0];o[1]=y[0];o[2]=z[0];o[4]=x[1];o[5]=y[1];o[6]=z[1];o[8]=x[2];o[9]=y[2];o[10]=z[2];o[12]=-dot(x,eye);o[13]=-dot(y,eye);o[14]=-dot(z,eye);o[15]=1;return o}
+const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{let l=Math.hypot(...a)||1;return a.map(v=>v/l)};
+function model(x,y,z,sx,sy,sz,ry=0,rz=0){let c=Math.cos(ry),s=Math.sin(ry),cz=Math.cos(rz),szn=Math.sin(rz);return new Float32Array([c*cz*sx,szn*sx,-s*cz*sx,0,-c*szn*sy,cz*sy,s*szn*sy,0,s*sz,0,c*sz,0,x,y,z,1]);}
+function draw(x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.uniform1f(EMISSIVE,materialEmission);gl.drawArrays(gl.TRIANGLES,0,36)}
+function drawGeo(geo,x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry,rz);gl.bindBuffer(gl.ARRAY_BUFFER,geo.buffer);gl.vertexAttribPointer(P,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(N,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(MODEL,false,m);gl.uniformMatrix4fv(MVP,false,matMul(vp,m));gl.uniform3fv(COLOR,col);gl.uniform1f(EMISSIVE,materialEmission);gl.drawArrays(gl.TRIANGLES,0,geo.count)}
+function ball(x,y,z,sx,sy,sz,col,ry=0,rz=0){drawGeo(sphereGeo,x,y,z,sx,sy,sz,col,ry,rz)}
+function post(x,y,z,sx,sy,sz,col,ry=0){drawGeo(cylinderGeo,x,y,z,sx,sy,sz,col,ry)}
+function peak(x,y,z,sx,sy,sz,col,ry=0){drawGeo(coneGeo,x,y,z,sx,sy,sz,col,ry)}
+const C={grass:[.19,.34,.17],grass2:[.27,.43,.21],grass3:[.34,.48,.23],road:[.36,.29,.21],stone:[.48,.47,.40],stone2:[.57,.55,.47],wood:[.27,.14,.075],wood2:[.43,.25,.12],wood3:[.57,.35,.18],roof:[.22,.085,.065],roof2:[.34,.13,.09],cream:[.66,.53,.35],dark:[.075,.065,.05],leaf:[.10,.27,.12],leaf2:[.18,.36,.16],leaf3:[.27,.42,.18],water:[.12,.34,.48],metal:[.25,.27,.27],metal2:[.42,.45,.44],stoneDark:[.31,.30,.26],bark:[.19,.095,.045],leaf4:[.35,.49,.22],skin:[.76,.55,.37],cloth:[.12,.22,.35],gold:[.72,.52,.2],warm:[.95,.62,.22]};
+let px=0,pz=4,heading=0,vp,worldTime=0;const houses=[[-8,-7,4.2,3.3,4],[-2,-10,4.4,3.4,4.2],[7,-7,4.6,3.4,4.4],[10,1,4,3.2,3.8],[-10,3,4.3,3.3,4.1],[-7,11,4.5,3.4,4],[5,11,4.3,3.2,4]];
+function house(x,z,w,h,d,variant=0){
+ const wall=variant?C.cream:C.wood2, front=z+d/2;
+ draw(x,h/2,z,w,h,d,wall);
+ // Individual stone foundation blocks and timber wall framing.
+ draw(x,.12,z,w+.18,.28,d+.18,C.stoneDark);
+ for(let i=0;i<5;i++){const bx=x-w*.43+i*w*.215;draw(bx,.17,front+.105,w*.19,.22,.16,i%2?C.stone:C.stone2);draw(bx,.17,z-d/2-.10,w*.19,.22,.16,i%2?C.stone2:C.stone);}
+ for(let side of [-1,1])for(let row=0;row<2;row++)draw(x+side*(w/2+.07),.12+row*.17,z,.15,.14,d*.43,row?C.stone:C.stone2);
+ for(const sx of [-1,1]){draw(x+sx*w*.46,h/2,front+.035,.16,h+.08,.13,C.wood);draw(x+sx*w*.46,h+.12,z-d*.46,.14,.2,.14,C.wood)}
+ draw(x,h*.18,front+.045,w*.92,.16,.12,C.wood);draw(x,h*.83,front+.045,w*.92,.14,.12,C.wood);
+ draw(x-w*.25,h*.52,front+.052,.12,h*.78,.10,C.wood3);draw(x+w*.25,h*.52,front+.052,.12,h*.78,.10,C.wood3);
+ // steep pitched roof with two clearly sloped timber-backed panels
+ draw(x,h+.72,z,w*1.22,.20,d*1.22,C.wood);
+ draw(x-w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,.62);
+ draw(x+w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,-.62);
+ // Individual roof tiles across both slopes, with wooden eaves.
+ draw(x,h+1.58,z,.25,.22,d*1.32,C.roof);
+ for(let side of [-1,1])for(let row=0;row<4;row++)for(let col=0;col<5;col++){
+  const xx=x+side*(.13+row*.145)*w,yy=h+1.48-row*.205,zz=z-d*.48+col*(d*.24);
+  draw(xx,yy,zz,w*.145,.075,d*.215,(row+col)%3===0?C.roof:C.roof2,0,-side*.62);
+ }
+ for(let side of [-1,1]){draw(x+side*w*.58,h+.77,z,w*.10,.16,d*1.28,C.wood3,0,-side*.62);for(let end of [-1,1])draw(x+side*w*.27,h+1.12,z+end*d*.62,.12,.15,.13,C.wood3);}
+ draw(x,h+1.13,z-d*.61,w*1.20,.13,.16,C.wood3);
+ // carved gable trim and chimney
+ draw(x-w*.52,h+.96,front-.22,.13,.16,.22,C.wood3);
+ draw(x+w*.52,h+.96,front-.22,.13,.16,.22,C.wood3);
+ draw(x+w*.28,h+1.72,z-d*.20,.48,.95,.48,C.stone);
+ draw(x+w*.28,h+2.22,z-d*.20,.58,.16,.58,C.dark);draw(x+w*.28,h+2.34,z-d*.20,.68,.10,.68,C.stoneDark);draw(x+w*.28,h+1.92,z-d*.20,.42,.12,.42,C.stone2);
+ // door, lintel and windows with frames
+ draw(x,h*.43,front+.11,.82,1.55,.14,C.dark);
+ draw(x,h*.42,front+.19,.62,1.36,.07,C.wood3);
+ draw(x+.19,h*.42,front+.24,.035,1.25,.025,C.gold);
+ draw(x-.29,h*.42,front+.25,.055,.07,.035,C.gold);for(let hy of [h*.25,h*.58])draw(x-.29,hy,front+.245,.06,.10,.035,C.metal2);draw(x+.25,h*.42,front+.255,.10,.10,.045,C.gold);
+ for(const wx of [-w*.28,w*.28]){
+  draw(x+wx,h*.68,front+.09,.78,.7,.13,C.wood);
+  draw(x+wx,h*.68,front+.17,.58,.5,.06,C.water);
+  draw(x+wx,h*.68,front+.21,.07,.56,.035,C.wood3);
+  draw(x+wx,h*.68,front+.22,.6,.07,.035,C.wood3);draw(x+wx,h*.68,front+.255,.055,.50,.025,C.wood3);draw(x+wx,h*.68,front+.27,.58,.045,.025,C.gold);
+  for(const side of [-1,1]){
+   draw(x+wx+side*.43,h*.68,front+.19,.18,.62,.09,C.wood2);
+   for(let slat=0;slat<3;slat++)draw(x+wx+side*.43,h*.50+slat*.10,front+.245,.15,.035,.025,C.wood3);
+  }
+  draw(x+wx,h*.40,front+.23,.92,.12,.24,C.wood3);
+  for(let flower=0;flower<3;flower++)draw(x+wx-.25+flower*.25,h*.49,front+.30,.12,.12,.12,flower%2?C.warm:C.grass3);
+ }
+ // wall lantern beside the door
+ draw(x+w*.30,h*.63,front+.24,.20,.28,.18,C.gold);
+ draw(x+w*.30,h*.63,front+.34,.12,.18,.08,C.warm);
+ draw(x+w*.30,h*.83,front+.24,.08,.20,.08,C.wood);
+ // side wall braces
+ draw(x+w*.51,h*.55,z,.13,.18,d*.78,C.wood);
+}
+function tree(x,z,k=1){
+ // Sculpted low-poly oak: roots, branching trunk, layered crown, leaf clusters and fruit.
+ post(x,.86*k,z,.30*k,1.75*k,.30*k,C.bark);
+ for(let a=0;a<5;a++){let ang=a*Math.PI*2/5;post(x+Math.cos(ang)*.27*k,.17*k,z+Math.sin(ang)*.27*k,.13*k,.54*k,.13*k,C.wood2,ang);}
+ // Visible branches under the canopy.
+ for(let a=0;a<5;a++){let ang=a*Math.PI*2/5;post(x+Math.cos(ang)*.43*k,1.55*k,z+Math.sin(ang)*.43*k,.12*k,1.08*k,.12*k,C.bark,ang);}
+ ball(x,1.92*k,z,1.60*k,1.48*k,1.60*k,C.leaf);
+ ball(x-.55*k,2.38*k,z+.10*k,1.18*k,1.12*k,1.20*k,C.leaf2);
+ ball(x+.55*k,2.40*k,z-.14*k,1.20*k,1.16*k,1.18*k,C.leaf3);
+ ball(x,2.82*k,z,1.18*k,1.20*k,1.16*k,C.leaf2);
+ ball(x-.18*k,1.82*k,z+.78*k,.72*k,.72*k,.70*k,C.leaf3);
+ ball(x+.72*k,1.96*k,z+.34*k,.66*k,.70*k,.68*k,C.leaf2);
+ ball(x-.70*k,2.02*k,z-.34*k,.66*k,.72*k,.68*k,C.leaf4);
+ // Small warm berries give the silhouette readable detail at a distance.
+ for(let j=0;j<3;j++){let a=j*2.1;ball(x+Math.cos(a)*.78*k,2.18*k+(j%2)*.28*k,z+Math.sin(a)*.78*k,.075*k,.075*k,.075*k,j===1?C.warm:C.gold);}
+}
+function world(){
+ // broad grassy terrain and layered dirt tracks
+ draw(0,-.38,0,76,.55,76,C.grass);
+ draw(0,-.17,0,5.4,.16,52,C.road);draw(0,-.16,0,48,.16,4.6,C.road);
+ // cobblestone road: irregular pavers
+ for(let i=-12;i<=12;i++){
+  for(let lane=-1;lane<=1;lane++){
+   let x=lane*.0 + ((i%2)*.22), z=i*1.65;
+   draw(x,-.045,z,1.45,.12,1.35,(i+lane)%3===0?C.stone2:C.stone,((i*lane)%4)*.06);
+  }
+ }
+ for(let i=-11;i<=11;i++){
+  for(let lane=-1;lane<=1;lane++){
+   let x=i*1.7,z=lane*1.42+((i%2)*.2);
+   draw(x,-.035,z,1.35,.1,1.15,(i+lane)%3===0?C.stone2:C.stone,.04);
+  }
+ }
+ // central square and circular well base
+ draw(0,-.015,0,10,.12,10,C.stone2);
+ for(let i=0;i<12;i++){let a=i*Math.PI/6;draw(Math.cos(a)*2.1,-.005,Math.sin(a)*2.1,.95,.12,.85,C.stone,.18)}
+ // well masonry, dark water, timber roof supports
+ post(0,.35,0,1.02,.72,1.02,C.stone);post(0,.77,0,.76,.16,.76,C.dark);post(0,.81,0,.60,.045,.60,C.water);
+ for(let i=0;i<10;i++){let a=i*Math.PI/5;ball(Math.cos(a)*.89,.38,Math.sin(a)*.89,.24,.22,.24,i%2?C.stone2:C.stone);}
+ draw(-.82,1.65,0,.16,2.0,.16,C.wood);draw(.82,1.65,0,.16,2.0,.16,C.wood);
+ draw(0,2.55,0,2.25,.18,.2,C.wood3);draw(0,2.95,0,2.5,.12,1.5,C.roof2,.08);post(0,1.78,0,.045,1.35,.045,C.wood3);draw(.40,1.12,.08,.42,.38,.38,C.wood2);draw(.40,1.33,.08,.46,.08,.42,C.metal);
+ // houses around square
+ houses.forEach((h,i)=>house(...h,i%2));
+ // blacksmith building and forge chimney
+ draw(-3,1.35,6,3.0,2.7,2.7,C.wood2);draw(-3,2.95,6,3.35,.18,3.0,C.wood3);
+ draw(-3.72,3.25,6,1.95,.20,3.05,C.roof2,0,.58);draw(-2.28,3.25,6,1.95,.20,3.05,C.roof2,0,-.58);draw(-3,3.72,6,.18,.18,3.18,C.roof,0,0);
+ draw(-4.25,3.3,5.25,.62,2.55,.62,C.stone);draw(-4.25,4.65,5.25,.82,.22,.82,C.dark);
+ draw(-1.9,.48,4.48,1.2,.55,.8,C.metal);draw(-1.9,.82,4.48,.8,.18,.5,C.metal);draw(-1.9,1.02,4.48,.58,.22,.34,C.metal2);draw(-1.9,1.17,4.48,.28,.10,.22,C.metal);post(-1.15,.88,4.85,.055,.72,.055,C.wood3,.45);draw(-1.15,1.28,4.85,.48,.10,.10,C.metal2,.45);
+ // warm forge glow and sign
+ draw(-3,1.1,7.38,.72,.75,.08,C.warm);draw(-3,2.65,7.45,1.1,.32,.12,C.wood3);
+ // blacksmith work area: stacked firewood, barrels and supply crates
+ for(let i=0;i<3;i++){post(-5.1+i*.38,.35,8.2,.16,.68,.16,C.wood3,(i-1)*.18);draw(-5.1+i*.38,.18,8.2,.32,.08,.32,C.wood,(i-1)*.18);} 
+ // Two detailed supply barrels
+ for(let i=0;i<2;i++){let bx=-5.4+i*.72;post(bx,.48,6.95,.34,.88,.34,C.wood2);post(bx,.25,6.95,.36,.10,.36,C.metal);post(bx,.72,6.95,.36,.10,.36,C.metal);post(bx,.91,6.95,.30,.08,.30,C.wood3);}
+ draw(-1.25,.42,7.65,.78,.82,.72,C.wood2);draw(-1.25,.86,7.65,.84,.12,.78,C.wood3);
+ draw(-1.25,.42,8.04,.08,.72,.05,C.gold);draw(-1.25,.42,7.26,.08,.72,.05,C.gold);
+ // warm street lanterns on wooden posts
+ for(const [lx,lz] of [[-5,-2],[5,-2],[-5,4],[5,4]]){
+  post(lx,1.15,lz,.075,2.25,.075,C.wood);
+  draw(lx,2.35,lz,.42,.42,.42,C.dark);
+  ball(lx,2.35,lz+.23,.13,.15,.13,C.warm);
+  draw(lx,2.62,lz,.32,.08,.32,C.wood3);
+  draw(lx,2.12,lz,.34,.07,.34,C.metal);
+ }
+ // fenced garden beds with visible rows of crops
+ for(let bed=0;bed<3;bed++){
+  let bx=11+bed*1.25;
+  draw(bx,-.01,6.8,1.05,.10,3.8,C.road);
+  for(let row=0;row<4;row++)for(let plant=0;plant<5;plant++){
+   let zz=5.35+plant*.68;
+   draw(bx-.25+row*.16,.18,zz,.10,.34,.10,row%2?C.grass3:C.leaf2);
+   draw(bx-.25+row*.16,.34,zz,.18,.12,.18,plant%2?C.grass2:C.grass3);
+  }
+ }
+ // fences around gardens
+ for(let i=0;i<10;i++){let x=-15+i*.7;draw(x,.48,5.8,.12,.95,.12,C.wood);if(i<9)draw(x+.35,.72,5.8,.78,.12,.12,C.wood3)}
+ for(let i=0;i<7;i++){let z=7+i*.7;draw(-15,.48,z,.12,.95,.12,C.wood);draw(-15,.72,z+.35,.12,.12,.78,C.wood3)}
+ // scattered stones, grass clumps and flower dots along lawn edges
+ for(let i=0;i<34;i++){
+  let x=((i*37)%43)-21,z=((i*19)%39)-19;
+  if(Math.abs(x)<4.2||Math.abs(z)<3.8)continue;
+  draw(x,-.02,z,.22+(i%3)*.08,.12,.2,i%2?C.stone:C.stone2,(i%5)*.2);
+  if(i%2===0){draw(x+.32,.16,z+.12,.07,.34,.07,C.grass3,.2);draw(x+.48,.12,z-.08,.06,.25,.06,C.grass2,-.25)}
+ }
+ // Bushes, flowers, stumps and grass tufts add life to the village edges.
+ const bushes=[[-12,-3],[-13,2],[13,-4],[15,3],[8,15],[-12,14],[3,-14]];
+ bushes.forEach((b,i)=>{ball(b[0],.42,b[1],.62,.48,.58,C.leaf2);ball(b[0]-.28,.48,b[1]+.12,.38,.36,.38,C.leaf3);ball(b[0]+.30,.46,b[1]-.12,.40,.34,.40,C.leaf4);for(let f=0;f<3;f++)ball(b[0]-.22+f*.22,.73,b[1]+.18,.09,.09,.09,f%2?C.warm:C.cream);});
+ for(let i=0;i<8;i++){let x=-16+(i%4)*1.15,z=-5+Math.floor(i/4)*1.1;post(x,.22,z,.24,.42,.24,C.bark);draw(x,.43,z,.48,.12,.48,C.wood3,(i%3)*.18);}
+ for(let i=0;i<24;i++){let x=((i*17)%31)-15,z=((i*23)%29)-14;if(Math.abs(x)<4.5||Math.abs(z)<3.5)continue;draw(x,.18,z,.08,.36,.08,C.grass3,.18);draw(x+.12,.14,z+.08,.07,.27,.07,C.leaf4,-.24);if(i%3===0)ball(x,.36,z,.10,.10,.10,C.warm);}
+ // trees form a soft forest border
+ [[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]].forEach((p,i)=>tree(p[0],p[1],.82+(i%4)*.1));
+
+ // A timber market stall with a striped canvas awning, produce and hanging sign.
+ draw(8.7,.78,4.0,3.15,1.45,1.15,C.wood2);
+ for(let sx of [-1,1])for(let sz of [-1,1])post(8.7+sx*1.42,1.35,4+sz*.48,.085,2.65,.085,C.wood3);
+ draw(8.7,2.72,4,3.55,.18,1.55,C.wood3);
+ for(let i=0;i<7;i++){let xx=7.15+i*.52;draw(xx,2.95,4, .49,.16,1.66,i%2?C.roof2:C.cream,0,(i%2?-.035:.035));}
+ draw(8.7,2.55,3.18,3.5,.16,.12,C.gold);
+ // Display baskets and colourful produce.
+ for(let i=0;i<3;i++){let xx=7.75+i*.92;draw(xx,1.62,3.72,.72,.48,.62,i%2?C.wood3:C.wood);for(let j=0;j<4;j++)ball(xx-.23+(j%2)*.30,1.94,3.55+Math.floor(j/2)*.25,.13,.13,.13,[C.warm,C.grass3,C.roof2,C.gold][(i+j)%4]);}
+ draw(8.7,2.1,3.08,1.1,.42,.12,C.wood);draw(8.7,2.1,3.0,.76,.22,.06,C.gold);
+ // Handcart: timber bed, wheels, axle, shafts and cargo sacks.
+ draw(13.3,.72,-1.7,1.75,.28,1.15,C.wood3);
+ draw(13.3,.91,-1.7,1.48,.14,.92,C.wood2);
+ for(let side of [-1,1]){post(13.3+side*.82,.48,-1.7,.12,.9,.12,C.wood3);draw(13.3+side*.82,.92,-1.7,.13,.92,.13,C.wood2);}
+ post(13.3,.52,-1.7,.10,2.25,.10,C.metal,Math.PI/2);
+ for(let side of [-1,1]){draw(13.3+side*.92,.52,-1.7,.82,.82,.18,C.wood,Math.PI/2);ball(13.3+side*.92,.52,-1.7,.42,.42,.14,C.wood3);ball(13.3+side*.92,.52,-1.7,.12,.12,.16,C.metal2);}
+ ball(13.05,1.28,-1.7,.42,.42,.40,C.cream);ball(13.58,1.24,-1.72,.36,.38,.35,C.roof2);
+ // Well rope, pulley and bucket details.
+ post(0,2.04,0,.07,.45,.07,C.wood3);ball(0,2.28,0,.14,.14,.14,C.metal2);
+ post(.48,1.05,.08,.08,.55,.08,C.wood3,.2);draw(.48,.78,.08,.40,.34,.38,C.wood2);draw(.48,.96,.08,.42,.08,.40,C.metal2);
+ // A small signpost and carved directional boards near the road.
+ post(-7,.92,-2.8,.11,1.85,.11,C.wood3);
+ draw(-7,1.48,-2.8,1.55,.38,.16,C.wood2,-.08);draw(-7,1.48,-2.70,1.28,.22,.035,C.gold,-.08);
+ draw(-6.88,1.05,-2.8,1.20,.30,.15,C.wood3,.08);draw(-6.88,1.05,-2.70,.96,.16,.035,C.cream,.08);
+ // Flower planters, stone edging and a few individual flowers around homes.
+ for(let i=0;i<8;i++){let x=-11+(i%4)*1.0,z=-3.8+Math.floor(i/4)*.72;draw(x,.18,z,.68,.32,.42,C.wood3);for(let j=0;j<3;j++){post(x-.20+j*.20,.40,z,.045,.36,.045,C.grass3);ball(x-.20+j*.20,.60+(j%2)*.06,z,.13,.12,.13,j%2?C.warm:C.gold);}}
+ // Stacked cut logs and a chopping block by the smithy.
+ for(let i=0;i<5;i++){post(-5.4+(i%2)*.16,.22+i*.13,9.25+Math.floor(i/2)*.18,.19,.72,.19,C.wood3,(i%3)*.10);}
+ draw(-6.2,.35,8.85,.72,.62,.72,C.bark);draw(-6.2,.68,8.85,.62,.08,.62,C.wood3);
+ // Stone path edging and scattered pebble clusters make the ground less empty.
+ for(let i=0;i<26;i++){let side=i%2?1:-1,z=-18+i*1.35,x=side*(3.45+(i%3)*.18);ball(x,.04,z,.24,.10,.19,i%3?C.stone:C.stone2);}
+ // A small wooden bridge over a decorative stream at the village edge.
+ draw(0,-.02,15.8,5.6,.12,1.65,C.water);
+ for(let i=0;i<7;i++){let x=-2.35+i*.78;draw(x,.18,15.8,.68,.20,1.9,i%2?C.wood3:C.wood2);}
+ for(let side of [-1,1]){draw(0,.62,15.8+side*.82,5.7,.13,.14,C.wood3);for(let i=0;i<6;i++)post(-2.45+i*.98,.42,15.8+side*.82,.07,.65,.07,C.wood2);}
+}
+// ---------------------------------------------------------------------------
+// WORLD DETAIL PASS — dense meadow dressing, flower patches and forest floor.
+// All placement is deterministic so the scene stays lightweight and stable.
+// ---------------------------------------------------------------------------
+function meadowDetails(t){
+  // Hundreds of short grass blades arranged in natural irregular clusters.
+  for(let i=0;i<120;i++){
+    const x=((i*73)%397)/10-19.85, z=((i*131)%397)/10-19.85;
+    if(Math.abs(x)<3.15||Math.abs(z)<2.65)continue;
+    if(Math.abs(x)<4.2&&Math.abs(z)<5.2)continue;
+    const h=.16+(i%5)*.045, sway=Math.sin(t*.0018+i*1.7)*.10;
+    draw(x,.08+h*.48,z,.055,h,.055,i%4===0?C.leaf4:(i%3===0?C.grass2:C.grass3),sway);
+    if(i%3===0)draw(x+.075,.07+h*.38,z+.045,.045,h*.76,.045,C.grass2,-sway*.8);
+  }
+  // Flower clusters along the village paths and meadow edge.
+  for(let i=0;i<30;i++){
+    const x=((i*29)%373)/10-18.6,z=((i*47)%359)/10-17.9;
+    if(Math.abs(x)<4.0||Math.abs(z)<3.2)continue;
+    const stem=.20+(i%3)*.035;
+    post(x,stem*.5,z,.025,stem,.025,C.grass3);
+    ball(x,stem+.035,z,.075,.065,.075,[.88,.70,.34]);
+    if(i%4===0)ball(x+.08,stem+.01,z+.04,.055,.05,.055,[.75,.28,.22]);
+  }
+  // Fern-like broad leaves and small mushroom groups beneath the trees.
+  for(let i=0;i<10;i++){
+    const x=((i*43)%337)/10-16.8,z=((i*67)%331)/10-16.5;
+    for(let k=0;k<3;k++){
+      const a=k*2.1+i;
+      draw(x+Math.cos(a)*.13,.17,z+Math.sin(a)*.13,.10,.28,.045,C.leaf3,a*.12,.25*Math.sin(t*.001+i+k));
+    }
+    if(i%2===0){
+      post(x+.30,.12,z+.18,.045,.22,.045,C.cream);
+      ball(x+.30,.24,z+.18,.16,.09,.16,[.62,.24,.17]);
+    }
+  }
+  // Mossy stones, stepping pebbles and a few larger boulders.
+  for(let i=0;i<16;i++){
+    const x=((i*61)%379)/10-18.9,z=((i*83)%367)/10-18.3;
+    if(Math.abs(x)<4.8&&Math.abs(z)<4.8)continue;
+    ball(x,.12,z,.22+(i%4)*.09,.16+(i%3)*.04,.20+(i%2)*.10,i%3?C.stone:C.stone2,i*.17);
+    if(i%3===0)ball(x-.06,.22,z-.04,.12,.045,.12,C.leaf2);
+  }
+  // Small path-side flower boxes, wooden buckets and a notice board near the square.
+  for(let i=0;i<4;i++){
+    const x=-9.4+i*1.05,z=-4.5;
+    draw(x,.17,z,.72,.28,.42,C.wood2);
+    for(let j=0;j<3;j++){
+      post(x-.22+j*.22,.42,z,.035,.30,.035,C.grass3);
+      ball(x-.22+j*.22,.59+(j%2)*.04,z,.10,.09,.10,j%2?[.90,.62,.24]:[.78,.27,.23]);
+    }
+  }
+  // Little pennants above the market add a welcoming village silhouette.
+  for(let i=0;i<5;i++){
+    const x=7.1+i*.78;
+    draw(x,3.18,3.15,.06,.65,.06,C.gold);
+    peak(x,2.88,3.20,.20,.25,.04,i%2?[.72,.24,.17]:[.86,.68,.38],0,Math.PI/2);
+  }
+}
+
+// Collision map: solid building footprints, the well, fences, lanterns and tree trunks.
+const solidRects=[];
+function addRect(x,z,w,d,pad=.38){solidRects.push({minX:x-w/2-pad,maxX:x+w/2+pad,minZ:z-d/2-pad,maxZ:z+d/2+pad});}
+// House walls and the blacksmith building.
+houses.forEach(h=>addRect(h[0],h[1],h[2],h[4],.42));
+addRect(-3,6,3.0,2.7,.42);
+// Market stall, handcart and signpost are solid props too.
+addRect(8.7,4.0,3.15,1.15,.38);addRect(13.3,-1.7,1.75,1.15,.35);
+// Well masonry.
+addRect(0,0,1.9,1.9,.42);
+// Garden fences: horizontal and vertical fence runs.
+addRect(-11.85,5.8,6.3,.16,.28);
+addRect(-15,9.1,.16,4.2,.28);
+// Lantern posts.
+const solidCircles=[[-5,-2,.34],[5,-2,.34],[-5,4,.34],[5,4,.34],[-7,-2.8,.24],[8.7,2.55,.36],[-5.65,8.85,.36],[2.8,-5,.36],[-1.7,-5.3,.36]];
+// Forest border: collide with trunks, not the leafy crowns.
+const treePositions=[[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]];
+treePositions.forEach((p,i)=>solidCircles.push([p[0],p[1],.38*(.82+(i%4)*.1)+.30]));
+function collides(x,z){
+ const r=.38;
+ for(const b of solidRects){const qx=Math.max(b.minX,Math.min(x,b.maxX)),qz=Math.max(b.minZ,Math.min(z,b.maxZ));if((x-qx)*(x-qx)+(z-qz)*(z-qz)<r*r)return true;}
+ for(const c of solidCircles){const dx=x-c[0],dz=z-c[1],rr=r+c[2];if(dx*dx+dz*dz<rr*rr)return true;}
+ return false;
+}
+function moveWithCollision(dx,dz){
+ const nx=Math.max(-20,Math.min(20,px+dx));
+ if(!collides(nx,pz))px=nx;
+ const nz=Math.max(-20,Math.min(20,pz+dz));
+ if(!collides(px,nz))pz=nz;
+}
+function player(){
+  const moving=(Math.abs(joyX)+Math.abs(joyY)>.12)||Object.keys(keys).some(k=>keys[k]&&['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k));
+  const gait=moving?Math.sin(worldTime*.014):0, bob=moving?Math.abs(Math.sin(worldTime*.014))*.045:Math.sin(worldTime*.002)*.012;
+  const fx=Math.sin(heading),fz=Math.cos(heading),sideX=Math.cos(heading),sideZ=-Math.sin(heading);
+  const front=(v)=>[px+fx*v,pz+fz*v], side=(v)=>[px+sideX*v,pz+sideZ*v];
+  // Boots, articulated greaves and layered trousers.
+  for(const s of [-1,1]){
+    const x=px+s*.19, legSwing=gait*s*.22;
+    ball(x,.15+bob,pz+legSwing*.32,.19,.17,.27,C.dark,heading);
+    draw(x,.43+bob,pz+legSwing*.32,.22,.40,.24,C.cloth,heading,legSwing);
+    draw(x,.36+bob,pz+legSwing*.32+fz*.12,.225,.19,.055,C.metal,heading);
+    draw(x,.54+bob,pz+legSwing*.32+fz*.12,.23,.055,.06,C.gold,heading);
+  }
+  // Tunic, breastplate, engraved trim and belt.
+  ball(px,.91+bob,pz,.36,.46,.27,C.cloth,heading);
+  const chest=front(.235);
+  draw(px,.98+bob,chest[1],.49,.40,.105,C.metal,heading);
+  draw(px,.99+bob,chest[1]+fz*.06,.34,.26,.035,C.metal2,heading);
+  draw(px,.99+bob,chest[1]+fz*.085,.09,.30,.025,C.gold,heading);
+  draw(px,.68+bob,pz+fz*.25,.60,.13,.12,C.wood,heading);
+  ball(px,.69+bob,pz+fz*.33,.13,.13,.08,C.gold,heading);
+  // Shoulder pauldrons, layered vambraces and moving arms.
+  for(const s of [-1,1]){
+    const sh=side(s*.40);
+    ball(sh[0],1.22+bob,sh[1],.23,.20,.25,C.gold,heading);
+    ball(sh[0],1.23+bob,sh[1]+fz*.04,.17,.13,.20,C.metal2,heading);
+    const armSwing=gait*s*.18;
+    draw(sh[0],.99+bob,sh[1],.17,.48,.19,C.cloth,heading,armSwing);
+    draw(sh[0],.79+bob,sh[1]+fz*.04,.18,.22,.20,C.metal,heading,armSwing);
+    ball(sh[0],.68+bob,sh[1]+fz*.06,.13,.14,.14,C.skin);
+  }
+  // Short cloak, collar and travel pack.
+  draw(px,.88+bob,pz-fz*.24,.46,.63,.13,C.roof2,heading);
+  draw(px,.99+bob,pz-fz*.32,.34,.20,.12,C.gold,heading);
+  draw(px,.91+bob,pz-fz*.39,.36,.48,.22,C.wood2,heading);
+  draw(px,.72+bob,pz-fz*.50,.42,.12,.08,C.wood3,heading);
+  // Head, hair, face, helmet and crest.
+  ball(px,1.49+bob,pz,.27,.30,.25,C.skin);
+  ball(px,1.64+bob,pz-fz*.045,.27,.17,.25,C.dark,heading);
+  ball(px,1.76+bob,pz,.34,.18,.31,C.gold,heading);
+  draw(px,1.66+bob,pz+fz*.22,.43,.12,.12,C.metal,heading);
+  draw(px,1.66+bob,pz+fz*.29,.23,.055,.045,C.metal2,heading);
+  peak(px,1.98+bob,pz,.13,.27,.13,C.gold,heading);
+  for(const s of [-1,1]){
+    const eye=side(s*.105);
+    ball(eye[0],1.54+bob,eye[1]+fz*.22,.032,.035,.025,C.dark,heading);
+  }
+  // Round shield on the left arm with boss and radial straps.
+  const sh=side(-.62);
+  ball(sh[0],.94+bob,sh[1]+fz*.13,.34,.39,.12,C.wood2,heading);
+  ball(sh[0],.94+bob,sh[1]+fz*.205,.28,.33,.055,C.metal,heading);
+  ball(sh[0],.94+bob,sh[1]+fz*.24,.105,.12,.045,C.gold,heading);
+  // Sword held in the right hand: pommel, grip, crossguard and tapered blade.
+  const sw=side(.66);
+  draw(sw[0],.80+bob,sw[1],.10,.28,.10,C.wood,heading,.12);
+  ball(sw[0],.64+bob,sw[1],.10,.10,.10,C.gold);
+  draw(sw[0],.98+bob,sw[1],.36,.075,.12,C.gold,heading);
+  draw(sw[0],1.32+bob,sw[1],.13,.62,.075,C.metal,heading,.12);
+  peak(sw[0],1.67+bob,sw[1],.065,.16,.065,C.metal,heading);
+}
+
+// ---------------------------------------------------------------------------
+// LIVING VILLAGE PASS — villagers, livestock, animated details and night glow.
+// Geometry is intentionally low-poly; all characters are built from reusable
+// primitives so the scene stays self-contained and works without external assets.
+// ---------------------------------------------------------------------------
+function withEmission(value,fn){materialEmission=value;fn();materialEmission=0;}
+function villager(x,z,t,kind=0){
+ const palettes=[
+  {coat:C.roof2,trim:C.gold,skin:[.78,.57,.39],hat:C.wood3,legs:C.dark},
+  {coat:[.16,.31,.25],trim:[.78,.63,.34],skin:[.68,.46,.30],hat:[.25,.18,.12],legs:[.12,.15,.18]},
+  {coat:[.25,.27,.43],trim:[.70,.57,.30],skin:[.84,.64,.48],hat:[.18,.12,.10],legs:[.18,.16,.15]},
+  {coat:[.42,.22,.12],trim:[.80,.67,.40],skin:[.72,.50,.34],hat:[.15,.22,.18],legs:[.16,.13,.10]}
+ ];
+ const p=palettes[kind%palettes.length],phase=t*.0014+kind*1.7;
+ const sway=Math.sin(phase)*.035,step=Math.sin(phase*1.7)*.07;
+ // Feet, trousers and a long readable coat silhouette.
+ ball(x-.13,.13,z,.13,.14,.19,p.legs);
+ ball(x+.13,.13,z,.13,.14,.19,p.legs);
+ draw(x-.13,.43,z,.16,.42,.18,p.legs);
+ draw(x+.13,.43,z,.16,.42,.18,p.legs);
+ ball(x,.91+sway,z,.29,.43,.22,p.coat);
+ draw(x,.83,z+.19,.42,.43,.08,p.trim);
+ draw(x,.63,z+.22,.47,.10,.08,C.wood);
+ ball(x,.67,z+.27,.075,.075,.055,C.gold);
+ // Arms with cuffs and hands.
+ draw(x-.36,.91+step,z,.15,.47,.16,p.coat,0,-.12);
+ draw(x+.36,.91-step,z,.15,.47,.16,p.coat,0,.12);
+ ball(x-.37,.65+step,z+.02,.11,.12,.11,p.skin);
+ ball(x+.37,.65-step,z+.02,.11,.12,.11,p.skin);
+ // Neck, head, ears, hair and hat.
+ post(x,1.25,z,.10,.20,.10,p.skin);
+ ball(x,1.51+sway,z,.23,.27,.22,p.skin);
+ ball(x-.22,1.50+sway,z,.055,.10,.07,p.skin);
+ ball(x+.22,1.50+sway,z,.055,.10,.07,p.skin);
+ ball(x,1.69+sway,z,.24,.12,.23,p.hat);
+ draw(x,1.75+sway,z,.36,.07,.30,p.trim);
+ // Eyes and nose face toward the camera-facing side.
+ ball(x-.075,1.53+sway,z+.205,.025,.03,.02,C.dark);
+ ball(x+.075,1.53+sway,z+.205,.025,.03,.02,C.dark);
+ ball(x,1.47+sway,z+.225,.045,.045,.04,p.skin);
+ // Small shoulder clasp and belt pouch.
+ ball(x-.24,1.16+sway,z+.13,.07,.08,.05,p.trim);
+ draw(x+.25,.65,z+.10,.12,.19,.12,C.wood2);
+}
+function chicken(x,z,t,scale=1){
+ const bob=Math.sin(t*.004+x)*.035;
+ ball(x,.27+bob,z,.28*scale,.22*scale,.38*scale,[.88,.82,.67]);
+ ball(x,.43+bob,z+.23*scale,.17*scale,.17*scale,.17*scale,[.91,.86,.72]);
+ ball(x,.42+bob,z+.38*scale,.07*scale,.06*scale,.10*scale,[.92,.35,.12]);
+ peak(x,.31+bob,z+.46*scale,.07*scale,.14*scale,.07*scale,[.92,.35,.10],0);
+ ball(x-.07*scale,.47+bob,z+.35*scale,.025*scale,.03*scale,.025*scale,C.dark);
+ ball(x+.07*scale,.47+bob,z+.35*scale,.025*scale,.03*scale,.025*scale,C.dark);
+ post(x-.10*scale,.10,z,.025*scale,.20*scale,.025*scale,[.75,.48,.16]);
+ post(x+.10*scale,.10,z+.08*scale,.025*scale,.20*scale,.025*scale,[.75,.48,.16]);
+}
+function villageLife(t){
+ const phase=gameClock/1440*Math.PI*2-Math.PI/2;
+ const daylight=Math.max(0,Math.min(1,(Math.sin(phase)+.18)/.42));
+ const night=1-daylight;
+ // Three residents give the market, forge and square a lived-in scale.
+ villager(8.7,2.55,t,0);       // market keeper
+ villager(-5.65,8.85,t,1);    // blacksmith
+ villager(2.8,-5.0,t,2);       // travelling mage
+ villager(-1.7,-5.3,t,3);      // town guard
+ // Chickens wander in a small animated loop by the fenced vegetable patch.
+ chicken(12.1,8.3+Math.sin(t*.0008)*.35,t,.85);
+ chicken(14.2,9.0+Math.cos(t*.0007)*.28,t,.72);
+ // Distant soft-edged cloud clusters drift slowly across the bright sky.
+ if(daylight>.12){
+  for(let i=0;i<3;i++){
+   const x=px-16+i*15+Math.sin(t*.00008+i)*2.5;
+   const z=pz-28-i*1.4,y=14+(i%2)*2;
+   const col=[.78,.84,.86];
+   ball(x,y,z,2.7,.48,1.05,col);
+   ball(x-1.6,y+.12,z+.2,1.65,.58,.90,col);
+   ball(x+1.55,y+.06,z-.15,1.85,.52,1.0,col);
+  }
+ }
+ // Warm emissive window glass and lantern flames at night.
+ const lanterns=[[-5,-2],[5,-2],[-5,4],[5,4]];
+ for(const [x,z] of lanterns){
+  withEmission(.20+night*.78,()=>ball(x,2.35,z+.23,.15,.17,.15,[1,.53,.16]));
+  if(night>.2){
+   // A subtle halo made from a translucent-looking warm low-poly orb.
+   ball(x,2.35,z+.23,.29,.31,.29,[.88,.36,.08]);
+  }
+ }
+ if(night>.10){
+  for(const h of houses){
+   const x=h[0],z=h[1],w=h[2],hh=h[3],d=h[4],front=z+d/2;
+   for(const wx of [-w*.28,w*.28]){
+    withEmission(.18+night*.76,()=>draw(x+wx,hh*.68,front+.195,.43,.35,.035,[1,.65,.28]));
+   }
+  }
+  withEmission(.45+night*.5,()=>draw(-3,1.1,7.40,.48,.48,.04,[1,.27,.035]));
+ }
+ // Small animated sparks rise from the blacksmith forge.
+ for(let i=0;i<5;i++){
+  const rise=(t*.001+i*.23)%1;
+  const sx=-3+Math.sin(t*.002+i*3)*.28;
+  withEmission(.8,()=>ball(sx,1.15+rise*1.65,7.55,.035,.045,.035,[1,.55,.12]));
+ }
+ // Moving highlights ripple on the stream below the wooden bridge.
+ for(let i=0;i<5;i++){
+  const x=-2+i*.95+Math.sin(t*.001+i)*.15;
+  draw(x,.055,15.8+Math.sin(t*.0015+i)*.35,.42,.025,.045,[.38,.65,.72]);
+ }
+ // Grass blades gently sway near the path, a tiny amount of motion adds life.
+ for(let i=0;i<12;i++){
+  const x=-13+(i%6)*1.15,z=11+Math.floor(i/6)*1.1;
+  draw(x,.19,z,.065,.34,.065,C.grass3,Math.sin(t*.001+i)*.18);
+ }
+}
+
+function resize(){let d=Math.min(devicePixelRatio||1,1.5),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
+let keys={},joyX=0,joyY=0;addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+const stick=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;function joy(e){let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=43,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}joyX=dx/max;joyY=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId);joy(e)});stick.addEventListener('pointermove',e=>{if(active)joy(e)});function endJoy(){active=false;joyX=joyY=0;knob.style.transform='translate(0,0)'}stick.addEventListener('pointerup',endJoy);stick.addEventListener('pointercancel',endJoy);
+let last=0,gameClock=9*60; // Starts at 09:00; one full in-game day lasts 180 real seconds.
+function smooth(a,b,x){let t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)}
+function updateDayNight(dt,t){gameClock=(gameClock+dt*8)%1440;const minute=Math.floor(gameClock),hh=String(Math.floor(minute/60)).padStart(2,'0'),mm=String(minute%60).padStart(2,'0');const phase=gameClock/1440;const angle=phase*Math.PI*2-Math.PI/2;const sunHeight=Math.sin(angle);const daylight=smooth(-.18,.22,sunHeight);const dusk=Math.max(0,1-Math.abs(sunHeight)*5)* (sunHeight<.28?1:0);const night=1-daylight;const warm=[1.0,.48,.22],day=[.48,.68,.77],dark=[.025,.045,.095];let sky=dark.map((v,i)=>v*(1-daylight)+day[i]*daylight);sky=sky.map((v,i)=>v*(1-dusk*.42)+warm[i]*dusk*.42);gl.clearColor(sky[0],sky[1],sky[2],1);gl.uniform3f(FOGCOLOR,sky[0],sky[1],sky[2]);gl.uniform1f(FOGAMOUNT,0.25+night*.22);const lx=Math.cos(angle),ly=Math.max(.08,sunHeight),lz=.35;gl.uniform3f(LIGHTDIR,lx,ly,lz);gl.uniform1f(AMBIENT,.17+daylight*.43);clockLabel.textContent=(night>.62?'☾ Ночь':dusk>.35?'🌇 Закат':'☀ День')+' · '+hh+':'+mm;}
+
+function skyDecor(t){
+ const phase=gameClock/1440,ang=phase*Math.PI*2-Math.PI/2;
+ const sunY=8+Math.sin(ang)*7, sunX=px+Math.cos(ang)*17, sunZ=pz-29;
+ const daylight=Math.max(0,Math.min(1,(Math.sin(ang)+.18)/.40));
+ if(daylight>.03){ball(sunX,sunY,sunZ,1.05,1.05,1.05,[1,.78,.35]);ball(sunX,sunY,sunZ,1.38,1.38,1.38,[1,.86,.54]);}
+ if(daylight<.82){let mx=px-Math.cos(ang)*14,my=9-Math.sin(ang)*5,mz=pz-27;ball(mx,my,mz,.72,.72,.72,[.76,.83,.94]);ball(mx+.25,my+.12,mz+.08,.62,.64,.62,[.035,.055,.10]);
+  for(let i=0;i<10;i++){let sx=px+Math.sin(i*12.989)*18,sy=9+Math.cos(i*7.31)*5,sz=pz-30-(i%4)*.3;ball(sx,sy,sz,.045,.045,.045,[.78,.84,1]);}}
+}
+
+function frame(t){worldTime=t;resize();let dt=Math.min((t-last)/1000||0,.04);last=t;updateDayNight(dt,t);let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,10.5,pz+15],target=[px,0.85,pz-1.8];vp=matMul(proj,lookAt(eye,target,[0,1,0]));gl.uniform3f(CAMERAPOS,eye[0],eye[1],eye[2]);world();meadowDetails(t);skyDecor(t);villageLife(t);player();status.textContent='Живая Экетория · жители, животные и динамическое освещение';requestAnimationFrame(frame)}
+status.textContent='Создание мира Экетории…';requestAnimationFrame(frame);
+})();
+</script></body></html>
