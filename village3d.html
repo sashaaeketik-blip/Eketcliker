@@ -41,44 +41,45 @@ function drawGeo(geo,x,y,z,sx,sy,sz,col,ry=0,rz=0){let m=model(x,y,z,sx,sy,sz,ry
 function ball(x,y,z,sx,sy,sz,col,ry=0,rz=0){drawGeo(sphereGeo,x,y,z,sx,sy,sz,col,ry,rz)}
 function post(x,y,z,sx,sy,sz,col,ry=0){drawGeo(cylinderGeo,x,y,z,sx,sy,sz,col,ry)}
 function peak(x,y,z,sx,sy,sz,col,ry=0){drawGeo(coneGeo,x,y,z,sx,sy,sz,col,ry)}
-const C={grass:[.19,.34,.17],grass2:[.27,.43,.21],grass3:[.34,.48,.23],road:[.36,.29,.21],stone:[.48,.47,.40],stone2:[.57,.55,.47],wood:[.27,.14,.075],wood2:[.43,.25,.12],wood3:[.57,.35,.18],roof:[.22,.085,.065],roof2:[.34,.13,.09],cream:[.66,.53,.35],dark:[.075,.065,.05],leaf:[.10,.27,.12],leaf2:[.18,.36,.16],leaf3:[.27,.42,.18],water:[.12,.34,.48],metal:[.25,.27,.27],skin:[.76,.55,.37],cloth:[.12,.22,.35],gold:[.72,.52,.2],warm:[.95,.62,.22]};
+const C={grass:[.19,.34,.17],grass2:[.27,.43,.21],grass3:[.34,.48,.23],road:[.36,.29,.21],stone:[.48,.47,.40],stone2:[.57,.55,.47],wood:[.27,.14,.075],wood2:[.43,.25,.12],wood3:[.57,.35,.18],roof:[.22,.085,.065],roof2:[.34,.13,.09],cream:[.66,.53,.35],dark:[.075,.065,.05],leaf:[.10,.27,.12],leaf2:[.18,.36,.16],leaf3:[.27,.42,.18],water:[.12,.34,.48],metal:[.25,.27,.27],metal2:[.42,.45,.44],stoneDark:[.31,.30,.26],bark:[.19,.095,.045],leaf4:[.35,.49,.22],skin:[.76,.55,.37],cloth:[.12,.22,.35],gold:[.72,.52,.2],warm:[.95,.62,.22]};
 let px=0,pz=4,heading=0,vp;const houses=[[-8,-7,4.2,3.3,4],[-2,-10,4.4,3.4,4.2],[7,-7,4.6,3.4,4.4],[10,1,4,3.2,3.8],[-10,3,4.3,3.3,4.1],[-7,11,4.5,3.4,4],[5,11,4.3,3.2,4]];
 function house(x,z,w,h,d,variant=0){
  const wall=variant?C.cream:C.wood2, front=z+d/2;
  draw(x,h/2,z,w,h,d,wall);
- // dark timber frame and corner posts
+ // Individual stone foundation blocks and timber wall framing.
+ draw(x,.12,z,w+.18,.28,d+.18,C.stoneDark);
+ for(let i=0;i<5;i++){const bx=x-w*.43+i*w*.215;draw(bx,.17,front+.105,w*.19,.22,.16,i%2?C.stone:C.stone2);draw(bx,.17,z-d/2-.10,w*.19,.22,.16,i%2?C.stone2:C.stone);}
+ for(let side of [-1,1])for(let row=0;row<2;row++)draw(x+side*(w/2+.07),.12+row*.17,z,.15,.14,d*.43,row?C.stone:C.stone2);
  for(const sx of [-1,1]){draw(x+sx*w*.46,h/2,front+.035,.16,h+.08,.13,C.wood);draw(x+sx*w*.46,h+.12,z-d*.46,.14,.2,.14,C.wood)}
- draw(x,h*.18,front+.045,w*.92,.16,.12,C.wood);
- draw(x,h*.83,front+.045,w*.92,.14,.12,C.wood);
+ draw(x,h*.18,front+.045,w*.92,.16,.12,C.wood);draw(x,h*.83,front+.045,w*.92,.14,.12,C.wood);
+ draw(x-w*.25,h*.52,front+.052,.12,h*.78,.10,C.wood3);draw(x+w*.25,h*.52,front+.052,.12,h*.78,.10,C.wood3);
  // steep pitched roof with two clearly sloped timber-backed panels
  draw(x,h+.72,z,w*1.22,.20,d*1.22,C.wood);
  draw(x-w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,.62);
  draw(x+w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,-.62);
- // roof ridge cap and visible tile courses
- draw(x,h+1.58,z,.22,.20,d*1.30,C.roof);
- for(let row=0;row<3;row++){
-  let yy=h+1.39-row*.22,off=(row%2)*.12;
-  for(let side of [-1,1]) for(let col=0;col<3;col++){
-   let xx=x+side*(.28+col*.48)*w/2;
-   draw(xx,yy,z-d*.43+off+col*.02,.38,.055,.16,row%2?C.roof:C.roof2,0,-side*.62);
-  }
+ // Individual roof tiles across both slopes, with wooden eaves.
+ draw(x,h+1.58,z,.25,.22,d*1.32,C.roof);
+ for(let side of [-1,1])for(let row=0;row<4;row++)for(let col=0;col<5;col++){
+  const xx=x+side*(.13+row*.145)*w,yy=h+1.48-row*.205,zz=z-d*.48+col*(d*.24);
+  draw(xx,yy,zz,w*.145,.075,d*.215,(row+col)%3===0?C.roof:C.roof2,0,-side*.62);
  }
+ for(let side of [-1,1]){draw(x+side*w*.58,h+.77,z,w*.10,.16,d*1.28,C.wood3,0,-side*.62);for(let end of [-1,1])draw(x+side*w*.27,h+1.12,z+end*d*.62,.12,.15,.13,C.wood3);}
  draw(x,h+1.13,z-d*.61,w*1.20,.13,.16,C.wood3);
  // carved gable trim and chimney
  draw(x-w*.52,h+.96,front-.22,.13,.16,.22,C.wood3);
  draw(x+w*.52,h+.96,front-.22,.13,.16,.22,C.wood3);
  draw(x+w*.28,h+1.72,z-d*.20,.48,.95,.48,C.stone);
- draw(x+w*.28,h+2.22,z-d*.20,.58,.16,.58,C.dark);
+ draw(x+w*.28,h+2.22,z-d*.20,.58,.16,.58,C.dark);draw(x+w*.28,h+2.34,z-d*.20,.68,.10,.68,C.stoneDark);draw(x+w*.28,h+1.92,z-d*.20,.42,.12,.42,C.stone2);
  // door, lintel and windows with frames
  draw(x,h*.43,front+.11,.82,1.55,.14,C.dark);
  draw(x,h*.42,front+.19,.62,1.36,.07,C.wood3);
  draw(x+.19,h*.42,front+.24,.035,1.25,.025,C.gold);
- draw(x-.29,h*.42,front+.25,.055,.07,.035,C.gold);
+ draw(x-.29,h*.42,front+.25,.055,.07,.035,C.gold);for(let hy of [h*.25,h*.58])draw(x-.29,hy,front+.245,.06,.10,.035,C.metal2);draw(x+.25,h*.42,front+.255,.10,.10,.045,C.gold);
  for(const wx of [-w*.28,w*.28]){
   draw(x+wx,h*.68,front+.09,.78,.7,.13,C.wood);
   draw(x+wx,h*.68,front+.17,.58,.5,.06,C.water);
   draw(x+wx,h*.68,front+.21,.07,.56,.035,C.wood3);
-  draw(x+wx,h*.68,front+.22,.6,.07,.035,C.wood3);
+  draw(x+wx,h*.68,front+.22,.6,.07,.035,C.wood3);draw(x+wx,h*.68,front+.255,.055,.50,.025,C.wood3);draw(x+wx,h*.68,front+.27,.58,.045,.025,C.gold);
   for(const side of [-1,1]){
    draw(x+wx+side*.43,h*.68,front+.19,.18,.62,.09,C.wood2);
    for(let slat=0;slat<3;slat++)draw(x+wx+side*.43,h*.50+slat*.10,front+.245,.15,.035,.025,C.wood3);
@@ -127,14 +128,14 @@ function world(){
  post(0,.35,0,1.02,.72,1.02,C.stone);post(0,.77,0,.76,.16,.76,C.dark);post(0,.81,0,.60,.045,.60,C.water);
  for(let i=0;i<10;i++){let a=i*Math.PI/5;ball(Math.cos(a)*.89,.38,Math.sin(a)*.89,.24,.22,.24,i%2?C.stone2:C.stone);}
  draw(-.82,1.65,0,.16,2.0,.16,C.wood);draw(.82,1.65,0,.16,2.0,.16,C.wood);
- draw(0,2.55,0,2.25,.18,.2,C.wood3);draw(0,2.95,0,2.5,.12,1.5,C.roof2,.08);
+ draw(0,2.55,0,2.25,.18,.2,C.wood3);draw(0,2.95,0,2.5,.12,1.5,C.roof2,.08);post(0,1.78,0,.045,1.35,.045,C.wood3);draw(.40,1.12,.08,.42,.38,.38,C.wood2);draw(.40,1.33,.08,.46,.08,.42,C.metal);
  // houses around square
  houses.forEach((h,i)=>house(...h,i%2));
  // blacksmith building and forge chimney
  draw(-3,1.35,6,3.0,2.7,2.7,C.wood2);draw(-3,2.95,6,3.35,.18,3.0,C.wood3);
  draw(-3.72,3.25,6,1.95,.20,3.05,C.roof2,0,.58);draw(-2.28,3.25,6,1.95,.20,3.05,C.roof2,0,-.58);draw(-3,3.72,6,.18,.18,3.18,C.roof,0,0);
  draw(-4.25,3.3,5.25,.62,2.55,.62,C.stone);draw(-4.25,4.65,5.25,.82,.22,.82,C.dark);
- draw(-1.9,.48,4.48,1.2,.55,.8,C.metal);draw(-1.9,.82,4.48,.8,.18,.5,C.metal);
+ draw(-1.9,.48,4.48,1.2,.55,.8,C.metal);draw(-1.9,.82,4.48,.8,.18,.5,C.metal);draw(-1.9,1.02,4.48,.58,.22,.34,C.metal2);draw(-1.9,1.17,4.48,.28,.10,.22,C.metal);post(-1.15,.88,4.85,.055,.72,.055,C.wood3,.45);draw(-1.15,1.28,4.85,.48,.10,.10,C.metal2,.45);
  // warm forge glow and sign
  draw(-3,1.1,7.38,.72,.75,.08,C.warm);draw(-3,2.65,7.45,1.1,.32,.12,C.wood3);
  // blacksmith work area: stacked firewood, barrels and supply crates
@@ -171,6 +172,11 @@ function world(){
   draw(x,-.02,z,.22+(i%3)*.08,.12,.2,i%2?C.stone:C.stone2,(i%5)*.2);
   if(i%2===0){draw(x+.32,.16,z+.12,.07,.34,.07,C.grass3,.2);draw(x+.48,.12,z-.08,.06,.25,.06,C.grass2,-.25)}
  }
+ // Bushes, flowers, stumps and grass tufts add life to the village edges.
+ const bushes=[[-12,-3],[-13,2],[13,-4],[15,3],[8,15],[-12,14],[3,-14]];
+ bushes.forEach((b,i)=>{ball(b[0],.42,b[1],.62,.48,.58,C.leaf2);ball(b[0]-.28,.48,b[1]+.12,.38,.36,.38,C.leaf3);ball(b[0]+.30,.46,b[1]-.12,.40,.34,.40,C.leaf4);for(let f=0;f<3;f++)ball(b[0]-.22+f*.22,.73,b[1]+.18,.09,.09,.09,f%2?C.warm:C.cream);});
+ for(let i=0;i<8;i++){let x=-16+(i%4)*1.15,z=-5+Math.floor(i/4)*1.1;post(x,.22,z,.24,.42,.24,C.bark);draw(x,.43,z,.48,.12,.48,C.wood3,(i%3)*.18);}
+ for(let i=0;i<24;i++){let x=((i*17)%31)-15,z=((i*23)%29)-14;if(Math.abs(x)<4.5||Math.abs(z)<3.5)continue;draw(x,.18,z,.08,.36,.08,C.grass3,.18);draw(x+.12,.14,z+.08,.07,.27,.07,C.leaf4,-.24);if(i%3===0)ball(x,.36,z,.10,.10,.10,C.warm);}
  // trees form a soft forest border
  [[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]].forEach((p,i)=>tree(p[0],p[1],.82+(i%4)*.1));
 }
@@ -221,6 +227,8 @@ function player(){
  ball(px,.68,pz+fz*.34,.13,.13,.08,C.gold,heading);
  ball(px-sideX*.39,.1+1.12,pz-sideZ*.39,.20,.19,.22,C.gold,heading);
  ball(px+sideX*.39,1.24,pz+sideZ*.39,.20,.19,.22,C.gold,heading);
+ // Short travel cloak and belt pouch.
+ draw(px,.86,pz-fz*.22,.42,.62,.12,C.roof2,heading);ball(px-sideX*.29,.67,pz+sideZ*.29,.10,.13,.10,C.wood3,heading);
  // arms and gloves
  draw(px-sideX*.43,1.02,pz-sideZ*.43,.18,.52,.20,C.cloth,heading,-.16);
  draw(px+sideX*.43,1.02,pz+sideZ*.43,.18,.52,.20,C.cloth,heading,.16);
