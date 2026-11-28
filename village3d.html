@@ -8,7 +8,7 @@
 </style></head>
 <body>
 <canvas id="game"></canvas>
-<div id="hud"><div class="top"><b>EKETORIA · ЖИВАЯ ДЕРЕВНЯ</b><div id="status">Подготовка 3D-мира…</div></div><div class="hint"><span id="clock">☀ День · 09:00</span><br>FANTASY RPG · 3D</div><div class="stick" id="stick"><div class="knob" id="knob"></div></div><div class="help">Двигай джойстик<br>ПК: WASD / стрелки</div></div>
+<div id="hud"><div class="top"><b>EKETORIA · ЖИВАЯ ДЕРЕВНЯ</b><div id="status">Лесные земли · Мир оживает</div></div><div class="hint"><span id="clock">☀ День · 09:00</span><br>FANTASY RPG · 3D</div><div class="stick" id="stick"><div class="knob" id="knob"></div></div><div class="help">Исследуй деревню<br>Джойстик · WASD · стрелки</div></div>
 <div class="overlay" id="error"><div class="panel"><h2>3D-графика недоступна</h2><p id="errtext">Браузер не смог создать WebGL-контекст. Попробуй открыть страницу в Safari и проверить, включено ли аппаратное ускорение.</p><button onclick="location.reload()">Повторить запуск</button></div></div>
 <script>
 (()=>{'use strict';
@@ -42,7 +42,7 @@ function ball(x,y,z,sx,sy,sz,col,ry=0,rz=0){drawGeo(sphereGeo,x,y,z,sx,sy,sz,col
 function post(x,y,z,sx,sy,sz,col,ry=0){drawGeo(cylinderGeo,x,y,z,sx,sy,sz,col,ry)}
 function peak(x,y,z,sx,sy,sz,col,ry=0){drawGeo(coneGeo,x,y,z,sx,sy,sz,col,ry)}
 const C={grass:[.19,.34,.17],grass2:[.27,.43,.21],grass3:[.34,.48,.23],road:[.36,.29,.21],stone:[.48,.47,.40],stone2:[.57,.55,.47],wood:[.27,.14,.075],wood2:[.43,.25,.12],wood3:[.57,.35,.18],roof:[.22,.085,.065],roof2:[.34,.13,.09],cream:[.66,.53,.35],dark:[.075,.065,.05],leaf:[.10,.27,.12],leaf2:[.18,.36,.16],leaf3:[.27,.42,.18],water:[.12,.34,.48],metal:[.25,.27,.27],metal2:[.42,.45,.44],stoneDark:[.31,.30,.26],bark:[.19,.095,.045],leaf4:[.35,.49,.22],skin:[.76,.55,.37],cloth:[.12,.22,.35],gold:[.72,.52,.2],warm:[.95,.62,.22]};
-let px=0,pz=4,heading=0,vp;const houses=[[-8,-7,4.2,3.3,4],[-2,-10,4.4,3.4,4.2],[7,-7,4.6,3.4,4.4],[10,1,4,3.2,3.8],[-10,3,4.3,3.3,4.1],[-7,11,4.5,3.4,4],[5,11,4.3,3.2,4]];
+let px=0,pz=4,heading=0,vp,worldTime=0;const houses=[[-8,-7,4.2,3.3,4],[-2,-10,4.4,3.4,4.2],[7,-7,4.6,3.4,4.4],[10,1,4,3.2,3.8],[-10,3,4.3,3.3,4.1],[-7,11,4.5,3.4,4],[5,11,4.3,3.2,4]];
 function house(x,z,w,h,d,variant=0){
  const wall=variant?C.cream:C.wood2, front=z+d/2;
  draw(x,h/2,z,w,h,d,wall);
@@ -221,6 +221,65 @@ function world(){
  for(let i=0;i<7;i++){let x=-2.35+i*.78;draw(x,.18,15.8,.68,.20,1.9,i%2?C.wood3:C.wood2);}
  for(let side of [-1,1]){draw(0,.62,15.8+side*.82,5.7,.13,.14,C.wood3);for(let i=0;i<6;i++)post(-2.45+i*.98,.42,15.8+side*.82,.07,.65,.07,C.wood2);}
 }
+// ---------------------------------------------------------------------------
+// WORLD DETAIL PASS — dense meadow dressing, flower patches and forest floor.
+// All placement is deterministic so the scene stays lightweight and stable.
+// ---------------------------------------------------------------------------
+function meadowDetails(t){
+  // Hundreds of short grass blades arranged in natural irregular clusters.
+  for(let i=0;i<120;i++){
+    const x=((i*73)%397)/10-19.85, z=((i*131)%397)/10-19.85;
+    if(Math.abs(x)<3.15||Math.abs(z)<2.65)continue;
+    if(Math.abs(x)<4.2&&Math.abs(z)<5.2)continue;
+    const h=.16+(i%5)*.045, sway=Math.sin(t*.0018+i*1.7)*.10;
+    draw(x,.08+h*.48,z,.055,h,.055,i%4===0?C.leaf4:(i%3===0?C.grass2:C.grass3),sway);
+    if(i%3===0)draw(x+.075,.07+h*.38,z+.045,.045,h*.76,.045,C.grass2,-sway*.8);
+  }
+  // Flower clusters along the village paths and meadow edge.
+  for(let i=0;i<30;i++){
+    const x=((i*29)%373)/10-18.6,z=((i*47)%359)/10-17.9;
+    if(Math.abs(x)<4.0||Math.abs(z)<3.2)continue;
+    const stem=.20+(i%3)*.035;
+    post(x,stem*.5,z,.025,stem,.025,C.grass3);
+    ball(x,stem+.035,z,.075,.065,.075,[.88,.70,.34]);
+    if(i%4===0)ball(x+.08,stem+.01,z+.04,.055,.05,.055,[.75,.28,.22]);
+  }
+  // Fern-like broad leaves and small mushroom groups beneath the trees.
+  for(let i=0;i<10;i++){
+    const x=((i*43)%337)/10-16.8,z=((i*67)%331)/10-16.5;
+    for(let k=0;k<3;k++){
+      const a=k*2.1+i;
+      draw(x+Math.cos(a)*.13,.17,z+Math.sin(a)*.13,.10,.28,.045,C.leaf3,a*.12,.25*Math.sin(t*.001+i+k));
+    }
+    if(i%2===0){
+      post(x+.30,.12,z+.18,.045,.22,.045,C.cream);
+      ball(x+.30,.24,z+.18,.16,.09,.16,[.62,.24,.17]);
+    }
+  }
+  // Mossy stones, stepping pebbles and a few larger boulders.
+  for(let i=0;i<16;i++){
+    const x=((i*61)%379)/10-18.9,z=((i*83)%367)/10-18.3;
+    if(Math.abs(x)<4.8&&Math.abs(z)<4.8)continue;
+    ball(x,.12,z,.22+(i%4)*.09,.16+(i%3)*.04,.20+(i%2)*.10,i%3?C.stone:C.stone2,i*.17);
+    if(i%3===0)ball(x-.06,.22,z-.04,.12,.045,.12,C.leaf2);
+  }
+  // Small path-side flower boxes, wooden buckets and a notice board near the square.
+  for(let i=0;i<4;i++){
+    const x=-9.4+i*1.05,z=-4.5;
+    draw(x,.17,z,.72,.28,.42,C.wood2);
+    for(let j=0;j<3;j++){
+      post(x-.22+j*.22,.42,z,.035,.30,.035,C.grass3);
+      ball(x-.22+j*.22,.59+(j%2)*.04,z,.10,.09,.10,j%2?[.90,.62,.24]:[.78,.27,.23]);
+    }
+  }
+  // Little pennants above the market add a welcoming village silhouette.
+  for(let i=0;i<5;i++){
+    const x=7.1+i*.78;
+    draw(x,3.18,3.15,.06,.65,.06,C.gold);
+    peak(x,2.88,3.20,.20,.25,.04,i%2?[.72,.24,.17]:[.86,.68,.38],0,Math.PI/2);
+  }
+}
+
 // Collision map: solid building footprints, the well, fences, lanterns and tree trunks.
 const solidRects=[];
 function addRect(x,z,w,d,pad=.38){solidRects.push({minX:x-w/2-pad,maxX:x+w/2+pad,minZ:z-d/2-pad,maxZ:z+d/2+pad});}
@@ -252,46 +311,64 @@ function moveWithCollision(dx,dz){
  if(!collides(px,nz))pz=nz;
 }
 function player(){
- // A more character-like low-poly adventurer: layered armour, shaped helmet,
- // separate joints, gloves, belt, face details and a proper sword silhouette.
- const fx=Math.sin(heading),fz=Math.cos(heading),sideX=Math.cos(heading),sideZ=-Math.sin(heading);
- // boots and greaves
- ball(px-.20,.18,pz,.19,.20,.27,C.dark,heading);
- ball(px+.20,.18,pz,.19,.20,.27,C.dark,heading);
- draw(px-.20,.48,pz,.22,.42,.25,C.cloth,heading);
- draw(px+.20,.48,pz,.22,.42,.25,C.cloth,heading);
- // tunic and chest armour
- ball(px,.91,pz,.34,.48,.25,C.cloth,heading);
- draw(px,.94,pz+fz*.22,.48,.38,.12,C.wood2,heading);
- draw(px,.96,pz+fz*.29,.38,.30,.07,C.metal,heading);
- draw(px,.69,pz+fz*.27,.58,.13,.10,C.gold,heading);
- // belt, buckle and shoulder guards
- draw(px,.66,pz+fz*.27,.58,.12,.12,C.wood,heading);
- ball(px,.68,pz+fz*.34,.13,.13,.08,C.gold,heading);
- ball(px-sideX*.39,.1+1.12,pz-sideZ*.39,.20,.19,.22,C.gold,heading);
- ball(px+sideX*.39,1.24,pz+sideZ*.39,.20,.19,.22,C.gold,heading);
- // Short travel cloak and belt pouch.
- draw(px,.86,pz-fz*.22,.42,.62,.12,C.roof2,heading);ball(px-sideX*.29,.67,pz+sideZ*.29,.10,.13,.10,C.wood3,heading);
- // arms and gloves
- draw(px-sideX*.43,1.02,pz-sideZ*.43,.18,.52,.20,C.cloth,heading,-.16);
- draw(px+sideX*.43,1.02,pz+sideZ*.43,.18,.52,.20,C.cloth,heading,.16);
- ball(px-sideX*.46,.72,pz-sideZ*.46,.14,.15,.15,C.skin);
- ball(px+sideX*.46,.72,pz+sideZ*.46,.14,.15,.15,C.skin);
- // head, nose, eyes and helmet
- ball(px,1.48,pz,.27,.31,.25,C.skin);
- ball(px,1.50,pz+fz*.225,.055,.07,.045,C.skin,heading);
- ball(px-sideX*.105,1.55,pz+fz*.22-sideZ*.105,.035,.04,.025,C.dark);
- ball(px+sideX*.105,1.55,pz+fz*.22+sideZ*.105,.035,.04,.025,C.dark);
- ball(px,1.76,pz,.34,.20,.31,C.gold,heading);
- draw(px,1.65,pz+fz*.23,.42,.10,.13,C.metal,heading);
- peak(px,1.99,pz,.15,.28,.15,C.gold,heading);
- // sword in the right hand: grip, crossguard and tapered blade
- const sx=px+sideX*.63,sz=pz+sideZ*.63;
- draw(sx,.78,sz,.10,.30,.10,C.wood,heading,.12);
- draw(sx,.98,sz,.34,.08,.12,C.gold,heading);
- draw(sx,1.34,sz,.13,.68,.09,C.metal,heading,.12);
- peak(sx,1.72,sz,.07,.20,.07,C.metal,heading);
- ball(sx,.59,sz,.13,.13,.13,C.gold);
+  const moving=(Math.abs(joyX)+Math.abs(joyY)>.12)||Object.keys(keys).some(k=>keys[k]&&['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k));
+  const gait=moving?Math.sin(worldTime*.014):0, bob=moving?Math.abs(Math.sin(worldTime*.014))*.045:Math.sin(worldTime*.002)*.012;
+  const fx=Math.sin(heading),fz=Math.cos(heading),sideX=Math.cos(heading),sideZ=-Math.sin(heading);
+  const front=(v)=>[px+fx*v,pz+fz*v], side=(v)=>[px+sideX*v,pz+sideZ*v];
+  // Boots, articulated greaves and layered trousers.
+  for(const s of [-1,1]){
+    const x=px+s*.19, legSwing=gait*s*.22;
+    ball(x,.15+bob,pz+legSwing*.32,.19,.17,.27,C.dark,heading);
+    draw(x,.43+bob,pz+legSwing*.32,.22,.40,.24,C.cloth,heading,legSwing);
+    draw(x,.36+bob,pz+legSwing*.32+fz*.12,.225,.19,.055,C.metal,heading);
+    draw(x,.54+bob,pz+legSwing*.32+fz*.12,.23,.055,.06,C.gold,heading);
+  }
+  // Tunic, breastplate, engraved trim and belt.
+  ball(px,.91+bob,pz,.36,.46,.27,C.cloth,heading);
+  const chest=front(.235);
+  draw(px,.98+bob,chest[1],.49,.40,.105,C.metal,heading);
+  draw(px,.99+bob,chest[1]+fz*.06,.34,.26,.035,C.metal2,heading);
+  draw(px,.99+bob,chest[1]+fz*.085,.09,.30,.025,C.gold,heading);
+  draw(px,.68+bob,pz+fz*.25,.60,.13,.12,C.wood,heading);
+  ball(px,.69+bob,pz+fz*.33,.13,.13,.08,C.gold,heading);
+  // Shoulder pauldrons, layered vambraces and moving arms.
+  for(const s of [-1,1]){
+    const sh=side(s*.40);
+    ball(sh[0],1.22+bob,sh[1],.23,.20,.25,C.gold,heading);
+    ball(sh[0],1.23+bob,sh[1]+fz*.04,.17,.13,.20,C.metal2,heading);
+    const armSwing=gait*s*.18;
+    draw(sh[0],.99+bob,sh[1],.17,.48,.19,C.cloth,heading,armSwing);
+    draw(sh[0],.79+bob,sh[1]+fz*.04,.18,.22,.20,C.metal,heading,armSwing);
+    ball(sh[0],.68+bob,sh[1]+fz*.06,.13,.14,.14,C.skin);
+  }
+  // Short cloak, collar and travel pack.
+  draw(px,.88+bob,pz-fz*.24,.46,.63,.13,C.roof2,heading);
+  draw(px,.99+bob,pz-fz*.32,.34,.20,.12,C.gold,heading);
+  draw(px,.91+bob,pz-fz*.39,.36,.48,.22,C.wood2,heading);
+  draw(px,.72+bob,pz-fz*.50,.42,.12,.08,C.wood3,heading);
+  // Head, hair, face, helmet and crest.
+  ball(px,1.49+bob,pz,.27,.30,.25,C.skin);
+  ball(px,1.64+bob,pz-fz*.045,.27,.17,.25,C.dark,heading);
+  ball(px,1.76+bob,pz,.34,.18,.31,C.gold,heading);
+  draw(px,1.66+bob,pz+fz*.22,.43,.12,.12,C.metal,heading);
+  draw(px,1.66+bob,pz+fz*.29,.23,.055,.045,C.metal2,heading);
+  peak(px,1.98+bob,pz,.13,.27,.13,C.gold,heading);
+  for(const s of [-1,1]){
+    const eye=side(s*.105);
+    ball(eye[0],1.54+bob,eye[1]+fz*.22,.032,.035,.025,C.dark,heading);
+  }
+  // Round shield on the left arm with boss and radial straps.
+  const sh=side(-.62);
+  ball(sh[0],.94+bob,sh[1]+fz*.13,.34,.39,.12,C.wood2,heading);
+  ball(sh[0],.94+bob,sh[1]+fz*.205,.28,.33,.055,C.metal,heading);
+  ball(sh[0],.94+bob,sh[1]+fz*.24,.105,.12,.045,C.gold,heading);
+  // Sword held in the right hand: pommel, grip, crossguard and tapered blade.
+  const sw=side(.66);
+  draw(sw[0],.80+bob,sw[1],.10,.28,.10,C.wood,heading,.12);
+  ball(sw[0],.64+bob,sw[1],.10,.10,.10,C.gold);
+  draw(sw[0],.98+bob,sw[1],.36,.075,.12,C.gold,heading);
+  draw(sw[0],1.32+bob,sw[1],.13,.62,.075,C.metal,heading,.12);
+  peak(sw[0],1.67+bob,sw[1],.065,.16,.065,C.metal,heading);
 }
 
 // ---------------------------------------------------------------------------
@@ -421,10 +498,10 @@ function skyDecor(t){
  const daylight=Math.max(0,Math.min(1,(Math.sin(ang)+.18)/.40));
  if(daylight>.03){ball(sunX,sunY,sunZ,1.05,1.05,1.05,[1,.78,.35]);ball(sunX,sunY,sunZ,1.38,1.38,1.38,[1,.86,.54]);}
  if(daylight<.82){let mx=px-Math.cos(ang)*14,my=9-Math.sin(ang)*5,mz=pz-27;ball(mx,my,mz,.72,.72,.72,[.76,.83,.94]);ball(mx+.25,my+.12,mz+.08,.62,.64,.62,[.035,.055,.10]);
-  for(let i=0;i<18;i++){let sx=px+Math.sin(i*12.989)*18,sy=9+Math.cos(i*7.31)*5,sz=pz-30-(i%4)*.3;ball(sx,sy,sz,.045,.045,.045,[.78,.84,1]);}}
+  for(let i=0;i<10;i++){let sx=px+Math.sin(i*12.989)*18,sy=9+Math.cos(i*7.31)*5,sz=pz-30-(i%4)*.3;ball(sx,sy,sz,.045,.045,.045,[.78,.84,1]);}}
 }
 
-function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;updateDayNight(dt,t);let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,10.5,pz+15],target=[px,0.85,pz-1.8];vp=matMul(proj,lookAt(eye,target,[0,1,0]));gl.uniform3f(CAMERAPOS,eye[0],eye[1],eye[2]);world();skyDecor(t);villageLife(t);player();status.textContent='Живая Экетория · жители, животные и динамическое освещение';requestAnimationFrame(frame)}
+function frame(t){worldTime=t;resize();let dt=Math.min((t-last)/1000||0,.04);last=t;updateDayNight(dt,t);let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,10.5,pz+15],target=[px,0.85,pz-1.8];vp=matMul(proj,lookAt(eye,target,[0,1,0]));gl.uniform3f(CAMERAPOS,eye[0],eye[1],eye[2]);world();meadowDetails(t);skyDecor(t);villageLife(t);player();status.textContent='Живая Экетория · жители, животные и динамическое освещение';requestAnimationFrame(frame)}
 status.textContent='Создание мира Экетории…';requestAnimationFrame(frame);
 })();
 </script></body></html>
