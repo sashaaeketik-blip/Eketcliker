@@ -42,15 +42,15 @@ function house(x,z,w,h,d,variant=0){
  draw(x,h*.83,front+.045,w*.92,.14,.12,C.wood);
  // steep pitched roof with two clearly sloped timber-backed panels
  draw(x,h+.72,z,w*1.22,.20,d*1.22,C.wood);
- draw(x-w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,-.62);
- draw(x+w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,.62);
+ draw(x-w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,.62);
+ draw(x+w*.255,h+1.16,z,w*.73,.20,d*1.25,C.roof2,0,-.62);
  // roof ridge cap and visible tile courses
  draw(x,h+1.58,z,.22,.20,d*1.30,C.roof);
  for(let row=0;row<3;row++){
   let yy=h+1.39-row*.22,off=(row%2)*.12;
   for(let side of [-1,1]) for(let col=0;col<3;col++){
    let xx=x+side*(.28+col*.48)*w/2;
-   draw(xx,yy,z-d*.43+off+col*.02,.38,.055,.16,row%2?C.roof:C.roof2,0,side*.62);
+   draw(xx,yy,z-d*.43+off+col*.02,.38,.055,.16,row%2?C.roof:C.roof2,0,-side*.62);
   }
  }
  draw(x,h+1.13,z-d*.61,w*1.20,.13,.16,C.wood3);
@@ -118,7 +118,7 @@ function world(){
  houses.forEach((h,i)=>house(...h,i%2));
  // blacksmith building and forge chimney
  draw(-3,1.35,6,3.0,2.7,2.7,C.wood2);draw(-3,2.95,6,3.35,.18,3.0,C.wood3);
- draw(-3,3.55,6,1.35,1.0,1.35,C.roof2,.58);draw(-3,3.55,6,1.35,1.0,1.35,C.roof2,-.58);
+ draw(-3.72,3.25,6,1.95,.20,3.05,C.roof2,0,.58);draw(-2.28,3.25,6,1.95,.20,3.05,C.roof2,0,-.58);draw(-3,3.72,6,.18,.18,3.18,C.roof,0,0);
  draw(-4.25,3.3,5.25,.62,2.55,.62,C.stone);draw(-4.25,4.65,5.25,.82,.22,.82,C.dark);
  draw(-1.9,.48,4.48,1.2,.55,.8,C.metal);draw(-1.9,.82,4.48,.8,.18,.5,C.metal);
  // warm forge glow and sign
@@ -157,6 +157,34 @@ function world(){
  // trees form a soft forest border
  [[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]].forEach((p,i)=>tree(p[0],p[1],.82+(i%4)*.1));
 }
+// Collision map: solid building footprints, the well, fences, lanterns and tree trunks.
+const solidRects=[];
+function addRect(x,z,w,d,pad=.38){solidRects.push({minX:x-w/2-pad,maxX:x+w/2+pad,minZ:z-d/2-pad,maxZ:z+d/2+pad});}
+// House walls and the blacksmith building.
+houses.forEach(h=>addRect(h[0],h[1],h[2],h[4],.42));
+addRect(-3,6,3.0,2.7,.42);
+// Well masonry.
+addRect(0,0,1.9,1.9,.42);
+// Garden fences: horizontal and vertical fence runs.
+addRect(-11.85,5.8,6.3,.16,.28);
+addRect(-15,9.1,.16,4.2,.28);
+// Lantern posts.
+const solidCircles=[[-5,-2,.34],[5,-2,.34],[-5,4,.34],[5,4,.34]];
+// Forest border: collide with trunks, not the leafy crowns.
+const treePositions=[[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]];
+treePositions.forEach((p,i)=>solidCircles.push([p[0],p[1],.38*(.82+(i%4)*.1)+.30]));
+function collides(x,z){
+ const r=.38;
+ for(const b of solidRects){const qx=Math.max(b.minX,Math.min(x,b.maxX)),qz=Math.max(b.minZ,Math.min(z,b.maxZ));if((x-qx)*(x-qx)+(z-qz)*(z-qz)<r*r)return true;}
+ for(const c of solidCircles){const dx=x-c[0],dz=z-c[1],rr=r+c[2];if(dx*dx+dz*dz<rr*rr)return true;}
+ return false;
+}
+function moveWithCollision(dx,dz){
+ const nx=Math.max(-20,Math.min(20,px+dx));
+ if(!collides(nx,pz))px=nx;
+ const nz=Math.max(-20,Math.min(20,pz+dz));
+ if(!collides(px,nz))pz=nz;
+}
 function player(){
  // more readable low-poly adventurer: boots, legs, tunic, arms, belt and helmet
  const fx=Math.sin(heading),fz=Math.cos(heading),sideX=Math.cos(heading),sideZ=-Math.sin(heading);
@@ -178,7 +206,7 @@ function player(){
 function resize(){let d=Math.min(devicePixelRatio||1,1.5),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
 let keys={},joyX=0,joyY=0;addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 const stick=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;function joy(e){let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=43,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}joyX=dx/max;joyY=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId);joy(e)});stick.addEventListener('pointermove',e=>{if(active)joy(e)});function endJoy(){active=false;joyX=joyY=0;knob.style.transform='translate(0,0)'}stick.addEventListener('pointerup',endJoy);stick.addEventListener('pointercancel',endJoy);
-let last=0;function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);px+=x*5*dt;pz+=y*5*dt;heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,9,pz+13],target=[px,0.7,pz-1.5];vp=matMul(proj,lookAt(eye,target,[0,1,0]));world();player();status.textContent='Деревня обновлена · WebGL работает';requestAnimationFrame(frame)}
+let last=0;function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,9,pz+13],target=[px,0.7,pz-1.5];vp=matMul(proj,lookAt(eye,target,[0,1,0]));world();player();status.textContent='Деревня обновлена · WebGL работает';requestAnimationFrame(frame)}
 status.textContent='3D-мир запущен';requestAnimationFrame(frame);
 })();
 </script></body></html>
