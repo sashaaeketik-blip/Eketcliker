@@ -2,24 +2,24 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Eket Clicker — 3D Village</title>
+<title>Eketoria — Living Fantasy Village</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101a18;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#fff}#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}#hud{position:fixed;inset:0;pointer-events:none}.top{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;padding:9px 13px;border:1px solid #ffffff30;border-radius:12px;background:#14251dcc;font-size:13px;backdrop-filter:blur(8px)}#status{opacity:.8;font-size:11px;margin-top:3px}.hint{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;padding:8px 11px;background:#14251dcc;border:1px solid #ffffff30;border-radius:10px;font-size:11px}.stick{pointer-events:auto;position:absolute;left:22px;bottom:calc(24px + env(safe-area-inset-bottom));width:132px;height:132px;border-radius:50%;background:#dce9df22;border:2px solid #ffffff55;box-shadow:inset 0 0 24px #0005;touch-action:none}.knob{position:absolute;width:55px;height:55px;left:36px;top:36px;border-radius:50%;background:linear-gradient(145deg,#d9c18c,#8b7047);border:2px solid #fff9;box-shadow:0 4px 12px #0008}.help{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom));right:14px;max-width:145px;text-align:right;font-size:11px;line-height:1.5;color:#fffC;text-shadow:0 2px 4px #000}.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#08110fe8;padding:24px;text-align:center}.panel{max-width:420px;padding:22px;border:1px solid #ffffff30;border-radius:18px;background:#1a2c27}.panel h2{margin:0 0 8px}.panel p{font-size:14px;line-height:1.5;color:#d4dfd8}.panel button{padding:11px 18px;border:0;border-radius:10px;background:#c9a66b;color:#1b1b16;font-weight:700}
 </style></head>
 <body>
 <canvas id="game"></canvas>
-<div id="hud"><div class="top"><b>EKETORIA · ДЕРЕВНЯ</b><div id="status">Подготовка 3D-мира…</div></div><div class="hint"><span id="clock">☀ День · 09:00</span><br>3D · Eketoria</div><div class="stick" id="stick"><div class="knob" id="knob"></div></div><div class="help">Двигай джойстик<br>ПК: WASD / стрелки</div></div>
+<div id="hud"><div class="top"><b>EKETORIA · ЖИВАЯ ДЕРЕВНЯ</b><div id="status">Подготовка 3D-мира…</div></div><div class="hint"><span id="clock">☀ День · 09:00</span><br>FANTASY RPG · 3D</div><div class="stick" id="stick"><div class="knob" id="knob"></div></div><div class="help">Двигай джойстик<br>ПК: WASD / стрелки</div></div>
 <div class="overlay" id="error"><div class="panel"><h2>3D-графика недоступна</h2><p id="errtext">Браузер не смог создать WebGL-контекст. Попробуй открыть страницу в Safari и проверить, включено ли аппаратное ускорение.</p><button onclick="location.reload()">Повторить запуск</button></div></div>
 <script>
 (()=>{'use strict';
 const canvas=document.getElementById('game'),status=document.getElementById('status'),error=document.getElementById('error'),clockLabel=document.getElementById('clock');
 let gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'})||canvas.getContext('experimental-webgl');
 if(!gl){status.textContent='Не удалось создать WebGL';error.style.display='flex';return;}
-const vs=`attribute vec3 p; attribute vec3 n; uniform mat4 mvp; uniform mat4 model; uniform vec3 lightDir; uniform float ambient; varying float light; varying vec3 worldPos; void main(){vec3 nn=normalize(mat3(model)*n); light=ambient+(1.0-ambient)*max(dot(nn,normalize(lightDir)),0.0); worldPos=(model*vec4(p,1.0)).xyz; gl_Position=mvp*vec4(p,1.0);}`;
-const fs=`precision mediump float; uniform vec3 color; varying float light; varying vec3 worldPos; float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){float n=hash(floor(worldPos.xz*3.0)); float grain=0.94+n*0.10; gl_FragColor=vec4(color*light*grain,1.0);}`;
+const vs=`attribute vec3 p; attribute vec3 n; uniform mat4 mvp; uniform mat4 model; uniform vec3 lightDir; uniform float ambient; varying float light; varying vec3 worldPos; varying vec3 normalV; void main(){vec3 nn=normalize(mat3(model)*n); normalV=nn; light=ambient+(1.0-ambient)*max(dot(nn,normalize(lightDir)),0.0); worldPos=(model*vec4(p,1.0)).xyz; gl_Position=mvp*vec4(p,1.0);}`;
+const fs=`precision mediump float; uniform vec3 color; uniform vec3 fogColor; uniform float fogAmount; uniform vec3 cameraPos; varying float light; varying vec3 worldPos; varying vec3 normalV; float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);} void main(){float n=hash(floor(worldPos.xz*3.0)); float grain=0.965+n*0.07; float faceShade=0.94+0.06*max(normalV.y,0.0); vec3 base=color*light*grain*faceShade; float fog=smoothstep(22.0, 55.0, distance(worldPos,cameraPos)); gl_FragColor=vec4(mix(base,fogColor,clamp(fog*fogAmount,0.0,0.72)),1.0);}`.replace('fiftyFive','55');
 function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
 let prog;try{prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(prog));}catch(e){status.textContent='Ошибка 3D: '+e.message;error.style.display='flex';return;}
-gl.useProgram(prog);const P=gl.getAttribLocation(prog,'p'),N=gl.getAttribLocation(prog,'n'),MVP=gl.getUniformLocation(prog,'mvp'),MODEL=gl.getUniformLocation(prog,'model'),COLOR=gl.getUniformLocation(prog,'color'),LIGHTDIR=gl.getUniformLocation(prog,'lightDir'),AMBIENT=gl.getUniformLocation(prog,'ambient');
+gl.useProgram(prog);const P=gl.getAttribLocation(prog,'p'),N=gl.getAttribLocation(prog,'n'),MVP=gl.getUniformLocation(prog,'mvp'),MODEL=gl.getUniformLocation(prog,'model'),COLOR=gl.getUniformLocation(prog,'color'),LIGHTDIR=gl.getUniformLocation(prog,'lightDir'),AMBIENT=gl.getUniformLocation(prog,'ambient'),FOGCOLOR=gl.getUniformLocation(prog,'fogColor'),FOGAMOUNT=gl.getUniformLocation(prog,'fogAmount'),CAMERAPOS=gl.getUniformLocation(prog,'cameraPos');
 // Unit cube, with face normals
 const verts=[];function face(a,b,c,d,n){for(const v of [a,b,c,a,c,d])verts.push(...v,...n)}
 face([-0.5,-0.5,0.5],[0.5,-0.5,0.5],[0.5,0.5,0.5],[-0.5,0.5,0.5],[0,0,1]);face([0.5,-0.5,-0.5],[-0.5,-0.5,-0.5],[-0.5,0.5,-0.5],[0.5,0.5,-0.5],[0,0,-1]);face([-0.5,-0.5,-0.5],[-0.5,-0.5,0.5],[-0.5,0.5,0.5],[-0.5,0.5,-0.5],[-1,0,0]);face([0.5,-0.5,0.5],[0.5,-0.5,-0.5],[0.5,0.5,-0.5],[0.5,0.5,0.5],[1,0,0]);face([-0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,-0.5],[-0.5,0.5,-0.5],[0,1,0]);face([-0.5,-0.5,-0.5],[0.5,-0.5,-0.5],[0.5,-0.5,0.5],[-0.5,-0.5,0.5],[0,-1,0]);
@@ -95,14 +95,20 @@ function house(x,z,w,h,d,variant=0){
  draw(x+w*.51,h*.55,z,.13,.18,d*.78,C.wood);
 }
 function tree(x,z,k=1){
- // Rounded trunks, exposed roots and layered faceted crowns.
- post(x,.86*k,z,.30*k,1.75*k,.30*k,C.wood);
- for(let a=0;a<4;a++){let ang=a*Math.PI/2;post(x+Math.cos(ang)*.28*k,.16*k,z+Math.sin(ang)*.28*k,.12*k,.52*k,.12*k,C.wood2,ang)}
- ball(x,1.95*k,z,1.72*k,1.65*k,1.72*k,C.leaf);
- ball(x-.48*k,2.45*k,z+.16*k,1.28*k,1.25*k,1.30*k,C.leaf2);
- ball(x+.50*k,2.48*k,z-.18*k,1.30*k,1.32*k,1.28*k,C.leaf3);
- ball(x,2.95*k,z,1.12*k,1.30*k,1.12*k,C.leaf2);
- ball(x-.18*k,1.78*k,z+.82*k,.72*k,.78*k,.65*k,C.leaf2);
+ // Sculpted low-poly oak: roots, branching trunk, layered crown, leaf clusters and fruit.
+ post(x,.86*k,z,.30*k,1.75*k,.30*k,C.bark);
+ for(let a=0;a<5;a++){let ang=a*Math.PI*2/5;post(x+Math.cos(ang)*.27*k,.17*k,z+Math.sin(ang)*.27*k,.13*k,.54*k,.13*k,C.wood2,ang);}
+ // Visible branches under the canopy.
+ for(let a=0;a<5;a++){let ang=a*Math.PI*2/5;post(x+Math.cos(ang)*.43*k,1.55*k,z+Math.sin(ang)*.43*k,.12*k,1.08*k,.12*k,C.bark,ang);}
+ ball(x,1.92*k,z,1.60*k,1.48*k,1.60*k,C.leaf);
+ ball(x-.55*k,2.38*k,z+.10*k,1.18*k,1.12*k,1.20*k,C.leaf2);
+ ball(x+.55*k,2.40*k,z-.14*k,1.20*k,1.16*k,1.18*k,C.leaf3);
+ ball(x,2.82*k,z,1.18*k,1.20*k,1.16*k,C.leaf2);
+ ball(x-.18*k,1.82*k,z+.78*k,.72*k,.72*k,.70*k,C.leaf3);
+ ball(x+.72*k,1.96*k,z+.34*k,.66*k,.70*k,.68*k,C.leaf2);
+ ball(x-.70*k,2.02*k,z-.34*k,.66*k,.72*k,.68*k,C.leaf4);
+ // Small warm berries give the silhouette readable detail at a distance.
+ for(let j=0;j<3;j++){let a=j*2.1;ball(x+Math.cos(a)*.78*k,2.18*k+(j%2)*.28*k,z+Math.sin(a)*.78*k,.075*k,.075*k,.075*k,j===1?C.warm:C.gold);}
 }
 function world(){
  // broad grassy terrain and layered dirt tracks
@@ -179,6 +185,41 @@ function world(){
  for(let i=0;i<24;i++){let x=((i*17)%31)-15,z=((i*23)%29)-14;if(Math.abs(x)<4.5||Math.abs(z)<3.5)continue;draw(x,.18,z,.08,.36,.08,C.grass3,.18);draw(x+.12,.14,z+.08,.07,.27,.07,C.leaf4,-.24);if(i%3===0)ball(x,.36,z,.10,.10,.10,C.warm);}
  // trees form a soft forest border
  [[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]].forEach((p,i)=>tree(p[0],p[1],.82+(i%4)*.1));
+
+ // A timber market stall with a striped canvas awning, produce and hanging sign.
+ draw(8.7,.78,4.0,3.15,1.45,1.15,C.wood2);
+ for(let sx of [-1,1])for(let sz of [-1,1])post(8.7+sx*1.42,1.35,4+sz*.48,.085,2.65,.085,C.wood3);
+ draw(8.7,2.72,4,3.55,.18,1.55,C.wood3);
+ for(let i=0;i<7;i++){let xx=7.15+i*.52;draw(xx,2.95,4, .49,.16,1.66,i%2?C.roof2:C.cream,0,(i%2?-.035:.035));}
+ draw(8.7,2.55,3.18,3.5,.16,.12,C.gold);
+ // Display baskets and colourful produce.
+ for(let i=0;i<3;i++){let xx=7.75+i*.92;draw(xx,1.62,3.72,.72,.48,.62,i%2?C.wood3:C.wood);for(let j=0;j<4;j++)ball(xx-.23+(j%2)*.30,1.94,3.55+Math.floor(j/2)*.25,.13,.13,.13,[C.warm,C.grass3,C.roof2,C.gold][(i+j)%4]);}
+ draw(8.7,2.1,3.08,1.1,.42,.12,C.wood);draw(8.7,2.1,3.0,.76,.22,.06,C.gold);
+ // Handcart: timber bed, wheels, axle, shafts and cargo sacks.
+ draw(13.3,.72,-1.7,1.75,.28,1.15,C.wood3);
+ draw(13.3,.91,-1.7,1.48,.14,.92,C.wood2);
+ for(let side of [-1,1]){post(13.3+side*.82,.48,-1.7,.12,.9,.12,C.wood3);draw(13.3+side*.82,.92,-1.7,.13,.92,.13,C.wood2);}
+ post(13.3,.52,-1.7,.10,2.25,.10,C.metal,Math.PI/2);
+ for(let side of [-1,1]){draw(13.3+side*.92,.52,-1.7,.82,.82,.18,C.wood,Math.PI/2);ball(13.3+side*.92,.52,-1.7,.42,.42,.14,C.wood3);ball(13.3+side*.92,.52,-1.7,.12,.12,.16,C.metal2);}
+ ball(13.05,1.28,-1.7,.42,.42,.40,C.cream);ball(13.58,1.24,-1.72,.36,.38,.35,C.roof2);
+ // Well rope, pulley and bucket details.
+ post(0,2.04,0,.07,.45,.07,C.wood3);ball(0,2.28,0,.14,.14,.14,C.metal2);
+ post(.48,1.05,.08,.08,.55,.08,C.wood3,.2);draw(.48,.78,.08,.40,.34,.38,C.wood2);draw(.48,.96,.08,.42,.08,.40,C.metal2);
+ // A small signpost and carved directional boards near the road.
+ post(-7,.92,-2.8,.11,1.85,.11,C.wood3);
+ draw(-7,1.48,-2.8,1.55,.38,.16,C.wood2,-.08);draw(-7,1.48,-2.70,1.28,.22,.035,C.gold,-.08);
+ draw(-6.88,1.05,-2.8,1.20,.30,.15,C.wood3,.08);draw(-6.88,1.05,-2.70,.96,.16,.035,C.cream,.08);
+ // Flower planters, stone edging and a few individual flowers around homes.
+ for(let i=0;i<8;i++){let x=-11+(i%4)*1.0,z=-3.8+Math.floor(i/4)*.72;draw(x,.18,z,.68,.32,.42,C.wood3);for(let j=0;j<3;j++){post(x-.20+j*.20,.40,z,.045,.36,.045,C.grass3);ball(x-.20+j*.20,.60+(j%2)*.06,z,.13,.12,.13,j%2?C.warm:C.gold);}}
+ // Stacked cut logs and a chopping block by the smithy.
+ for(let i=0;i<5;i++){post(-5.4+(i%2)*.16,.22+i*.13,9.25+Math.floor(i/2)*.18,.19,.72,.19,C.wood3,(i%3)*.10);}
+ draw(-6.2,.35,8.85,.72,.62,.72,C.bark);draw(-6.2,.68,8.85,.62,.08,.62,C.wood3);
+ // Stone path edging and scattered pebble clusters make the ground less empty.
+ for(let i=0;i<26;i++){let side=i%2?1:-1,z=-18+i*1.35,x=side*(3.45+(i%3)*.18);ball(x,.04,z,.24,.10,.19,i%3?C.stone:C.stone2);}
+ // A small wooden bridge over a decorative stream at the village edge.
+ draw(0,-.02,15.8,5.6,.12,1.65,C.water);
+ for(let i=0;i<7;i++){let x=-2.35+i*.78;draw(x,.18,15.8,.68,.20,1.9,i%2?C.wood3:C.wood2);}
+ for(let side of [-1,1]){draw(0,.62,15.8+side*.82,5.7,.13,.14,C.wood3);for(let i=0;i<6;i++)post(-2.45+i*.98,.42,15.8+side*.82,.07,.65,.07,C.wood2);}
 }
 // Collision map: solid building footprints, the well, fences, lanterns and tree trunks.
 const solidRects=[];
@@ -186,13 +227,15 @@ function addRect(x,z,w,d,pad=.38){solidRects.push({minX:x-w/2-pad,maxX:x+w/2+pad
 // House walls and the blacksmith building.
 houses.forEach(h=>addRect(h[0],h[1],h[2],h[4],.42));
 addRect(-3,6,3.0,2.7,.42);
+// Market stall, handcart and signpost are solid props too.
+addRect(8.7,4.0,3.15,1.15,.38);addRect(13.3,-1.7,1.75,1.15,.35);
 // Well masonry.
 addRect(0,0,1.9,1.9,.42);
 // Garden fences: horizontal and vertical fence runs.
 addRect(-11.85,5.8,6.3,.16,.28);
 addRect(-15,9.1,.16,4.2,.28);
 // Lantern posts.
-const solidCircles=[[-5,-2,.34],[5,-2,.34],[-5,4,.34],[5,4,.34]];
+const solidCircles=[[-5,-2,.34],[5,-2,.34],[-5,4,.34],[5,4,.34],[-7,-2.8,.24]];
 // Forest border: collide with trunks, not the leafy crowns.
 const treePositions=[[-18,-16],[-13,-19],[-7,-20],[1,-20],[9,-19],[16,-15],[19,-8],[20,1],[18,11],[14,19],[5,20],[-5,20],[-14,17],[-19,10],[-20,1],[-19,-8]];
 treePositions.forEach((p,i)=>solidCircles.push([p[0],p[1],.38*(.82+(i%4)*.1)+.30]));
@@ -250,13 +293,23 @@ function player(){
  peak(sx,1.72,sz,.07,.20,.07,C.metal,heading);
  ball(sx,.59,sz,.13,.13,.13,C.gold);
 }
-function resize(){let d=Math.min(devicePixelRatio||1,1.5),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
+function resize(){let d=Math.min(devicePixelRatio||1,1.35),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
 let keys={},joyX=0,joyY=0;addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 const stick=document.getElementById('stick'),knob=document.getElementById('knob');let active=false;function joy(e){let r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=43,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}joyX=dx/max;joyY=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId);joy(e)});stick.addEventListener('pointermove',e=>{if(active)joy(e)});function endJoy(){active=false;joyX=joyY=0;knob.style.transform='translate(0,0)'}stick.addEventListener('pointerup',endJoy);stick.addEventListener('pointercancel',endJoy);
 let last=0,gameClock=9*60; // Starts at 09:00; one full in-game day lasts 180 real seconds.
 function smooth(a,b,x){let t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)}
-function updateDayNight(dt,t){gameClock=(gameClock+dt*8)%1440;const minute=Math.floor(gameClock),hh=String(Math.floor(minute/60)).padStart(2,'0'),mm=String(minute%60).padStart(2,'0');const phase=gameClock/1440;const angle=phase*Math.PI*2-Math.PI/2;const sunHeight=Math.sin(angle);const daylight=smooth(-.18,.22,sunHeight);const dusk=Math.max(0,1-Math.abs(sunHeight)*5)* (sunHeight<.28?1:0);const night=1-daylight;const warm=[1.0,.48,.22],day=[.48,.68,.77],dark=[.025,.045,.095];let sky=dark.map((v,i)=>v*(1-daylight)+day[i]*daylight);sky=sky.map((v,i)=>v*(1-dusk*.42)+warm[i]*dusk*.42);gl.clearColor(sky[0],sky[1],sky[2],1);const lx=Math.cos(angle),ly=Math.max(.08,sunHeight),lz=.35;gl.uniform3f(LIGHTDIR,lx,ly,lz);gl.uniform1f(AMBIENT,.17+daylight*.43);clockLabel.textContent=(night>.62?'☾ Ночь':dusk>.35?'🌇 Закат':'☀ День')+' · '+hh+':'+mm;}
-function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;updateDayNight(dt,t);let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,9,pz+13],target=[px,0.7,pz-1.5];vp=matMul(proj,lookAt(eye,target,[0,1,0]));world();player();status.textContent='Смена дня и ночи · WebGL работает';requestAnimationFrame(frame)}
-status.textContent='Загрузка исправленной 3D-деревни…';requestAnimationFrame(frame);
+function updateDayNight(dt,t){gameClock=(gameClock+dt*8)%1440;const minute=Math.floor(gameClock),hh=String(Math.floor(minute/60)).padStart(2,'0'),mm=String(minute%60).padStart(2,'0');const phase=gameClock/1440;const angle=phase*Math.PI*2-Math.PI/2;const sunHeight=Math.sin(angle);const daylight=smooth(-.18,.22,sunHeight);const dusk=Math.max(0,1-Math.abs(sunHeight)*5)* (sunHeight<.28?1:0);const night=1-daylight;const warm=[1.0,.48,.22],day=[.48,.68,.77],dark=[.025,.045,.095];let sky=dark.map((v,i)=>v*(1-daylight)+day[i]*daylight);sky=sky.map((v,i)=>v*(1-dusk*.42)+warm[i]*dusk*.42);gl.clearColor(sky[0],sky[1],sky[2],1);gl.uniform3f(FOGCOLOR,sky[0],sky[1],sky[2]);gl.uniform1f(FOGAMOUNT,0.25+night*.22);const lx=Math.cos(angle),ly=Math.max(.08,sunHeight),lz=.35;gl.uniform3f(LIGHTDIR,lx,ly,lz);gl.uniform1f(AMBIENT,.17+daylight*.43);clockLabel.textContent=(night>.62?'☾ Ночь':dusk>.35?'🌇 Закат':'☀ День')+' · '+hh+':'+mm;}
+
+function skyDecor(t){
+ const phase=gameClock/1440,ang=phase*Math.PI*2-Math.PI/2;
+ const sunY=8+Math.sin(ang)*7, sunX=px+Math.cos(ang)*17, sunZ=pz-29;
+ const daylight=Math.max(0,Math.min(1,(Math.sin(ang)+.18)/.40));
+ if(daylight>.03){ball(sunX,sunY,sunZ,1.05,1.05,1.05,[1,.78,.35]);ball(sunX,sunY,sunZ,1.38,1.38,1.38,[1,.86,.54]);}
+ if(daylight<.82){let mx=px-Math.cos(ang)*14,my=9-Math.sin(ang)*5,mz=pz-27;ball(mx,my,mz,.72,.72,.72,[.76,.83,.94]);ball(mx+.25,my+.12,mz+.08,.62,.64,.62,[.035,.055,.10]);
+  for(let i=0;i<18;i++){let sx=px+Math.sin(i*12.989)*18,sy=9+Math.cos(i*7.31)*5,sz=pz-30-(i%4)*.3;ball(sx,sy,sz,.045,.045,.045,[.78,.84,1]);}}
+}
+
+function frame(t){resize();let dt=Math.min((t-last)/1000||0,.04);last=t;updateDayNight(dt,t);let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joyX,y=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joyY;let l=Math.hypot(x,y);if(l>.12){x/=Math.max(1,l);y/=Math.max(1,l);moveWithCollision(x*5*dt,y*5*dt);heading=Math.atan2(x,y)}px=Math.max(-20,Math.min(20,px));pz=Math.max(-20,Math.min(20,pz));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let aspect=canvas.width/canvas.height;let proj=perspective(Math.PI/3,aspect,.1,120);let eye=[px,10.5,pz+15],target=[px,0.85,pz-1.8];vp=matMul(proj,lookAt(eye,target,[0,1,0]));gl.uniform3f(CAMERAPOS,eye[0],eye[1],eye[2]);world();skyDecor(t);player();status.textContent='Живой мир · смена дня и ночи';requestAnimationFrame(frame)}
+status.textContent='Создание мира Экетории…';requestAnimationFrame(frame);
 })();
 </script></body></html>
